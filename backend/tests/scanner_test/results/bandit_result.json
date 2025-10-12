@@ -1,0 +1,139 @@
+{
+  "scanner": "bandit",
+  "scan_time": "2025-10-12T09:46:04Z",
+  "total_issues": 12,
+  "vulnerabilities": [
+    {
+      "scanner": "bandit",
+      "rule_id": "B403",
+      "severity": "low",
+      "cwe": 502,
+      "line_start": 7,
+      "line_end": 7,
+      "code_snippet": "6 import os\n7 import pickle\n8 import hashlib",
+      "description": "Consider possible security implications associated with pickle module.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B404",
+      "severity": "low",
+      "cwe": 78,
+      "line_start": 9,
+      "line_end": 9,
+      "code_snippet": "8 import hashlib\n9 import subprocess\n10",
+      "description": "Consider possible security implications associated with the subprocess module.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B608",
+      "severity": "medium",
+      "cwe": 89,
+      "line_start": 16,
+      "line_end": 16,
+      "code_snippet": "15     # 취약: 사용자 입력을 직접 쿼리에 포함\n16     query = \"SELECT * FROM users WHERE username = '\" + username + \"'\"\n17     cursor.execute(query)",
+      "description": "Possible SQL injection vector through string-based query construction.",
+      "confidence": "low"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B105",
+      "severity": "low",
+      "cwe": 259,
+      "line_start": 21,
+      "line_end": 21,
+      "code_snippet": "20 # CWE-798: Hard-coded Credentials\n21 PASSWORD = \"admin123\"\n22 API_KEY = \"sk-1234567890abcdef\"",
+      "description": "Possible hardcoded password: 'admin123'",
+      "confidence": "medium"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B105",
+      "severity": "low",
+      "cwe": 259,
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "22 API_KEY = \"sk-1234567890abcdef\"\n23 DB_PASSWORD = \"password123\"\n24",
+      "description": "Possible hardcoded password: 'password123'",
+      "confidence": "medium"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B605",
+      "severity": "high",
+      "cwe": 78,
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "27     # 취약: 사용자 입력을 직접 시스템 명령어에 포함\n28     os.system(\"ls \" + user_input)\n29",
+      "description": "Starting a process with a shell, possible injection detected, security issue.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B602",
+      "severity": "high",
+      "cwe": 78,
+      "line_start": 32,
+      "line_end": 32,
+      "code_snippet": "31     # 취약: shell=True 사용\n32     subprocess.call(command, shell=True)\n33",
+      "description": "subprocess call with shell=True identified, security issue.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B301",
+      "severity": "medium",
+      "cwe": 502,
+      "line_start": 37,
+      "line_end": 37,
+      "code_snippet": "36     # 취약: pickle.loads 사용\n37     return pickle.loads(data)\n38",
+      "description": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B324",
+      "severity": "high",
+      "cwe": 327,
+      "line_start": 42,
+      "line_end": 42,
+      "code_snippet": "41     # 취약: MD5 사용\n42     return hashlib.md5(password.encode()).hexdigest()\n43",
+      "description": "Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B324",
+      "severity": "high",
+      "cwe": 327,
+      "line_start": 46,
+      "line_end": 46,
+      "code_snippet": "45     # 취약: SHA1 사용\n46     return hashlib.sha1(data.encode()).hexdigest()\n47",
+      "description": "Use of weak SHA1 hash for security. Consider usedforsecurity=False",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B307",
+      "severity": "medium",
+      "cwe": 78,
+      "line_start": 51,
+      "line_end": 51,
+      "code_snippet": "50     # 취약: eval 사용\n51     return eval(expr)\n52",
+      "description": "Use of possibly insecure function - consider using safer ast.literal_eval.",
+      "confidence": "high"
+    },
+    {
+      "scanner": "bandit",
+      "rule_id": "B306",
+      "severity": "medium",
+      "cwe": 377,
+      "line_start": 63,
+      "line_end": 63,
+      "code_snippet": "62     # 취약: mktemp 사용\n63     return tempfile.mktemp()",
+      "description": "Use of insecure and deprecated function (mktemp).",
+      "confidence": "high"
+    }
+  ]
+}

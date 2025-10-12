@@ -1,0 +1,53 @@
+version: '3.8'
+
+# 공유 볼륨 정의
+volumes:
+  scanner_source:
+  scanner_results:
+
+services:
+  # Python 스캐너
+  bandit:
+    build: ./scanners/bandit
+    image: custom/bandit:latest
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["python"]
+
+  dlint:
+    build: ./scanners/dlint
+    image: custom/dlint:latest
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["python"]
+
+  semgrep:
+    image: returntocorp/semgrep:latest
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["both"]
+    command: ["scan", "/source", "--json", "-o", "/results/semgrep_result.json"]
+
+  codeql:
+    image: ghcr.io/github/codeql-cli:latest
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["both"]
+
+  horusec:
+    image: horuszup/horusec-cli:latest
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["java"]
+
+  spotbugs:
+    image: spotbugs/spotbugs:4.8
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["java"]

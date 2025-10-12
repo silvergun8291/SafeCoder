@@ -1,0 +1,84 @@
+{
+  "scanner": "dlint",
+  "scan_time": "2025-10-12T09:46:05.913369",
+  "total_issues": 7,
+  "vulnerabilities": [
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO106",
+      "severity": "high",
+      "cwe": "",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "",
+      "description": "insecure use of \"os\" module",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO116",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 32,
+      "line_end": 32,
+      "code_snippet": "",
+      "description": "use of \"shell=True\" is insecure in \"subprocess\" module",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO103",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 37,
+      "line_end": 37,
+      "code_snippet": "",
+      "description": "insecure use of \"pickle\" or \"cPickle\"",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO130",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 42,
+      "line_end": 42,
+      "code_snippet": "",
+      "description": "insecure use of \"hashlib\" module",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO130",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 46,
+      "line_end": 46,
+      "code_snippet": "",
+      "description": "insecure use of \"hashlib\" module",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO104",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 51,
+      "line_end": 51,
+      "code_snippet": "",
+      "description": "use of \"eval\" is insecure",
+      "confidence": "high"
+    },
+    {
+      "scanner": "dlint",
+      "rule_id": "DUO121",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 63,
+      "line_end": 63,
+      "code_snippet": "",
+      "description": "use of \"tempfile.mktemp\" allows for race conditions",
+      "confidence": "high"
+    }
+  ]
+}
