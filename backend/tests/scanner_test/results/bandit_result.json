@@ -1,6 +1,6 @@
 {
   "scanner": "bandit",
-  "scan_time": "2025-10-12T09:46:04Z",
+  "scan_time": "2025-10-12T15:37:41Z",
   "total_issues": 12,
   "vulnerabilities": [
     {

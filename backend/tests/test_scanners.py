@@ -27,7 +27,11 @@ def docker_client():
     print("\n=== Docker 리소스 정리 ===")
     try:
         # 사용한 이미지 목록
-        images_to_remove = ["custom/bandit:latest", "custom/dlint:latest"]
+        images_to_remove = [
+            "custom/bandit:latest",
+            "custom/dlint:latest",
+            "custom/spotbugs:latest"
+        ]
 
         for image_name in images_to_remove:
             try:
@@ -63,6 +67,11 @@ def build_images(docker_client):
     print(f"Dlint 빌드: {dlint_path}")
     docker_client.images.build(path=dlint_path, tag="custom/dlint:latest", rm=True)
 
+    # SpotBugs 빌드
+    spotbugs_path = str(BACKEND_DIR / "scanners" / "spotbugs")
+    print(f"SpotBugs 빌드: {spotbugs_path}")
+    docker_client.images.build(path=spotbugs_path, tag="custom/spotbugs:latest", rm=True)
+
     yield
 
     print("\n=== 이미지 빌드 정리 완료 ===")
@@ -94,7 +103,6 @@ def test_bandit_scanner(docker_client, build_images, cleanup_results):
     print("\n[Bandit] 스캔 시작...")
     start_time = time.time()
 
-    container = None
     try:
         # 컨테이너 실행
         output = docker_client.containers.run(
@@ -142,14 +150,6 @@ def test_bandit_scanner(docker_client, build_images, cleanup_results):
         print(f"[Bandit] ✗ 컨테이너 실행 오류: {e}")
         raise
 
-    finally:
-        # 혹시 남은 컨테이너 정리 (remove=True로 이미 삭제되지만 안전장치)
-        try:
-            if container:
-                container.remove(force=True)
-        except:
-            pass
-
 
 def test_dlint_scanner(docker_client, build_images, cleanup_results):
     """Dlint 스캐너 테스트"""
@@ -162,7 +162,6 @@ def test_dlint_scanner(docker_client, build_images, cleanup_results):
     print("\n[Dlint] 스캔 시작...")
     start_time = time.time()
 
-    container = None
     try:
         # 컨테이너 실행
         output = docker_client.containers.run(
@@ -203,13 +202,55 @@ def test_dlint_scanner(docker_client, build_images, cleanup_results):
         print(f"[Dlint] ✗ 컨테이너 실행 오류: {e}")
         raise
 
-    finally:
-        # 혹시 남은 컨테이너 정리
-        try:
-            if container:
-                container.remove(force=True)
-        except:
-            pass
+
+def test_spotbugs_scanner(docker_client, build_images):
+    """SpotBugs 스캐너 테스트 (Java)"""
+    result_file = RESULTS_DIR / "spotbugs_result.json"
+
+    if result_file.exists():
+        result_file.unlink()
+
+    print("\n[SpotBugs] 스캔 시작...")
+    start_time = time.time()
+
+    try:
+        output = docker_client.containers.run(
+            image="custom/spotbugs:latest",
+            command=["/source", "/results/spotbugs_result.json"],
+            volumes={
+                str(SOURCE_DIR): {'bind': '/source', 'mode': 'ro'},
+                str(RESULTS_DIR): {'bind': '/results', 'mode': 'rw'}
+            },
+            remove=True,
+            stdout=True,
+            stderr=True
+        )
+
+        elapsed = time.time() - start_time
+        print(f"[SpotBugs] 실행 시간: {elapsed:.2f}초")
+        print(f"[SpotBugs] 출력: {output.decode('utf-8')}")
+
+        assert result_file.exists(), "SpotBugs 결과 파일이 생성되지 않음"
+
+        with open(result_file, 'r', encoding='utf-8') as f:
+            result = json.load(f)
+
+        assert 'scanner' in result
+        assert result['scanner'] == 'spotbugs'
+        assert 'total_issues' in result
+        assert 'vulnerabilities' in result
+        assert isinstance(result['vulnerabilities'], list)
+
+        print(f"[SpotBugs] ✓ 테스트 통과: {result['total_issues']}개 취약점 발견")
+
+        for vuln in result['vulnerabilities'][:3]:
+            print(f"  - {vuln['rule_id']}: Line {vuln['line_start']} - {vuln['description'][:60]}...")
+
+        assert elapsed < 300, f"SpotBugs 실행 시간 초과: {elapsed:.2f}초"
+
+    except docker.errors.ContainerError as e:
+        print(f"[SpotBugs] ✗ 컨테이너 실행 오류: {e}")
+        raise
 
 
 def test_empty_source(docker_client, build_images, cleanup_results):

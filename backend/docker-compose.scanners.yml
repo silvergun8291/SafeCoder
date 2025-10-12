@@ -6,7 +6,6 @@ volumes:
   scanner_results:
 
 services:
-  # Python 스캐너
   bandit:
     build: ./scanners/bandit
     image: custom/bandit:latest
@@ -29,10 +28,10 @@ services:
       - scanner_source:/source:ro
       - scanner_results:/results
     profiles: ["both"]
-    command: ["scan", "/source", "--json", "-o", "/results/semgrep_result.json"]
+    command: ["scan", "--config=auto", "/source", "--json", "-o", "/results/semgrep_result.json"]
 
   codeql:
-    image: ghcr.io/github/codeql-cli:latest
+    image: mcr.microsoft.com/cstsectools/codeql-container:latest
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
@@ -46,8 +45,16 @@ services:
     profiles: ["java"]
 
   spotbugs:
-    image: spotbugs/spotbugs:4.8
+    build: ./scanners/spotbugs
+    image: custom/spotbugs:latest
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
     profiles: ["java"]
+
+  joern:
+    image: ghcr.io/joernio/joern:nightly
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    profiles: ["cpg"]
