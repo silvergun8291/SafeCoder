@@ -195,6 +195,7 @@ try:
             code_snippet = parse_jvm_signature(full_sig)
 
         vulnerabilities.append({
+            'scanner': 'spotbugs',
             'rule_id': type_code,
             'category': category,
             'severity': severity,

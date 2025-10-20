@@ -4,7 +4,10 @@
       <w>codeql</w>
       <w>cstsectools</w>
       <w>horusec</w>
+      <w>horuszup</w>
       <w>joern</w>
+      <w>returntocorp</w>
+      <w>testpaths</w>
     </words>
   </dictionary>
 </component>
