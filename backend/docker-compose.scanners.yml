@@ -1,60 +1,145 @@
 version: '3.8'
 
+# =============================================================================
+# 시큐어 코딩 스캐너 Docker Compose 설정
+# 최종 수정: 2025-10-26
+# =============================================================================
+
 # 공유 볼륨 정의
 volumes:
   scanner_source:
+    driver: local
   scanner_results:
+    driver: local
 
 services:
+  # ===========================================================================
+  # Python 스캐너
+  # ===========================================================================
+
   bandit:
-    build: ./scanners/bandit
+    build:
+      context: ./scanners/bandit
+      dockerfile: Dockerfile
     image: custom/bandit:latest
+    container_name: scanner-bandit
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
-    profiles: ["python"]
+    networks:
+      - scanner-network
+    profiles: ["python", "all"]
+    restart: "no"
 
   dlint:
-    build: ./scanners/dlint
+    build:
+      context: ./scanners/dlint
+      dockerfile: Dockerfile
     image: custom/dlint:latest
+    container_name: scanner-dlint
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
-    profiles: ["python"]
+    networks:
+      - scanner-network
+    profiles: ["python", "all"]
+    restart: "no"
 
-  semgrep:
-    image: returntocorp/semgrep:latest
-    volumes:
-      - scanner_source:/source:ro
-      - scanner_results:/results
-    profiles: ["both"]
-    command: ["scan", "--config=auto", "/source", "--json", "-o", "/results/semgrep_result.json"]
-
-  codeql:
-    image: mcr.microsoft.com/cstsectools/codeql-container:latest
-    volumes:
-      - scanner_source:/source:ro
-      - scanner_results:/results
-    profiles: ["both"]
+  # ===========================================================================
+  # Java 스캐너
+  # ===========================================================================
 
   horusec:
-    image: horuszup/horusec-cli:latest
+    build:
+      context: ./scanners/horusec
+      dockerfile: Dockerfile
+    image: custom/horusec:latest
+    container_name: scanner-horusec
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
-    profiles: ["java"]
+    networks:
+      - scanner-network
+    profiles: ["java", "all"]
+    restart: "no"
 
   spotbugs:
-    build: ./scanners/spotbugs
+    build:
+      context: ./scanners/spotbugs
+      dockerfile: Dockerfile
     image: custom/spotbugs:latest
+    container_name: scanner-spotbugs
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
-    profiles: ["java"]
+    networks:
+      - scanner-network
+    profiles: ["java", "all"]
+    restart: "no"
+
+  # ===========================================================================
+  # 다중 언어 스캐너 (Python + Java)
+  # ===========================================================================
+
+  semgrep:
+    build:
+      context: ./scanners/semgrep
+      dockerfile: Dockerfile
+    image: custom/semgrep:latest
+    container_name: scanner-semgrep
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    networks:
+      - scanner-network
+    profiles: ["python", "java", "all"]
+    restart: "no"
+
+  codeql:
+    build:
+      context: ./scanners/codeql
+      dockerfile: Dockerfile
+    image: custom/codeql:latest
+    container_name: scanner-codeql
+    volumes:
+      - scanner_source:/source:ro
+      - scanner_results:/results
+    networks:
+      - scanner-network
+    profiles: ["python", "java", "all"]
+    restart: "no"
+    # CodeQL은 메모리를 많이 사용하므로 리소스 제한 설정
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # ===========================================================================
+  # CPG 분석 (추후 구현)
+  # ===========================================================================
 
   joern:
-    image: ghcr.io/joernio/joern:nightly
+    image: ghcr.io/joernio/joern:latest
+    container_name: scanner-joern
     volumes:
       - scanner_source:/source:ro
       - scanner_results:/results
+    networks:
+      - scanner-network
     profiles: ["cpg"]
+    restart: "no"
+    # Joern은 많은 리소스 필요
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+# 네트워크 설정
+networks:
+  scanner-network:
+    driver: bridge
+    name: safecoder-scanner-network
