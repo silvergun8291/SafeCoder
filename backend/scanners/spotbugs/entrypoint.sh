@@ -168,7 +168,6 @@ try:
         # Class의 SourceLine (파일 경로용)
         class_elem = bug_instance.find('.//Class')
         class_source_line = class_elem.find('./SourceLine') if class_elem is not None else None
-        file_path = class_source_line.get('sourcepath', '') if class_source_line is not None else ''
         line_start = int(class_source_line.get('start', '0')) if class_source_line is not None else 0
         line_end = int(class_source_line.get('end', '0')) if class_source_line is not None else 0
 
@@ -197,11 +196,8 @@ try:
         vulnerabilities.append({
             'scanner': 'spotbugs',
             'rule_id': type_code,
-            'category': category,
             'severity': severity,
-            'confidence': 'HIGH',
             'description': description,
-            'file_path': file_path,
             'line_start': line_start,
             'line_end': line_end,
             'code_snippet': code_snippet

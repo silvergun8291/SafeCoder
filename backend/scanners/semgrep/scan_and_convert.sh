@@ -85,11 +85,11 @@ try:
             "rule_id": finding.get('check_id', 'UNKNOWN'),
             "severity": severity,
             "cwe": cwe,
+            "file_path": file_path,
             "line_start": start_line,
             "line_end": end_line,
             "code_snippet": code_snippet,
             "description": extra.get('message', ''),
-            "confidence": "high"
         }
         vulnerabilities.append(vuln)
 

@@ -25,7 +25,7 @@ RUN mkdir -p /opt/spotbugs/plugin && \
 
 # entrypoint 스크립트 복사 및 실행 권한 부여
 COPY entrypoint.sh /opt/entrypoint.sh
-RUN chmod +x /opt/scan_and_convert.sh
+RUN chmod +x /opt/entrypoint.sh
 
 # 환경 변수 설정
 ENV PATH="/opt/spotbugs/bin:${PATH}"

@@ -35,11 +35,11 @@ try:
             "rule_id": result.get('test_id', 'UNKNOWN'),
             "severity": result.get('issue_severity', 'MEDIUM').lower(),
             "cwe": result.get('issue_cwe', {}).get('id', '') if isinstance(result.get('issue_cwe'), dict) else '',
+            "file_path": result.get('filename', ''),
             "line_start": result.get('line_number', 0),
             "line_end": result.get('line_number', 0),
             "code_snippet": result.get('code', '').strip(),
             "description": result.get('issue_text', ''),
-            "confidence": result.get('issue_confidence', 'HIGH').lower()
         }
 
         severity_map = {'HIGH': 'high', 'MEDIUM': 'medium', 'LOW': 'low'}

@@ -51,11 +51,11 @@ try:
                         "rule_id": code,
                         "severity": severity,
                         "cwe": "",
+                        "file_path": filepath,
                         "line_start": int(line_num),
                         "line_end": int(line_num),
                         "code_snippet": "",
                         "description": message,
-                        "confidence": "high"
                     }
 
                     vulnerabilities.append(vuln)

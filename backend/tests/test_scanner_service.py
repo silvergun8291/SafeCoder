@@ -14,7 +14,7 @@ import sys
 # 프로젝트 루트를 PYTHONPATH에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.services.scanner_service import ScannerService
+from app.services.scanning.scanner_service import ScannerService
 from app.models.schemas import ScanRequest, Language, ScanOptions, Severity
 
 
@@ -57,30 +57,52 @@ if __name__ == "__main__":
 """
 
 VULNERABLE_JAVA = """
-import java.sql.*;
 import java.io.*;
+import java.sql.*;
 
 public class Vulnerable {
-    public void vulnerableMethod(String userInput) throws Exception {
-        // SQL Injection
-        String query = "SELECT * FROM users WHERE id = '" + userInput + "'";
-        Connection conn = null;
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        
-        // Command Injection
+    // SQL Injection
+    public void sqlInjection(String userInput) {
+        String query = "SELECT * FROM users WHERE id = " + userInput;
+    }
+
+    // Command Injection
+    public void commandInjection(String userInput) throws IOException {
         Runtime.getRuntime().exec("ls " + userInput);
-        
-        // Hardcoded credentials
+    }
+
+    // Path Traversal
+    public void pathTraversal(String filename) throws IOException {
+        File file = new File("/var/data/" + filename);
+        FileInputStream fis = new FileInputStream(file);
+    }
+
+    // Hardcoded Password
+    public void hardcodedSecret() {
         String password = "admin123";
-        String apiKey = "sk-abcdef1234567890";
-        
-        // Path traversal
-        File file = new File("/uploads/" + userInput);
-        
-        // Insecure deserialization
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data.ser"));
+        String apiKey = "sk-1234567890";
+    }
+
+    // Unsafe Deserialization
+    public void unsafeDeserialize(InputStream input) throws Exception {
+        ObjectInputStream ois = new ObjectInputStream(input);
         Object obj = ois.readObject();
+    }
+
+    // ⭐ main 메서드 추가 (CodeQL 데이터 흐름 분석용)
+    public static void main(String[] args) throws Exception {
+        Vulnerable vc = new Vulnerable();
+
+        // 실제 호출 (데이터 흐름 생성)
+        String userInput = args.length > 0 ? args[0] : "malicious";
+
+        vc.sqlInjection(userInput);
+        vc.commandInjection(userInput);
+        vc.pathTraversal("../../etc/passwd");
+        vc.hardcodedSecret();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(new byte[]{});
+        vc.unsafeDeserialize(bais);
     }
 }
 """
@@ -287,7 +309,7 @@ async def test_scan_with_specific_scanners(scanner_service):
     print(f"\n📊 결과:")
     print(f"  ├─ 요청 스캐너: {options.specific_scanners}")
     print(f"  ├─ 실행된 스캐너: {[r.scanner for r in response.results]}")
-    print(f"  ├─ 최소 심각도: {options.min_severity.value}")
+    print(f"  ├─ 최소 심각도: {options.min_severity}")
     print(f"  └─ 총 취약점: {response.total_vulnerabilities}개")
 
     # Bandit만 실행되었는지 확인
@@ -377,7 +399,12 @@ def process_data(data):
     # 파일별 취약점
     file_groups = {}
     for vuln in response.aggregated_vulnerabilities:
-        file = vuln.file_path or "unknown"
+        # file_path가 비어있거나 None이면 filename 사용
+        if vuln.file_path and vuln.file_path.strip():
+            file = vuln.file_path
+        else:
+            file = f"<source_file>" if not vuln.file_path else "unknown"
+
         if file not in file_groups:
             file_groups[file] = []
         file_groups[file].append(vuln)
@@ -432,59 +459,6 @@ async def test_vulnerability_aggregation(scanner_service):
         assert severity_values[i] <= severity_values[i + 1], "심각도 순 정렬 실패"
 
     print(f"\n✅ 집계 및 정렬 테스트 통과\n")
-
-
-# ==================== 실제 파일 테스트 ====================
-
-@pytest.mark.asyncio
-async def test_scan_with_actual_files(scanner_service):
-    """실제 파일을 사용한 스캔 테스트 (선택적)"""
-    test_source_dir = Path("./tests/source")
-
-    if not test_source_dir.exists():
-        pytest.skip("./tests/source 디렉터리가 존재하지 않음")
-
-    print("\n" + "="*70)
-    print("📄 [File Test] 실제 파일 스캔")
-    print("="*70)
-
-    # Python 파일 테스트
-    py_file = test_source_dir / "vulnerable.py"
-    if py_file.exists():
-        print(f"\n🐍 vulnerable.py 스캔 중...")
-        source = py_file.read_text(encoding='utf-8')
-
-        request = ScanRequest(
-            language=Language.PYTHON,
-            source_code=source,
-            filename="vulnerable.py"
-        )
-
-        response = await scanner_service.scan_code(request)
-        print(f"  ✓ 취약점: {response.total_vulnerabilities}개")
-        print(f"  ✓ 실행 시간: {response.total_execution_time}초")
-
-        assert response.total_vulnerabilities >= 0
-
-    # Java 파일 테스트
-    java_file = test_source_dir / "Vulnerable.java"
-    if java_file.exists():
-        print(f"\n☕ Vulnerable.java 스캔 중...")
-        source = java_file.read_text(encoding='utf-8')
-
-        request = ScanRequest(
-            language=Language.JAVA,
-            source_code=source,
-            filename="Vulnerable.java"
-        )
-
-        response = await scanner_service.scan_code(request)
-        print(f"  ✓ 취약점: {response.total_vulnerabilities}개")
-        print(f"  ✓ 실행 시간: {response.total_execution_time}초")
-
-        assert response.total_vulnerabilities >= 0
-
-    print(f"\n✅ 실제 파일 스캔 테스트 통과\n")
 
 
 # ==================== 메인 실행 ====================

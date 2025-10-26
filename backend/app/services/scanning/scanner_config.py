@@ -45,7 +45,7 @@ class ScannerConfig:
                 "image": "custom/codeql:latest",
                 "build_path": str(SCANNER_DIR / "codeql"),
                 "output_file": "codeql_result.json",
-                "timeout": 300,  # 5분
+                "timeout": 300,
                 "command": ["/source", "/results/codeql_result.json", "python"]
             }
         ],
@@ -56,12 +56,7 @@ class ScannerConfig:
                 "build_path": str(SCANNER_DIR / "horusec"),
                 "output_file": "horusec_result.json",
                 "timeout": 180,  # 3분
-                "command": [
-                    "horusec", "start",
-                    "-p", "/source",
-                    "-o", "json",
-                    "-O", "/results/horusec_result.json"
-                ]
+                "command": ["/source", "/results/horusec_result.json"]
             },
             {
                 "name": "spotbugs",

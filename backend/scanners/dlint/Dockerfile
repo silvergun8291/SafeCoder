@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir \
     flake8==7.1.1
 
 COPY entrypoint.sh /scanner/entrypoint.sh
-RUN chmod +x /scanner/scan_and_convert.sh
+RUN chmod +x /scanner/entrypoint.sh
 
 RUN mkdir -p /results
 

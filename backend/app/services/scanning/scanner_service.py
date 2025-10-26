@@ -11,7 +11,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 from collections import Counter
 
-from app.services.scanner_config import ScannerConfig
+from app.services.scanning.scanner_config import ScannerConfig
 from app.models.schemas import (
     Language, ScanRequest, ScanResponse, ScannerResult,
     VulnerabilityInfo, Severity, ScanStatus, ScanOptions
@@ -126,6 +126,7 @@ class ScannerService:
                 total_execution_time=round(total_time, 2)
             )
 
+
     async def _run_scanner(
             self,
             scanner_config: Dict[str, str],
@@ -177,7 +178,7 @@ class ScannerService:
                 image=image,
                 command=command,
                 volumes={
-                    str(source_dir): {'bind': '/source', 'mode': 'ro'},
+                    str(source_dir): {'bind': '/source', 'mode': 'rw'},
                     str(results_dir): {'bind': '/results', 'mode': 'rw'}
                 },
                 detach=True,
@@ -189,7 +190,8 @@ class ScannerService:
             exit_code = result.get('StatusCode', -1)
 
             # 로그 가져오기
-            logs = container.logs().decode('utf-8', errors='ignore')
+            # ⭐ 로그 가져와서 출력 (stdout과 stderr 모두)
+            logs = container.logs(stdout=True, stderr=True).decode('utf-8', errors='ignore')
 
             # 컨테이너 삭제
             container.remove()
@@ -346,7 +348,7 @@ class ScannerService:
 
         Args:
             results: 스캐너 결과 리스트
-            min_severity: 최소 심각도 필터
+            min_severity: 최소 심각도 필터 (Severity Enum 또는 문자열)
 
         Returns:
             중복 제거된 취약점 리스트 (심각도 순 정렬)
@@ -356,18 +358,26 @@ class ScannerService:
 
         # 심각도 우선순위
         severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
-        min_severity_level = severity_order.get(min_severity.value, 3)
+
+        # ⭐ 타입 안전 처리: Enum 또는 문자열 모두 지원
+        if isinstance(min_severity, str):
+            min_severity_value = min_severity.lower()
+        else:
+            min_severity_value = min_severity.value
+
+        # ✅ 수정: min_severity_value를 사용 (기존: min_severity.value)
+        min_severity_level = severity_order.get(min_severity_value, 3)
 
         for result in results:
             for vuln in result.vulnerabilities:
                 # 최소 심각도 필터링
                 vuln_severity_level = severity_order.get(vuln.severity.value, 3)
+
                 if vuln_severity_level > min_severity_level:
                     continue
 
                 # 중복 체크 키 생성
                 key = f"{vuln.rule_id}:{vuln.line_start}:{vuln.file_path}"
-
                 if key not in seen:
                     seen.add(key)
                     all_vulns.append(vuln)
