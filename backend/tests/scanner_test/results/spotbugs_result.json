@@ -1,16 +1,13 @@
 {
   "scanner": "spotbugs",
-  "scan_time": "2025-10-18T10:06:49.360460",
+  "scan_time": "2025-10-30T06:39:07.698109",
   "total_issues": 7,
   "vulnerabilities": [
     {
       "scanner": "spotbugs",
       "rule_id": "COMMAND_INJECTION",
-      "category": "SECURITY",
       "severity": "MEDIUM",
-      "confidence": "HIGH",
       "description": "COMMAND_INJECTION",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.executeCommand(String, ), void)"
@@ -18,11 +15,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "OBJECT_DESERIALIZATION",
-      "category": "SECURITY",
       "severity": "HIGH",
-      "confidence": "HIGH",
       "description": "OBJECT_DESERIALIZATION",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.deserialize(byte[], ), Object)"
@@ -30,11 +24,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "PATH_TRAVERSAL_IN",
-      "category": "SECURITY",
       "severity": "MEDIUM",
-      "confidence": "HIGH",
       "description": "PATH_TRAVERSAL_IN",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.readFile(String, ), String)"
@@ -42,11 +33,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "PREDICTABLE_RANDOM",
-      "category": "SECURITY",
       "severity": "MEDIUM",
-      "confidence": "HIGH",
       "description": "PREDICTABLE_RANDOM",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.generateToken(), int)"
@@ -54,11 +42,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "SQL_INJECTION_JDBC",
-      "category": "SECURITY",
       "severity": "MEDIUM",
-      "confidence": "HIGH",
       "description": "SQL_INJECTION_JDBC",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.getUser(String, ), User)"
@@ -66,11 +51,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-      "category": "SECURITY",
       "severity": "HIGH",
-      "confidence": "HIGH",
       "description": "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.getUser(String, ), User)"
@@ -78,11 +60,8 @@
     {
       "scanner": "spotbugs",
       "rule_id": "WEAK_MESSAGE_DIGEST_MD5",
-      "category": "SECURITY",
       "severity": "HIGH",
-      "confidence": "HIGH",
       "description": "WEAK_MESSAGE_DIGEST_MD5",
-      "file_path": "Vulnerable.java",
       "line_start": 5,
       "line_end": 53,
       "code_snippet": "Vulnerable.hashPassword(String, ), String)"
