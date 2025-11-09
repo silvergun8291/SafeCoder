@@ -29,7 +29,7 @@ CODE_COLLECTION_NAME = "secure_coding_knowledge_qdrant"
 CODE_EMBEDDING_MODEL = "sentence-transformers/multi-qa-distilbert-cos-v1"
 CODE_VECTOR_DIMENSION = 768
 CODE_RAW_DATA_PATH = DATA_ROOT / "raw" / "code"
-CODE_EMBEDDINGS_CSV = DATA_ROOT / "processed" / "secure_coding_embeddings_ver2.csv"
+CODE_EMBEDDINGS_CSV = DATA_ROOT / "processed" / "secure_coding_embeddings_ver3.csv"
 
 # ==================== Text RAG 설정 ====================
 TEXT_COLLECTION_NAME = "text_db"
