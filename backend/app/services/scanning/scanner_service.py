@@ -523,7 +523,23 @@ class ScannerService:
                 - Provide complete, production-ready secure code
                 - Add inline comments explaining security measures
                 - Include error handling and edge case validation
-                - Ensure backward compatibility where possible"""
+                - Ensure backward compatibility where possible
+
+                **Strict Non-Regression & Compliance Rules**:
+                - NEVER introduce hard-coded credentials, tokens, keys, or endpoints. No placeholders like "password" or "changeme".
+                - Do NOT use unsafe dynamic execution or shell invocation. Prefer safe, high-level standard APIs.
+                - When invoking external executables, use absolute paths and argument arrays; do not rely on PATH lookup or join string commands.
+                - Validate and allowlist all external inputs (commands, paths, parameters). Reject on mismatch.
+                - Follow OWASP/CWE and strictly comply with retrieved guidelines. Priority: KISA > OWASP > Code Examples.
+                - Preserve functionality; use secure defaults; add robust error handling; avoid logging sensitive data.
+
+                **Verification Checklist (must be satisfied in the final answer)**:
+                - [ ] No hard-coded secrets introduced
+                - [ ] No unsafe dynamic execution or shell-based calls
+                - [ ] External executables use absolute paths and argument arrays (no PATH lookup)
+                - [ ] Inputs validated and allowlisted
+                - [ ] Secure defaults and proper error handling
+                - [ ] OWASP/CWE + retrieved guidance applied"""
 
     @staticmethod
     def _generate_cot_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
@@ -551,7 +567,7 @@ class ScannerService:
                 
                 **Step 4: Implement the Fix**
                 - Apply secure coding patterns
-                - Use framework-specific security features
+                - Use appropriate, safe, high-level APIs
                 - Add proper validation and sanitization
                 
                 **Step 5: Verify No New Issues**
@@ -562,6 +578,22 @@ class ScannerService:
                 **Vulnerabilities to Address**:
                 {ScannerService._format_cwe_summary(cwe_groups)}
                 
+                **Strict Non-Regression & Compliance Rules**:
+                - NEVER introduce hard-coded credentials, tokens, keys, or endpoints.
+                - Avoid unsafe dynamic execution; prefer safe standard APIs.
+                - External executables must use absolute paths and argument arrays only; never rely on PATH or string-concatenated commands.
+                - Validate and allowlist all external inputs.
+                - Follow OWASP/CWE and retrieved guidance with priority KISA > OWASP > Code Examples.
+                - Preserve functionality; secure defaults; robust error handling.
+
+                **Verification Checklist**:
+                - [ ] No hard-coded secrets
+                - [ ] No unsafe dynamic execution
+                - [ ] External executables use absolute paths and argument arrays
+                - [ ] Inputs validated/allowlisted
+                - [ ] Secure defaults + error handling
+                - [ ] Guidance applied
+
                 For each fix, explain your reasoning at each step."""
 
     @staticmethod
@@ -595,7 +627,23 @@ class ScannerService:
                 **Output Format**:
                 1. Initial secure code
                 2. Self-criticism analysis
-                3. Improved final code with explanations"""
+                3. Improved final code with explanations
+
+                **Strict Non-Regression & Compliance Rules**:
+                - NEVER introduce hard-coded credentials, tokens, keys, or endpoints.
+                - Avoid unsafe dynamic execution; prefer safe standard APIs.
+                - External executables must use absolute paths and argument arrays only; never rely on PATH or string-concatenated commands.
+                - Validate and allowlist all external inputs.
+                - Follow OWASP/CWE and retrieved guidance (KISA > OWASP > Code Examples).
+                - Preserve functionality; secure defaults; robust error handling.
+
+                **Verification Checklist**:
+                - [ ] No hard-coded secrets
+                - [ ] No unsafe dynamic execution
+                - [ ] External executables use absolute paths and argument arrays
+                - [ ] Inputs validated/allowlisted
+                - [ ] Secure defaults + error handling
+                - [ ] Guidance applied"""
 
     @staticmethod
     def _generate_combined_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
@@ -633,7 +681,21 @@ class ScannerService:
                 **Deliverable**:
                 - Fully secure, tested code
                 - Detailed security analysis
-                - Inline documentation of security measures"""
+                - Inline documentation of security measures
+
+                **Strict Non-Regression & Compliance Rules**:
+                - NEVER introduce hard-coded credentials, tokens, keys, or endpoints.
+                - Avoid unsafe dynamic execution; prefer safe standard APIs.
+                - Validate and allowlist all external inputs.
+                - Follow OWASP/CWE and retrieved guidance (KISA > OWASP > Code Examples).
+                - Preserve functionality; secure defaults; robust error handling.
+
+                **Verification Checklist**:
+                - [ ] No hard-coded secrets
+                - [ ] No unsafe dynamic execution
+                - [ ] Inputs validated/allowlisted
+                - [ ] Secure defaults + error handling
+                - [ ] Guidance applied"""
 
     @staticmethod
     def _format_cwe_summary(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
@@ -711,6 +773,33 @@ class ScannerService:
                 5. Adds security-focused comments
                 
                 Provide the corrected code with detailed explanations of security improvements.
+                """
+
+        prompt += """
+                ## Forbidden Patterns
+                - Any hard-coded credentials/tokens/keys/endpoints
+                - Unsafe dynamic execution or shell-based invocation
+                - Relative or PATH-based invocation of external executables
+                - Unvalidated/unrestricted external inputs
+
+                ## Required Fix Principles
+                - Use safe, high-level standard APIs instead of low-level execution
+                - When invoking executables, use absolute paths and argument arrays only; never concatenate command strings
+                - Validate and allowlist inputs; reject on mismatch
+                - Externalize secrets via environment/secret manager; never literals
+                - Apply secure defaults and robust error handling
+
+                ## Output Format Requirement
+                - Provide only the corrected code block(s) and a brief checklist result
+                - If a required secret/config is unknown, use a secure retrieval call and add a TODO; never insert placeholders
+
+                ## Verification Checklist
+                - [ ] No hard-coded secrets introduced
+                - [ ] No unsafe dynamic execution or shell-based calls
+                - [ ] External executables use absolute paths and argument arrays (no PATH lookup)
+                - [ ] Inputs validated and allowlisted
+                - [ ] Secure defaults and proper error handling
+                - [ ] OWASP/CWE + retrieved guidance applied
                 """
 
         return prompt

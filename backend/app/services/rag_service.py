@@ -68,10 +68,10 @@ class RAGService:
             )
         except Exception:
             return []
-        docs = []
+        docs: List[Dict[str, Any]] = []
         for p in res.points:
             payload = p.payload or {}
-            docs.append({
+            item = {
                 "score": p.score,
                 "cwe_id": payload.get("cwe_id"),
                 "description": payload.get("description"),
@@ -79,7 +79,19 @@ class RAGService:
                 "vulnerable_code": payload.get("vulnerable_code"),
                 "safe_code": payload.get("safe_code"),
                 "source": payload.get("source"),
-            })
+            }
+            # Simple reranking: prefer matching language and presence of secure pattern
+            bonus = 0.0
+            if (item.get("language") or "").lower() == (language or "").lower():
+                bonus += 0.05
+            if item.get("safe_code"):
+                bonus += 0.05
+            if item.get("vulnerable_code") and not item.get("safe_code"):
+                bonus -= 0.02
+            item["score"] = float(item["score"] or 0) + bonus
+            docs.append(item)
+        # sort by adjusted score desc
+        docs.sort(key=lambda d: d.get("score", 0), reverse=True)
         return docs
 
     def _retrieve_text_guidelines(self, query: str, db: str, top_k: int = 2) -> List[Dict[str, Any]]:
@@ -101,17 +113,87 @@ class RAGService:
             )
         except Exception:
             return []
-        docs = []
+        docs: List[Dict[str, Any]] = []
         for p in res.points:
             payload = p.payload or {}
-            docs.append({
+            content = payload.get("page_content")
+            item = {
                 "score": p.score,
-                "page_content": payload.get("page_content"),
+                "page_content": content,
                 "source": payload.get("source"),
                 "language": payload.get("language"),
-            })
-        # Simple trimming
+            }
+            # KISA usefulness filter
+            if db == "kisa" and not self._is_useful_kisa_chunk(content or ""):
+                continue
+            # Keyword-based reranking for KISA (and lightly for OWASP)
+            bonus = self._keyword_bonus(content or "", query)
+            code_signal = self._code_signal_bonus(content or "")
+            safe_signal = self._safe_pattern_bonus(content or "")
+            item["score"] = float(item["score"] or 0) + bonus + code_signal + safe_signal
+            docs.append(item)
+        # sort and trim
+        docs.sort(key=lambda d: d.get("score", 0), reverse=True)
         return docs[:top_k]
+
+    @staticmethod
+    def _is_useful_kisa_chunk(text: str) -> bool:
+        t = (text or "").strip()
+        if len(t) < 300:
+            return False
+        import re
+        csharp_patterns = [
+            r"SqlConnection", r"SqlCommand", r"EventArgs",
+            r"string\s+usrinput", r"Request\[", r"Request\.Write",
+            r"AntiXss", r"Sanitizer\.Get"
+        ]
+        if sum(1 for p in csharp_patterns if re.search(p, t)) >= 2:
+            return False
+        if len(re.findall(r"\n\d+\.\s+[^\n]{5,80}", t)) >= 5:
+            return False
+        return True
+
+    @staticmethod
+    def _keyword_bonus(content: str, query: str) -> float:
+        c = (content or "").lower()
+        q = (query or "").lower()
+        score = 0.0
+        keywords = {
+            "sql": ["preparedstatement", "setstring", "parameter", "binding", "?", "sanitize", "escape"],
+            "xss": ["encode", "escape", "sanitize", "html", "filter"],
+            "file": ["file", "mime", "extension", "validate"],
+        }
+        if "sql" in q:
+            for kw in keywords["sql"]:
+                if kw in c:
+                    score += 0.03
+        elif "xss" in q:
+            for kw in keywords["xss"]:
+                if kw in c:
+                    score += 0.03
+        else:
+            for group in keywords.values():
+                for kw in group:
+                    if kw in c:
+                        score += 0.01
+        return score
+
+    @staticmethod
+    def _code_signal_bonus(content: str) -> float:
+        c = (content or "").lower()
+        indicators = ["def ", "import ", "class ", "try:", "except:", "cursor", "preparedstatement"]
+        cnt = sum(1 for token in indicators if token in c)
+        if cnt >= 4:
+            return 0.07
+        if cnt >= 2:
+            return 0.04
+        return 0.0
+
+    @staticmethod
+    def _safe_pattern_bonus(content: str) -> float:
+        c = (content or "").lower()
+        patterns = ["parameterized", "prepared", "binding", "sanitize", "encode", "escape"]
+        return 0.03 if any(p in c for p in patterns) else 0.0
 
     # -------------------- Formatter --------------------
     @staticmethod
@@ -199,7 +281,14 @@ class RAGService:
                 kisa_docs_all += self._retrieve_text_guidelines(query=query, db="kisa", top_k=1)
                 owasp_docs_all += self._retrieve_text_guidelines(query=desc or f"CWE-{cwe_id}", db="owasp", top_k=1)
 
-            rag_section = self._format_rag_sections(code_docs_all, kisa_docs_all, owasp_docs_all)
+            # Strengthened directive ensuring strict adherence (generic, non-specific)
+            directive = (
+                "IMPORTANT: Strictly follow the retrieved security guidelines and secure code examples. "
+                "If any conflict arises, the priority order is: KISA > OWASP > Code Examples. "
+                "Never introduce hard-coded secrets or unsafe dynamic execution. Validate and allowlist external inputs, "
+                "apply secure defaults with robust error handling, and ensure full compliance with OWASP/CWE best practices."
+            )
+            rag_section = directive + "\n\n" + self._format_rag_sections(code_docs_all, kisa_docs_all, owasp_docs_all)
             prompt = SecureCodePrompt(
                 system_prompt=f"{prompt.system_prompt}\n\n{rag_section}",
                 user_prompt=prompt.user_prompt,

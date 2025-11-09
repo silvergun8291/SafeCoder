@@ -48,7 +48,6 @@ async def build_llm_prompt(
     try:
         scan_response = await scanner_service.scan_code(request)
         prompt = scanner_service.generate_secure_code_prompt(
-            aggregated_vulnerabilities=scan_response.aggregated_vulnerabilities,
             source_code=request.source_code,
             language=scan_response.language,
             technique=technique,
@@ -57,4 +56,3 @@ async def build_llm_prompt(
     except Exception as e:
         logger.error(f"❌ 프롬프트 생성 실패: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="프롬프트 생성 중 오류가 발생했습니다.")
-
