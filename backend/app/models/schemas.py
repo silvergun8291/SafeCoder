@@ -53,6 +53,32 @@ class VulnerabilityInfo(BaseModel):
     references: List[str] = Field(default_factory=list, description="참고 링크")
 
 
+class PromptTechnique(str, Enum):
+    """프롬프트 엔지니어링 기법"""
+    SECURITY_FOCUSED = "security_focused"
+    CHAIN_OF_THOUGHT = "chain_of_thought"
+    RCI = "recursive_criticism_improvement"
+    COMBINED = "combined"
+
+
+class SecureCodePrompt(BaseModel):
+    """LLM 시큐어 코딩을 위한 고급 프롬프트"""
+    system_prompt: str = Field(..., description="시스템 레벨 지시사항")
+    user_prompt: str = Field(..., description="사용자 요청 프롬프트")
+    vulnerabilities: List[Dict[str, Any]] = Field(..., description="취약점 목록")
+    metadata: Dict[str, Any] = Field(..., description="컨텍스트 메타데이터")
+    technique: PromptTechnique = Field(..., description="적용된 프롬프트 기법")
+
+
+class LLMFixContext(BaseModel):
+    """LLM 시큐어 코딩을 위한 컨텍스트"""
+    vulnerabilities: List[Dict[str, Any]]
+    language: str
+    source_code: str
+    total_vulnerabilities: int
+    severity_distribution: Dict[str, int]
+
+
 class ScannerResult(BaseModel):
     """스캐너 실행 결과"""
     scanner: str = Field(..., description="스캐너 이름")

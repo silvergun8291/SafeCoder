@@ -7,9 +7,10 @@ import time
 import tempfile
 import uuid
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from datetime import datetime
 from collections import Counter
+from app.models.schemas import PromptTechnique, SecureCodePrompt
 
 from app.services.scanning.scanner_config import ScannerConfig
 from app.models.schemas import (
@@ -126,7 +127,6 @@ class ScannerService:
                 total_execution_time=round(total_time, 2)
             )
 
-
     async def _run_scanner(
             self,
             scanner_config: Dict[str, str],
@@ -234,7 +234,6 @@ class ScannerService:
             error_msg = f"예상치 못한 오류: {str(e)}"
             print(f"[{scanner_name}] {error_msg}")
             return self._create_error_result(scanner_name, error_msg, -1, scan_time)
-
 
     async def _ensure_image_built(self, scanner_config: Dict[str, str]):
         """커스텀 이미지가 빌드되어 있는지 확인하고 없으면 빌드"""
@@ -392,6 +391,329 @@ class ScannerService:
         )
 
         return all_vulns
+
+    @staticmethod
+    def prepare_llm_fix_context(
+            aggregated_vulnerabilities: List[VulnerabilityInfo],
+            source_code: str,
+            language: Language,
+            include_recommendations: bool = True
+    ) -> Dict[str, Any]:
+        """LLM 시큐어 코딩을 위한 최적화된 프롬프트 컨텍스트 생성"""
+
+        vulnerabilities_data = []
+
+        for vuln in aggregated_vulnerabilities:
+            vuln_dict = {
+                "cwe": vuln.cwe,
+                "severity": vuln.severity.value,
+                "description": vuln.description,
+                "code_snippet": vuln.code_snippet,
+                "file_path": vuln.file_path,
+                "line_start": vuln.line_start,
+                "line_end": vuln.line_end,
+            }
+
+            # 선택적 필드 추가
+            if include_recommendations and vuln.recommendation:
+                vuln_dict["recommendation"] = vuln.recommendation
+
+            if vuln.references:
+                vuln_dict["references"] = vuln.references
+
+            if vuln.dataflow_info:
+                vuln_dict["dataflow_info"] = vuln.dataflow_info
+
+            vulnerabilities_data.append(vuln_dict)
+
+        return {
+            "vulnerabilities": vulnerabilities_data,
+            "language": language.value,
+            "source_code": source_code,
+            "total_vulnerabilities": len(vulnerabilities_data),
+            "severity_distribution": {
+                "critical": sum(1 for v in aggregated_vulnerabilities if v.severity.value == "critical"),
+                "high": sum(1 for v in aggregated_vulnerabilities if v.severity.value == "high"),
+                "medium": sum(1 for v in aggregated_vulnerabilities if v.severity.value == "medium"),
+                "low": sum(1 for v in aggregated_vulnerabilities if v.severity.value == "low"),
+            }
+        }
+
+    @staticmethod
+    def generate_secure_code_prompt(
+            aggregated_vulnerabilities: List[VulnerabilityInfo],
+            source_code: str,
+            language: Language,
+            technique: PromptTechnique = PromptTechnique.COMBINED,
+    ) -> SecureCodePrompt:
+        """
+        고급 프롬프트 엔지니어링 기법을 적용한 시큐어 코딩 프롬프트 생성
+
+        Args:
+            aggregated_vulnerabilities: 집계된 취약점 목록
+            source_code: 원본 소스 코드
+            language: 프로그래밍 언어
+            technique: 적용할 프롬프트 기법
+
+        Returns:
+            SecureCodePrompt: 최적화된 프롬프트 객체
+        """
+        context = ScannerService.prepare_llm_fix_context(
+            aggregated_vulnerabilities,
+            source_code,
+            language,
+            include_recommendations=True
+        )
+
+        # CWE별 그룹화
+        cwe_groups: Dict[int, List[Dict[str, Any]]] = {}
+        for vuln in context["vulnerabilities"]:
+            cwe = vuln["cwe"]
+            if cwe not in cwe_groups:
+                cwe_groups[cwe] = []
+            cwe_groups[cwe].append(vuln)
+
+        # 기법별 시스템 프롬프트 선택
+        if technique == PromptTechnique.SECURITY_FOCUSED:
+            system_prompt = ScannerService._generate_security_focused_prompt(cwe_groups)
+        elif technique == PromptTechnique.CHAIN_OF_THOUGHT:
+            system_prompt = ScannerService._generate_cot_prompt(cwe_groups)
+        elif technique == PromptTechnique.RCI:
+            system_prompt = ScannerService._generate_rci_prompt(cwe_groups)
+        else:
+            system_prompt = ScannerService._generate_combined_prompt(cwe_groups)
+
+        # 사용자 프롬프트
+        user_prompt = ScannerService._generate_user_prompt(
+            context,
+        )
+
+        return SecureCodePrompt(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            vulnerabilities=context["vulnerabilities"],
+            metadata={
+                "language": language.value,
+                "total_vulnerabilities": context["total_vulnerabilities"],
+                "severity_distribution": context["severity_distribution"],
+                "cwe_categories": list(cwe_groups.keys()),
+                "technique": technique.value
+            },
+            technique=technique
+        )
+
+    @staticmethod
+    def _generate_security_focused_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
+        """Security-Focused Prefix 기법"""
+        return f"""You are an expert secure code reviewer and developer with deep knowledge of OWASP Top 10, CWE/SANS Top 25, and secure coding best practices.
+
+                **Primary Objective**: Generate secure code that completely eliminates the following {len(cwe_groups)} categories of vulnerabilities while maintaining functionality.
+                
+                **Security Requirements**:
+                1. Follow OWASP Secure Coding Guidelines strictly
+                2. Apply defense-in-depth principles
+                3. Use parameterized queries, input validation, and output encoding
+                4. Implement least privilege and fail-safe defaults
+                5. Ensure no new vulnerabilities are introduced
+                
+                **Critical CWE Categories to Fix**:
+                {ScannerService._format_cwe_summary(cwe_groups)}
+                
+                **Output Requirements**:
+                - Provide complete, production-ready secure code
+                - Add inline comments explaining security measures
+                - Include error handling and edge case validation
+                - Ensure backward compatibility where possible"""
+
+    @staticmethod
+    def _generate_cot_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
+        """Chain-of-Thought 기법"""
+        return f"""You are an expert secure code developer. Apply systematic reasoning to fix security vulnerabilities.
+
+                **Step-by-Step Security Analysis Framework**:
+                
+                Let's think step-by-step for each vulnerability:
+                
+                **Step 1: Identify the Vulnerability Type**
+                - Analyze the CWE category and attack vector
+                - Understand how the vulnerability can be exploited
+                - Identify affected code sections
+                
+                **Step 2: Analyze the Root Cause**
+                - Why does this vulnerability exist?
+                - What coding pattern led to this issue?
+                - What security principle was violated?
+                
+                **Step 3: Design the Security Fix**
+                - What is the most effective mitigation?
+                - Are there multiple approaches? Which is best?
+                - What are the trade-offs?
+                
+                **Step 4: Implement the Fix**
+                - Apply secure coding patterns
+                - Use framework-specific security features
+                - Add proper validation and sanitization
+                
+                **Step 5: Verify No New Issues**
+                - Check for introduced vulnerabilities
+                - Ensure functionality is preserved
+                - Validate against OWASP guidelines
+                
+                **Vulnerabilities to Address**:
+                {ScannerService._format_cwe_summary(cwe_groups)}
+                
+                For each fix, explain your reasoning at each step."""
+
+    @staticmethod
+    def _generate_rci_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
+        """Recursive Criticism and Improvement 기법"""
+        return f"""You are an expert secure code developer with self-criticism capabilities.
+
+                **RCI Process - Execute in Multiple Rounds**:
+                
+                **Round 1: Initial Secure Code Generation**
+                - Generate code that fixes all identified vulnerabilities
+                - Apply best practices and secure coding patterns
+                
+                **Round 2: Self-Criticism**
+                After generating the code, critically review it:
+                - Are there any remaining vulnerabilities?
+                - Could the fix introduce new issues?
+                - Are there more robust alternatives?
+                - Is the code following all OWASP guidelines?
+                
+                **Round 3: Improvement**
+                Based on your criticism:
+                - Refine the security measures
+                - Add additional safeguards
+                - Optimize for both security and performance
+                - Enhance error handling
+                
+                **Vulnerabilities to Fix**:
+                {ScannerService._format_cwe_summary(cwe_groups)}
+                
+                **Output Format**:
+                1. Initial secure code
+                2. Self-criticism analysis
+                3. Improved final code with explanations"""
+
+    @staticmethod
+    def _generate_combined_prompt(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
+        """통합 기법 (Security-Focused + CoT + RCI)"""
+        return f"""You are a world-class security engineer with expertise in OWASP, CWE, and secure software development.
+
+                **Mission**: Transform vulnerable code into production-grade secure code following industry best practices.
+                
+                **Security Framework** (OWASP/CWE Compliance):
+                - Apply OWASP Top 10 countermeasures
+                - Follow CWE mitigation guidelines
+                - Implement defense-in-depth strategy
+                - Use security-by-design principles
+                
+                **Systematic Approach** (Chain-of-Thought):
+                
+                For each vulnerability, follow this process:
+                1. **Identify**: Understand the CWE type and attack surface
+                2. **Analyze**: Determine root cause and exploitation path
+                3. **Design**: Select optimal mitigation strategy
+                4. **Implement**: Apply secure coding patterns
+                5. **Verify**: Ensure no new vulnerabilities introduced
+                
+                **Self-Review Process** (Recursive Criticism):
+                
+                After fixing:
+                - Critique your own solution for potential weaknesses
+                - Identify edge cases or bypass scenarios
+                - Enhance with additional security layers
+                - Validate against real-world attack patterns
+                
+                **Critical Vulnerabilities ({len(cwe_groups)} CWE categories)**:
+                {ScannerService._format_cwe_summary(cwe_groups)}
+                
+                **Deliverable**:
+                - Fully secure, tested code
+                - Detailed security analysis
+                - Inline documentation of security measures"""
+
+    @staticmethod
+    def _format_cwe_summary(cwe_groups: Dict[int, List[Dict[str, Any]]]) -> str:
+        """CWE 요약 포맷팅"""
+        summary_lines: List[str] = []
+        cwe_names = {
+            89: "SQL Injection",
+            78: "OS Command Injection",
+            79: "Cross-Site Scripting (XSS)",
+            22: "Path Traversal",
+            611: "XML External Entity (XXE)",
+            798: "Hard-coded Credentials",
+        }
+
+        for cwe, vulns in sorted(cwe_groups.items()):
+            cwe_name = cwe_names.get(cwe, f"CWE-{cwe}")
+            count = len(vulns)
+            # 가장 높은 심각도를 대표로 표기
+            try:
+                severities = [v.get("severity", "medium") for v in vulns]
+                # 우선순위: critical > high > medium > low
+                order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+                severity = sorted(severities, key=lambda s: order.get(str(s).lower(), 99))[0]
+            except Exception:
+                severity = "unknown"
+            summary_lines.append(f"- CWE-{cwe} ({cwe_name}): {count} instance(s) - Severity: {str(severity).upper()}")
+
+        return "\n".join(summary_lines)
+
+    @staticmethod
+    def _generate_user_prompt(context: Dict[str, Any]) -> str:
+        """사용자 프롬프트 생성 (코드 및 취약점 상세 포함)"""
+        language = context["language"].upper()
+        total = context["total_vulnerabilities"]
+
+        prompt = f"""# Security Vulnerability Remediation Request
+
+                **Language**: {language}
+                **Total Vulnerabilities**: {total}
+                **Severity Distribution**: {context["severity_distribution"]}
+                
+                ## Vulnerable Source Code
+                
+                {context["source_code"]}
+                
+                ## Detailed Vulnerability Report
+                
+                """
+
+        for idx, vuln in enumerate(context["vulnerabilities"], 1):
+            prompt += f"""### Vulnerability #{idx}
+                        - **CWE**: {vuln["cwe"]}
+                        - **Severity**: {str(vuln["severity"]).upper()}
+                        - **Location**: {vuln["file_path"]}:{vuln["line_start"]}-{vuln["line_end"]}
+                        - **Description**: {vuln["description"]}
+                        
+                        **Vulnerable Code Snippet**:
+                        
+                        {vuln["code_snippet"]}
+                        
+                        """
+            if vuln.get("recommendation"):
+                prompt += f"**Recommendation**: {vuln['recommendation']}\n"
+
+            prompt += "\n"
+
+        prompt += """
+                ## Task
+                
+                Generate complete, secure code that:
+                1. Fixes all identified vulnerabilities
+                2. Maintains original functionality
+                3. Follows language-specific best practices
+                4. Includes comprehensive error handling
+                5. Adds security-focused comments
+                
+                Provide the corrected code with detailed explanations of security improvements.
+                """
+
+        return prompt
 
     @staticmethod
     def _calculate_severity_summary(
