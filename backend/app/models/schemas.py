@@ -213,3 +213,20 @@ class FeedbackLoopResult(BaseModel):
     test_passed: bool = Field(..., description="테스트 통과 여부")
     remaining_issues: int = Field(..., description="남은 이슈 수")
     final_code: str = Field(..., description="최종 코드")
+
+
+# ========== Semgrep Autofix Rule API ==========
+
+class SemgrepAutofixRuleRequest(BaseModel):
+    """원본 코드와 시큐어 코딩된 코드를 비교해 Semgrep autofix 룰을 생성하기 위한 요청"""
+    language: Language = Field(..., description="프로그래밍 언어")
+    filename: Optional[str] = Field(None, description="대상 파일명")
+    original_code: str = Field(..., description="원본 코드")
+    fixed_code: str = Field(..., description="LLM이 생성한 시큐어 코딩된 코드")
+
+
+class SemgrepAutofixRuleResponse(BaseModel):
+    """생성된 Semgrep Autofix 룰과 부가 정보"""
+    rule_yaml: str = Field(..., description="세믹렙 룰 YAML 전체")
+    reasoning: Optional[str] = Field(None, description="룰 설계 근거 요약")
+    retrieved_context: Optional[Dict[str, Any]] = Field(None, description="RAG로 활용된 문맥 요약")

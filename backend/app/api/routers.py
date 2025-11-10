@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import health, scan, rag
+from app.api.routes import health, scan, rag, semgrep
 
 api_router = APIRouter()
 
@@ -23,4 +23,11 @@ api_router.include_router(
     rag.router,
     prefix="",  # ⬅️ /api/secure-coding/llm-*
     tags=["LLM"]
+)
+
+# Semgrep Autofix Rule 라우터
+api_router.include_router(
+    semgrep.router,
+    prefix="",  # ⬅️ /api/secure-coding/semgrep/*
+    tags=["Semgrep"]
 )
