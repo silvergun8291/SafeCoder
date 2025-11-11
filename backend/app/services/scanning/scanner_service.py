@@ -6,6 +6,7 @@ import json
 import time
 import tempfile
 import uuid
+import textwrap
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 from datetime import datetime
@@ -17,6 +18,7 @@ from app.models.schemas import (
     Language, ScanRequest, ScanResponse, ScannerResult,
     VulnerabilityInfo, Severity, ScanStatus, ScanOptions
 )
+from app.utils.code_slicing import slice_function_with_header
 
 
 class ScannerService:
@@ -728,54 +730,71 @@ class ScannerService:
     @staticmethod
     def _generate_user_prompt(context: Dict[str, Any]) -> str:
         """사용자 프롬프트 생성 (코드 및 취약점 상세 포함)"""
-        language = context["language"].upper()
+        language_str = context["language"].lower()
+        language = language_str.upper()
         total = context["total_vulnerabilities"]
 
-        prompt = f"""# Security Vulnerability Remediation Request
+        prompt = textwrap.dedent(f"""# Security Vulnerability Remediation Request
 
                 **Language**: {language}
                 **Total Vulnerabilities**: {total}
                 **Severity Distribution**: {context["severity_distribution"]}
                 
-                ## Vulnerable Source Code
+                ## Sliced Source Context (function/method + imports/constants)
                 
-                {context["source_code"]}
-                
-                ## Detailed Vulnerability Report
-                
-                """
+                """)
+
+        # Determine Language enum
+        lang_enum = Language.PYTHON if language_str == "python" else Language.JAVA
+
+        source_code = context["source_code"]
 
         for idx, vuln in enumerate(context["vulnerabilities"], 1):
-            prompt += f"""### Vulnerability #{idx}
+            # Build slice per vulnerability using line_start (fallback to 1)
+            target_line = int(vuln.get("line_start") or 1)
+            try:
+                sliced = slice_function_with_header(lang_enum, source_code, target_line)
+            except Exception:
+                # Fallback: small window around line
+                lines = source_code.splitlines()
+                i = max(0, target_line - 1)
+                start = max(0, i - 30)
+                end = min(len(lines), i + 30)
+                sliced = "\n".join(lines[start:end])
+
+            prompt += textwrap.dedent(f"""### Vulnerability #{idx}
                         - **CWE**: {vuln["cwe"]}
                         - **Severity**: {str(vuln["severity"]).upper()}
                         - **Location**: {vuln["file_path"]}:{vuln["line_start"]}-{vuln["line_end"]}
                         - **Description**: {vuln["description"]}
                         
+                        **Sliced Source (original)**:
+                        
+                        {sliced}
+                        
                         **Vulnerable Code Snippet**:
                         
                         {vuln["code_snippet"]}
                         
-                        """
+                        """)
             if vuln.get("recommendation"):
                 prompt += f"**Recommendation**: {vuln['recommendation']}\n"
 
             prompt += "\n"
-
-        prompt += """
+        prompt += textwrap.dedent("""
                 ## Task
                 
                 Generate complete, secure code that:
-                1. Fixes all identified vulnerabilities
-                2. Maintains original functionality
+                1. Fixes all identified vulnerabilities without breaking functionality
+                2. Uses secure APIs and safe defaults
                 3. Follows language-specific best practices
                 4. Includes comprehensive error handling
                 5. Adds security-focused comments
                 
                 Provide the corrected code with detailed explanations of security improvements.
-                """
 
-        prompt += """
+        prompt += """)
+        prompt += textwrap.dedent("""
                 ## Forbidden Patterns
                 - Any hard-coded credentials/tokens/keys/endpoints
                 - Unsafe dynamic execution or shell-based invocation
@@ -800,7 +819,7 @@ class ScannerService:
                 - [ ] Inputs validated and allowlisted
                 - [ ] Secure defaults and proper error handling
                 - [ ] OWASP/CWE + retrieved guidance applied
-                """
+                """)
 
         return prompt
 

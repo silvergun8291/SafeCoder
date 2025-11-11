@@ -114,6 +114,7 @@ class ScanOptions(BaseModel):
     specific_scanners: Optional[List[str]] = Field(None, description="특정 스캐너만 실행")
     min_severity: Severity = Field(default=Severity.LOW, description="최소 심각도 필터")
     timeout: int = Field(default=300, description="타임아웃 (초)")
+    use_slicing_for_llm: bool = Field(default=True, description="LLM 시큐어 코딩 프롬프트에 함수/메서드 단위 슬라이싱 적용")
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -223,6 +224,9 @@ class SemgrepAutofixRuleRequest(BaseModel):
     filename: Optional[str] = Field(None, description="대상 파일명")
     original_code: str = Field(..., description="원본 코드")
     fixed_code: str = Field(..., description="LLM이 생성한 시큐어 코딩된 코드")
+    # 선택적으로 슬라이스가 제공되면 이를 우선 사용
+    original_slice: Optional[str] = Field(None, description="슬라이스(함수/메서드+헤더) 원본 코드")
+    fixed_slice: Optional[str] = Field(None, description="슬라이스(함수/메서드+헤더) 수정 코드")
 
 
 class SemgrepAutofixRuleResponse(BaseModel):

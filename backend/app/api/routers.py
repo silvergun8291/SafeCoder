@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import health, scan, rag, semgrep
+from app.api.routes import health, scan, rag, semgrep, pipeline
 
 api_router = APIRouter()
 
@@ -30,4 +30,11 @@ api_router.include_router(
     semgrep.router,
     prefix="",  # ⬅️ /api/secure-coding/semgrep/*
     tags=["Semgrep"]
+)
+
+# One-shot Pipeline (Scan → LLM → Semgrep Rule)
+api_router.include_router(
+    pipeline.router,
+    prefix="",  # ⬅️ /api/secure-coding/pipeline/*
+    tags=["Pipeline"]
 )
