@@ -1,0 +1,24 @@
+rules:
+- id: java-sql-injection-string-concatenation
+  message: Use parameterized queries instead of string concatenation to prevent SQL
+    injection (CWE-89).
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    cwe: CWE-89
+    owasp: A01:2021-Injection
+    rationale: String concatenation in SQL queries can lead to SQL injection vulnerabilities.
+      Use `PreparedStatement` with parameterized queries to safely handle user input.
+  fix: "Connection $CONN = DriverManager.getConnection($X);\ntry (PreparedStatement\
+    \ $PSTMT = $CONN.prepareStatement(\"SELECT * FROM $TABLE WHERE $COLUMN = ?\"))\
+    \ {\n  $PSTMT.setString(1, $INPUT);\n  return $PSTMT.executeQuery();\n}"
+  pattern-inside: |
+    public ResultSet $METHOD($X) throws SQLException {
+      ...
+    }
+  pattern: |
+    Connection $CONN = DriverManager.getConnection($X);
+    Statement $STMT = $CONN.createStatement();
+    String $QUERY = "SELECT * FROM $TABLE WHERE $COLUMN = ''''" + $INPUT + "''''";
+    $STMT.executeQuery($QUERY);

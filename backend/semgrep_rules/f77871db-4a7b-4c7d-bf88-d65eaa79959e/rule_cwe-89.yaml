@@ -1,0 +1,19 @@
+rules:
+- id: java-os-command-injection-cwe-78
+  message: Avoid using Runtime.getRuntime().exec() with user-controlled input as it
+    can lead to OS command injection (CWE-78). Use ProcessBuilder with input validation
+    and absolute command paths instead.
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    cwe: CWE-78
+    owasp: A03:2021 - Injection
+    source-info: https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html
+      https://cwe.mitre.org/data/definitions/78.html
+  fix: ProcessBuilder processBuilder = new ProcessBuilder("ping", $INPUT);
+      
+    processBuilder.directory(new File(System.getProperty("java.io.tmpdir")));
+  pattern-inside: |
+    public void executeCommand(String $INPUT) throws IOException
+  pattern: Runtime.getRuntime().exec("ping " + $INPUT);

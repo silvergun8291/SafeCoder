@@ -62,9 +62,14 @@ async def scan_llm_autofix_rule(
     request: ScanRequest,
     technique: PromptTechnique = PromptTechnique.COMBINED,
     use_rag: bool = True,
+    # strategy 약어: combined|combined_rag|one_shot|one_shot_rag (제공 시 technique/use_rag를 덮어씀)
+    strategy: Optional[str] = None,
+    # semgrep rule 생성용 프롬프트 전략 약어: combined_rag|combined|cot_rag|cot|one_shot_rag|one_shot
+    rule_strategy: Optional[str] = None,
     mode: str = "per_function",  # per_function | combined
     rule_mode: str = "single",  # single | per_cwe
     llm_concurrency: int = 3,
+    rule_concurrency: int = 3,
     log_verbose: bool = False,
     scanner_service: ScannerService = Depends(get_scanner_service),
 ):
@@ -74,6 +79,39 @@ async def scan_llm_autofix_rule(
 
         # 0) 스캐너 제한: 바디의 options.specific_scanners만 사용합니다.
         # 값이 없거나 빈 배열이면 해당 언어의 모든 스캐너를 사용합니다.
+
+        # 0.5) 전략 약어 해석 (전달 시 technique/use_rag를 오버라이드)
+        if isinstance(strategy, str):
+            s = strategy.strip().lower()
+            if s == "combined_rag":
+                technique = PromptTechnique.COMBINED
+                use_rag = True
+            elif s == "combined":
+                technique = PromptTechnique.COMBINED
+                use_rag = False
+            elif s == "one_shot_rag":
+                technique = PromptTechnique.SECURITY_FOCUSED
+                use_rag = True
+            elif s == "one_shot":
+                technique = PromptTechnique.SECURITY_FOCUSED
+                use_rag = False
+
+        # 0.6) Semgrep 룰 프롬프트 전략 해석 (기본: cot_rag)
+        semgrep_prompt_strategy = "cot_rag"
+        if isinstance(rule_strategy, str):
+            rs = rule_strategy.strip().lower()
+            if rs in ("oneshot", "one_shot"):
+                semgrep_prompt_strategy = "one_shot_rag" if rs != "one_shot" else "one_shot_rag"
+            elif rs in ("one_shot_rag",):
+                semgrep_prompt_strategy = "one_shot_rag"
+            elif rs in ("cot",):
+                semgrep_prompt_strategy = "cot"
+            elif rs in ("cot_rag",):
+                semgrep_prompt_strategy = "cot_rag"
+            elif rs in ("combined",):
+                semgrep_prompt_strategy = "combined"
+            elif rs in ("combined_rag",):
+                semgrep_prompt_strategy = "combined_rag"
 
         # 1) 스캔 실행
         if log_verbose:
@@ -384,21 +422,36 @@ async def scan_llm_autofix_rule(
 
             per_yaml: List[str] = []
             per_paths: List[str] = []
-            for cwe_id, parts in by_cwe.items():
-                original_combined = (sep).join(parts["orig"])
-                fixed_combined = (sep).join(parts["fix"])
-                resp = semgrep_service.generate_autofix_rule(
-                    request=type("_Req", (), {
-                        "language": language,
-                        "filename": request.filename or "unknown",
-                        "original_code": request.source_code,
-                        "fixed_code": fixed_combined,
-                        "original_slice": original_combined,
-                        "fixed_slice": fixed_combined,
-                        "target_cwes": [int(cwe_id)],
-                    })()
-                )
-                per_yaml.append(resp.rule_yaml)
+            sem_rules = asyncio.Semaphore(max(1, rule_concurrency))
+
+            async def _gen_rule_one(cwe_id: int, parts: Dict[str, List[str]]) -> Tuple[int, str]:
+                original_combined = (sep).join(parts["orig"])  # type: ignore[index]
+                fixed_combined = (sep).join(parts["fix"])      # type: ignore[index]
+                def _work() -> str:
+                    resp = semgrep_service.generate_autofix_rule(
+                        request=type("_Req", (), {
+                            "language": language,
+                            "filename": request.filename or "unknown",
+                            "original_code": request.source_code,
+                            "fixed_code": fixed_combined,
+                            "original_slice": original_combined,
+                            "fixed_slice": fixed_combined,
+                            "target_cwes": [int(cwe_id)],
+                        })(),
+                        prompt_strategy=semgrep_prompt_strategy,
+                    )
+                    return resp.rule_yaml
+                async with sem_rules:
+                    rule_yaml = await asyncio.to_thread(_work)
+                return int(cwe_id), rule_yaml
+
+            tasks_rules = [
+                _gen_rule_one(int(cwe_id), parts) for cwe_id, parts in by_cwe.items()
+            ]
+            results_rules = await asyncio.gather(*tasks_rules)
+            # 유지 보수성을 위해 CWE id 순으로 정렬
+            results_rules.sort(key=lambda x: x[0])
+            per_yaml = [ry for _, ry in results_rules]
             # save to disk
             base_dir = os.environ.get("SEMGREP_RULE_OUTPUT_DIR", "semgrep_rules")
             job_dir = os.path.join(base_dir, scan_response.job_id)
@@ -426,7 +479,8 @@ async def scan_llm_autofix_rule(
                     "fixed_slice": fixed_combined,
                     # pass merged CWE scope hint
                     "target_cwes": sorted({int(c) for meta in grouped_meta for c in meta.get("cwes", [])}),
-                })()
+                })(),
+                prompt_strategy=semgrep_prompt_strategy,
             )
             rule_yaml = rule_resp.rule_yaml
             rules_yaml = [rule_yaml]

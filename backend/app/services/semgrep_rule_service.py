@@ -223,7 +223,7 @@ class SemgrepRuleService:
         return "\n".join(blocks)
 
     # ----------------- Public API -----------------
-    def generate_autofix_rule(self, request: SemgrepAutofixRuleRequest) -> SemgrepAutofixRuleResponse:
+    def generate_autofix_rule(self, request: SemgrepAutofixRuleRequest, prompt_strategy: str = "base") -> SemgrepAutofixRuleResponse:
         # 1) Prepare slices
         if request.original_slice and request.fixed_slice:
             original_slice = request.original_slice
@@ -248,11 +248,15 @@ class SemgrepRuleService:
             hint_text = f"\nTarget CWE Scope: {', '.join(f'CWE-{int(c)}' for c in cwe_hint if isinstance(c, (int, str)))}\n"
         else:
             hint_text = "\n"
-        refs = self._retrieve_semgrep_context(request.language, (sliced_unified + hint_text), top_k=3)
+        # Adjust retrieval size for RAG-enhanced strategies
+        _ps = (prompt_strategy or "base").lower() if isinstance(prompt_strategy, str) else "base"
+        _rag_enhanced = _ps in {"rag_boost", "combined_rag", "one_shot_rag", "cot_rag"}
+        _top_k = 5 if _rag_enhanced else 3
+        refs = self._retrieve_semgrep_context(request.language, (sliced_unified + hint_text), top_k=_top_k)
         rag_block = self._format_rag_block(refs)
 
         # 3) Build prompts
-        system_prompt = (
+        base_system = (
             "You are a Semgrep rule authoring assistant. Generate a VALID Semgrep rule YAML with autofix for the given diff. "
             "Follow Semgrep official docs and best practices. The rule must be minimal, precise, and safe. "
             "Do NOT output anything except the YAML in a fenced code block labeled yaml."
@@ -261,6 +265,35 @@ class SemgrepRuleService:
         if cwe_hint:
             scope_note = "\n- Limit the rule scope to ONLY match vulnerabilities related to: " + \
                          ", ".join(f"CWE-{int(c)}" for c in cwe_hint if isinstance(c, (int, str))) + "\n"
+
+        # Prompt variants
+        ps = _ps
+        checklist_block = (
+            "\n[CHECKLIST]\n"
+            "- Matches vulnerable pattern but NOT fixed form\n"
+            "- Uses precise patterns with metavariables and minimal ellipses\n"
+            "- Restricts scope via pattern-inside if necessary\n"
+            "- Provides correct fix that transforms vulnerable into fixed\n"
+            "- Validates with semgrep --validate (schema correctness)\n"
+        ) if ps in {"checklist", "combined_rag", "combined"} else ""
+
+        sample_block = (
+            "\n[HINTS]\n"
+            "- Prefer pattern with explicit method calls and arguments (e.g., PreparedStatement with bind)\n"
+            "- Avoid generic wildcards; use metavariables like $X, $Y\n"
+            "- Use pattern-inside to localize to method scope when needed\n"
+        ) if ps in {"sample_injection", "combined_rag", "combined"} else ""
+
+        cot_block = (
+            "\n[METHOD]\n"
+            "1) Identify vulnerable construct vs fixed construct from the diff.\n"
+            "2) Design a precise Semgrep pattern capturing ONLY the vulnerable form (not the fixed one).\n"
+            "3) Add pattern-inside if scope restriction is needed.\n"
+            "4) Provide fix transforming it into the fixed construct.\n"
+            "5) Self-check against the diff and ensure schema validity.\n"
+        ) if ps in {"cot_rag", "combined_rag", "cot", "combined"} else ""
+
+        system_prompt = base_system + checklist_block + sample_block + cot_block
 
         user_prompt = f"""
 # Context
@@ -302,7 +335,7 @@ Filename: {request.filename or 'N/A'}
               "- Do NOT use 'autofix' key. Use 'fix'.\n"
               "- Do NOT use 'pattern-either'. Create ONE coherent 'pattern' using metavariables and ellipses '...'.\n"
               "- Restrict matches with 'pattern-inside' to the method scope if needed.\n"
-              "- All Java statements inside patterns MUST be valid Java. Do not escape quotes like \\\"; use normal double quotes.\n"
+              "- All Java statements inside patterns MUST be valid Java. Do not escape quotes like \"; use normal double quotes.\n"
               "- Never place ellipses as method-call arguments. Use metavariables instead, e.g., builder.parse($X) not builder.parse(...).\n"
               "- Do not insert '...' between statements if they are consecutive in the vulnerable example. Use contiguous statements.\n"
               "- Remove unsupported 'options' entries (e.g., java_version).\n"
@@ -321,6 +354,19 @@ Filename: {request.filename or 'N/A'}
             except Exception:
                 return text
             changed = False
+            # helper: OWASP mapping by CWE
+            def _map_owasp(cwe: Optional[int]) -> Optional[str]:
+                if cwe is None:
+                    return None
+                mapping = {
+                    89: "A03:2021 - Injection",
+                    78: "A03:2021 - Injection",
+                    611: "A05:2021 - Security Misconfiguration",
+                }
+                try:
+                    return mapping.get(int(cwe))
+                except Exception:
+                    return None
             # If single rule dict, wrap into rules
             if isinstance(data, dict) and "rules" not in data:
                 data = {"rules": [data]}
@@ -336,6 +382,30 @@ Filename: {request.filename or 'N/A'}
                         new_id = re.sub(r"[^A-Za-z0-9_.\-]", "-", rid)
                         if new_id != rid:
                             r["id"] = new_id
+                            changed = True
+                    # ensure metadata exists and aligns to target CWE if provided
+                    target_cwe = None
+                    if target_cwes:
+                        try:
+                            target_cwe = int(list(target_cwes)[0])
+                        except Exception:
+                            target_cwe = None
+                    meta = r.get("metadata")
+                    if not isinstance(meta, dict):
+                        meta = {}
+                        r["metadata"] = meta
+                        changed = True
+                    if target_cwe is not None:
+                        if meta.get("cwe") not in (target_cwe, f"CWE-{target_cwe}"):
+                            meta["cwe"] = target_cwe
+                            changed = True
+                        owasp = _map_owasp(target_cwe)
+                        if owasp and meta.get("owasp") != owasp:
+                            meta["owasp"] = owasp
+                            changed = True
+                        # append cwe hint to id for clarity
+                        if isinstance(r.get("id"), str) and f"cwe-{target_cwe}" not in r["id"].lower():
+                            r["id"] = f"{r['id']}-cwe-{target_cwe}"
                             changed = True
                     # map autofix -> fix
                     if "autofix" in r and "fix" not in r:
@@ -383,7 +453,7 @@ Filename: {request.filename or 'N/A'}
                     def _clean_patterns(d: Dict[str, Any]):
                         for k in ("pattern", "pattern-inside"):
                             if k in d and isinstance(d[k], str):
-                                s = d[k].replace('\\"', '"')
+                                s = d[k].replace('\"', '"')
                                 # Replace illegal ellipsis as method-call argument: foo(...)->foo($X)
                                 import re as _re
                                 s = _re.sub(r"\(\s*\.\.\.\s*\)", "($X)", s)
@@ -408,6 +478,12 @@ Filename: {request.filename or 'N/A'}
                                             t = t + ";"
                                     fixed_lines.append(t)
                                 s = "\n".join(fixed_lines)
+                                # Close unmatched braces for pattern-inside
+                                if k == "pattern-inside":
+                                    opens = s.count("{")
+                                    closes = s.count("}")
+                                    if opens > closes:
+                                        s = s + "\n" + ("}" * (opens - closes))
                                 d[k] = s
                         return d
                     if isinstance(r.get("patterns"), list):
@@ -416,7 +492,7 @@ Filename: {request.filename or 'N/A'}
                         for k in ("pattern", "pattern-inside"):
                             if k in r and isinstance(r[k], str):
                                 import re as _re
-                                s = r[k].replace('\\"', '"')
+                                s = r[k].replace('\"', '"')
                                 s = _re.sub(r"\(\s*\.\.\.\s*\)", "($X)", s)
                                 lines = s.splitlines()
                                 cleaned_lines: List[str] = []
@@ -436,19 +512,49 @@ Filename: {request.filename or 'N/A'}
                                             t = t + ";"
                                     fixed_lines.append(t)
                                 s = "\n".join(fixed_lines)
+                                if k == "pattern-inside":
+                                    opens = s.count("{")
+                                    closes = s.count("}")
+                                    if opens > closes:
+                                        s = s + "\n" + ("}" * (opens - closes))
                                 r[k] = s
-                    # normalize fix-regex: should be a dict with regex/replace
+                    # prefer fix over fix-regex; if both present drop fix-regex
+                    if "fix" in r and "fix-regex" in r:
+                        r.pop("fix-regex", None)
+                        changed = True
+                    # normalize fix-regex: dict with regex + replacement
                     if "fix-regex" in r:
                         fr = r.get("fix-regex")
                         if isinstance(fr, list) and fr:
-                            # take first dict item
                             first = next((x for x in fr if isinstance(x, dict)), None)
                             if first:
-                                r["fix-regex"] = {k: v for k, v in first.items() if k in ("regex", "replace")}
+                                val = {}
+                                if "regex" in first:
+                                    val["regex"] = first["regex"]
+                                if "replacement" in first:
+                                    val["replacement"] = first["replacement"]
+                                elif "replace" in first:
+                                    val["replacement"] = first["replace"]
+                                r["fix-regex"] = val
                                 changed = True
                         elif isinstance(fr, dict):
-                            # ensure only regex/replace keys
-                            r["fix-regex"] = {k: v for k, v in fr.items() if k in ("regex", "replace")}
+                            val = {}
+                            if "regex" in fr:
+                                val["regex"] = fr["regex"]
+                            if "replacement" in fr:
+                                val["replacement"] = fr["replacement"]
+                            elif "replace" in fr:
+                                val["replacement"] = fr["replace"]
+                            r["fix-regex"] = val
+                            changed = True
+                    # unescape newlines in message/fix for block-friendly YAML
+                    for _k in ("message", "fix"):
+                        if isinstance(r.get(_k), str):
+                            s = r.get(_k)
+                            s2 = s.replace("\\n", "\n")
+                            if s2 != s:
+                                r[_k] = s2
+                                changed = True
                     # filter by target_cwes if provided
                     if target_cwes:
                         meta = r.get("metadata")
@@ -501,10 +607,26 @@ Filename: {request.filename or 'N/A'}
                 env = os.environ.copy()
                 env["SEMGREP_SEND_METRICS"] = "off"
                 env["SEMGREP_ENABLE_VERSION_CHECK"] = "0"
+                # Support binary override or Docker image
+                semgrep_bin = env.get("SEMGREP_BIN")
+                docker_image = env.get("SEMGREP_DOCKER_IMAGE") or getattr(self.settings, "SEMGREP_DOCKER_IMAGE", None)
                 # Prefer validate first (faster, no code needed)
-                proc = subprocess.run([
-                    "semgrep", "--validate", "--config", rule_path
-                ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=60)
+                if docker_image:
+                    host_dir = os.path.dirname(rule_path)
+                    base = os.path.basename(rule_path)
+                    proc = subprocess.run([
+                        "docker", "run", "--rm",
+                        "-e", "SEMGREP_SEND_METRICS=off",
+                        "-e", "SEMGREP_ENABLE_VERSION_CHECK=0",
+                        "-v", f"{host_dir}:/rules",
+                        docker_image,
+                        "semgrep", "--validate", "--config", f"/rules/{base}"
+                    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=120)
+                else:
+                    bin_path = semgrep_bin or "semgrep"
+                    proc = subprocess.run([
+                        bin_path, "--validate", "--config", rule_path
+                    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=60)
                 ok = proc.returncode == 0
                 return ok, proc.stdout
             except FileNotFoundError:
@@ -524,10 +646,26 @@ Filename: {request.filename or 'N/A'}
                     env = os.environ.copy()
                     env["SEMGREP_SEND_METRICS"] = "off"
                     env["SEMGREP_ENABLE_VERSION_CHECK"] = "0"
+                    semgrep_bin = env.get("SEMGREP_BIN")
+                    docker_image = env.get("SEMGREP_DOCKER_IMAGE") or getattr(self.settings, "SEMGREP_DOCKER_IMAGE", None)
                     # run scan on the temp directory
-                    proc = subprocess.run([
-                        "semgrep", "scan", "--config", rule_path, d
-                    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=120)
+                    if docker_image:
+                        host_rule_dir = os.path.dirname(rule_path)
+                        rule_base = os.path.basename(rule_path)
+                        proc = subprocess.run([
+                            "docker", "run", "--rm",
+                            "-e", "SEMGREP_SEND_METRICS=off",
+                            "-e", "SEMGREP_ENABLE_VERSION_CHECK=0",
+                            "-v", f"{host_rule_dir}:/rules",
+                            "-v", f"{d}:/code",
+                            docker_image,
+                            "semgrep", "scan", "--config", f"/rules/{rule_base}", "/code"
+                        ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=240)
+                    else:
+                        bin_path = semgrep_bin or "semgrep"
+                        proc = subprocess.run([
+                            bin_path, "scan", "--config", rule_path, d
+                        ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, timeout=180)
                     ok = proc.returncode == 0 or proc.returncode == 1  # 1 means findings
                     return ok, proc.stdout
             except FileNotFoundError:
@@ -575,6 +713,38 @@ Filename: {request.filename or 'N/A'}
                 scan_ok, scan_log = _semgrep_scan(rule_path, getattr(request, "original_code"), getattr(request, "filename", None))
                 reasoning_logs.append({"attempt": attempts, "phase": "scan", "ok": scan_ok, "log": scan_log})
                 # We don't strictly fail on scan non-zero, only if tool missing; the goal is smoke test
+
+            # Self-Criticism refinement for selected strategies
+            try:
+                if ps in {"combined_rag", "cot_rag"}:
+                    critique_prompt = (
+                        "Critique and refine the following Semgrep rule YAML to reduce over-breadth and false positives, "
+                        "without missing the vulnerable form shown in the diff. Keep output as YAML only (no fences).\n\n"
+                        "Constraints:\n"
+                        "- Ensure it does NOT match the fixed form in the diff.\n"
+                        "- Prefer precise method/argument patterns with metavariables.\n"
+                        "- Use pattern-inside to restrict scope when appropriate.\n"
+                        "- Keep 'fix' accurate and minimal.\n"
+                        "- Preserve Semgrep schema validity.\n\n"
+                        f"Diff (sliced):\n{sliced_unified}\n\nCurrent YAML:\n```yaml\n{body}\n```"
+                    )
+                    refined = self.llm.ask(system_prompt=system_prompt, user_prompt=critique_prompt) or body
+                    refined = _strip_yaml_fence(refined)
+                    refined = _sanitize_yaml_schema(refined, getattr(request, "target_cwes", None))
+                    # Validate refined
+                    ref_path = _write_temp_rule(refined)
+                    ref_ok, ref_log = _semgrep_validate(ref_path)
+                    reasoning_logs.append({"attempt": attempts, "phase": "self_criticism_validate", "ok": ref_ok, "log": ref_log})
+                    if ref_ok:
+                        final_yaml = refined
+                        rule_path = ref_path
+                        # Optional re-scan
+                        if getattr(request, "original_code", None):
+                            r_ok, r_log = _semgrep_scan(ref_path, getattr(request, "original_code"), getattr(request, "filename", None))
+                            reasoning_logs.append({"attempt": attempts, "phase": "self_criticism_scan", "ok": r_ok, "log": r_log})
+            except Exception:
+                # best-effort: ignore critique errors
+                pass
 
             break
 

@@ -1,0 +1,40 @@
+rules:
+- id: java-sql-injection-cwe-89
+  message: Use parameterized queries instead of string concatenation for SQL queries
+    to prevent SQL injection (CWE-89).
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    cwe: CWE-89
+    owasp: A03:2021 - Injection
+    rationale: 'String concatenation in SQL queries can lead to SQL injection vulnerabilities.
+      Using parameterized queries with PreparedStatement ensures that user input is
+      properly escaped and prevents attackers from injecting malicious SQL.
+
+      '
+  fix: Connection conn = DriverManager.getConnection($X, "user", "password");
+
+    String query = "SELECT * FROM users WHERE id = ?";
+
+    PreparedStatement pstmt = conn.prepareStatement(query);
+
+    pstmt.setString(1, userId);
+
+    return pstmt.executeQuery();
+  pattern-inside: |
+    public ResultSet getUserData(String userId) throws SQLException
+    
+    {
+    
+    ...
+    
+    }
+  pattern: |
+    Connection conn = DriverManager.getConnection($X, "user", "password");
+    
+    Statement stmt = conn.createStatement();
+    
+    String query = "SELECT * FROM users WHERE id = ''''''''" + userId + "''''''''";
+    
+    return stmt.executeQuery(query);

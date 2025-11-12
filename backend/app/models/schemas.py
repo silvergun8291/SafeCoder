@@ -110,11 +110,9 @@ class ScannerResult(BaseModel):
 class ScanOptions(BaseModel):
     """스캔 옵션"""
     enable_cpg_analysis: bool = Field(default=False, description="CPG 분석 활성화")
-    enable_rag_search: bool = Field(default=False, description="RAG 검색 활성화")
     specific_scanners: Optional[List[str]] = Field(None, description="특정 스캐너만 실행")
     min_severity: Severity = Field(default=Severity.LOW, description="최소 심각도 필터")
     timeout: int = Field(default=300, description="타임아웃 (초)")
-    use_slicing_for_llm: bool = Field(default=True, description="LLM 시큐어 코딩 프롬프트에 함수/메서드 단위 슬라이싱 적용")
 
     model_config = ConfigDict(use_enum_values=True)
 

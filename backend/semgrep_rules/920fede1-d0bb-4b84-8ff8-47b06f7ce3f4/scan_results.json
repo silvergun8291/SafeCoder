@@ -1,0 +1,113 @@
+{
+  "job_id": "920fede1-d0bb-4b84-8ff8-47b06f7ce3f4",
+  "language": "java",
+  "filename": "VulnerableApp.java",
+  "options": {
+    "enable_cpg_analysis": false,
+    "specific_scanners": null,
+    "min_severity": "low",
+    "timeout": 300
+  },
+  "vulnerabilities_processed": 9,
+  "groups_processed": 3,
+  "vulnerabilities": [
+    {
+      "file": null,
+      "line_start": 17,
+      "line_end": 17,
+      "severity": "high",
+      "cwe": 89,
+      "scanner": "semgrep",
+      "message": "java.lang.security.audit.formatted-sql-string.formatted-sql-string",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 23,
+      "line_end": 23,
+      "severity": "high",
+      "cwe": 611,
+      "scanner": "semgrep",
+      "message": "java.lang.security.audit.xxe.documentbuilderfactory-disallow-doctype-decl-missing.documentbuilderfactory-disallow-doctype-decl-missing",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 16,
+      "line_end": 16,
+      "severity": "high",
+      "cwe": 89,
+      "scanner": "horusec",
+      "message": "HorusecEngine",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 8,
+      "line_end": 8,
+      "severity": "medium",
+      "cwe": 0,
+      "scanner": "codeql",
+      "message": "java/concatenated-command-line",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 8,
+      "line_end": 8,
+      "severity": "medium",
+      "cwe": 0,
+      "scanner": "codeql",
+      "message": "java/relative-path-command",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 17,
+      "line_end": 17,
+      "severity": "medium",
+      "cwe": 89,
+      "scanner": "semgrep",
+      "message": "java.lang.security.audit.sqli.jdbc-sqli.jdbc-sqli",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 17,
+      "line_end": 17,
+      "severity": "medium",
+      "cwe": 0,
+      "scanner": "codeql",
+      "message": "java/concatenated-sql-query",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 8,
+      "line_end": 8,
+      "severity": "medium",
+      "cwe": 78,
+      "scanner": "horusec",
+      "message": "HorusecEngine",
+      "extra": null
+    },
+    {
+      "file": null,
+      "line_start": 22,
+      "line_end": 22,
+      "severity": "medium",
+      "cwe": 611,
+      "scanner": "horusec",
+      "message": "HorusecEngine",
+      "extra": null
+    }
+  ],
+  "timings": {
+    "scan_seconds": 109.663,
+    "grouping_seconds": 0.01,
+    "slicing_seconds": 0.003,
+    "llm_fix_seconds": 33.228,
+    "rule_cwe_split_seconds": 0.0,
+    "rule_gen_seconds": 23.476
+  }
+}

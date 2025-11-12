@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import health, scan, rag, semgrep, pipeline
+from app.api.routes import health, scan, rag, semgrep, pipeline, quality, quality_semgrep
 
 api_router = APIRouter()
 
@@ -37,4 +37,18 @@ api_router.include_router(
     pipeline.router,
     prefix="",  # ⬅️ /api/secure-coding/pipeline/*
     tags=["Pipeline"]
+)
+
+# LLM Prompt Strategy Quality Comparison
+api_router.include_router(
+    quality.router,
+    prefix="",  # ⬅️ /api/secure-coding/llm-quality/*
+    tags=["Quality"]
+)
+
+# Semgrep Rule Generation Quality Comparison
+api_router.include_router(
+    quality_semgrep.router,
+    prefix="",  # ⬅️ /api/secure-coding/semgrep-quality/*
+    tags=["Quality"]
 )
