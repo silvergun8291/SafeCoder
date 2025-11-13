@@ -40,47 +40,62 @@ class PatchService:
 
     # ------------------------ Public API ------------------------
     async def run_patch(
-        self,
-        request: ScanRequest,
-        max_iterations: int = 3,
-        min_severity: Severity | str = Severity.LOW,
-        use_rag: bool = False,
+            self,
+            request: ScanRequest,
+            max_iterations: int = 3,
+            min_severity: Severity | str = Severity.LOW,
+            use_rag: bool = False,
     ) -> Dict[str, Any]:
+        """
+        여러 취약점 그룹에 대한 역순 병합 방식의 엔드투엔드 패치 파이프라인
+
+        기존 구현 대비 변경사항:
+        - 그룹들을 끝 라인 기준 역순으로 병합하여 라인 오프셋 문제 해결
+        - 정확한 라인 번호 조정을 위한 오프셋 추적 추가
+        - 병합 프로세스 디버깅을 위한 로깅 강화
+        """
         language = Language(request.language)
         original_code = request.source_code
 
-        # 1) Initial scan to prepare prompt context
-        self.logger.info("[Patch] Initial scan started")
+        # 1) 프롬프트 컨텍스트 준비를 위한 초기 스캔
+        self.logger.info("[Patch] 초기 스캔 시작")
         initial_scan = await self.scanner.scan_code(request)
-        self.logger.info("[Patch] Initial scan done: total_vulns=%s errors=%s", initial_scan.total_vulnerabilities, len(initial_scan.scanner_errors or []))
+        self.logger.info(
+            "[Patch] 초기 스캔 완료: 총 취약점=%s 에러=%s",
+            initial_scan.total_vulnerabilities,
+            len(initial_scan.scanner_errors or [])
+        )
 
-        # 2) Build prompts (slicing-aware if enabled)
+        # 2) 프롬프트 빌드 (슬라이싱 활성화 시)
         opts = getattr(request, "options", None)
         use_slice = bool(getattr(opts, "use_code_slicing", False))
         parallel_fix = bool(getattr(opts, "parallel_slice_fix", False))
+
         if use_slice and initial_scan.aggregated_vulnerabilities:
-            # Anchor: first vulnerability
+            # 앵커: 첫 번째 취약점
             first_v = initial_scan.aggregated_vulnerabilities[0]
             target_line = int(getattr(first_v, "line_start", 1) or 1)
-            # Slice function/method with header context
+
+            # 헤더 컨텍스트를 포함한 함수/메서드 슬라이싱
             try:
                 code_slice = slice_function_with_header(language, original_code, target_line)
             except Exception:
-                # Fallback small window
+                # 폴백: 작은 윈도우 범위
                 lines = original_code.splitlines()
                 i = max(0, target_line - 1)
                 start = max(0, i - 30)
                 end = min(len(lines), i + 30)
                 code_slice = "\n".join(lines[start:end])
 
-            # Determine enclosing symbol and group vulns within the range
+            # 포함 심볼 결정 및 범위 내 취약점 그룹화
             func_nm, s_line, e_line = ("unknown", max(1, target_line - 1), target_line + 1)
             sym = find_enclosing_symbol(language, original_code, target_line)
             if sym:
                 func_nm, s_line, e_line = sym
-            # Group vulnerabilities by enclosing symbol if parallel slice fix is enabled
+
+            # 병렬 슬라이스 수정이 활성화된 경우 포함 심볼별로 취약점 그룹화
             if parallel_fix:
-                self.logger.info("[Patch] Parallel slice fix enabled")
+                self.logger.info("[Patch] 병렬 슬라이스 수정 활성화")
                 groups: Dict[Tuple[str, int, int], List[Any]] = {}
                 for v in initial_scan.aggregated_vulnerabilities:
                     ls = int(getattr(v, "line_start", 0) or 0)
@@ -91,12 +106,13 @@ class PatchService:
                         continue
                     key = (s[0], s[1], s[2])
                     groups.setdefault(key, []).append(v)
-                # Fallback to single group if grouping failed
+
+                # 그룹화 실패 시 단일 그룹으로 폴백
                 if len(groups) <= 1:
                     parallel_fix = False
-                    self.logger.info("[Patch] Not enough groups for parallel; fallback to single-slice")
+                    self.logger.info("[Patch] 병렬 처리를 위한 그룹이 부족함; 단일 슬라이스로 폴백")
                 else:
-                    # Build prompts per group and ask LLM in parallel
+                    # 그룹별 프롬프트 빌드 및 병렬 LLM 호출
                     prompts: List[Tuple[Tuple[str, int, int], Tuple[str, str]]] = []
                     for (fnm, gs, ge), vulns in groups.items():
                         tline = int(getattr(vulns[0], "line_start", gs) or gs)
@@ -108,45 +124,103 @@ class PatchService:
                             start = max(0, i - 30)
                             end = min(len(lines), i + 30)
                             gslice = "\n".join(lines[start:end])
-                        meta_g = {"function_name": fnm, "start": gs, "end": ge, "cwes": [getattr(v, "cwe", None) for v in vulns if getattr(v, "cwe", None) is not None]}
-                        sys_g, usr_g = build_combined_with_rag(self.scanner, original_code, language, vulns, meta_g, gslice) if use_rag else self._compose_slice_prompts_without_rag(original_code, language, vulns, meta_g, gslice)
+
+                        meta_g = {
+                            "function_name": fnm,
+                            "start": gs,
+                            "end": ge,
+                            "cwes": [
+                                getattr(v, "cwe", None)
+                                for v in vulns
+                                if getattr(v, "cwe", None) is not None
+                            ]
+                        }
+
+                        if use_rag:
+                            sys_g, usr_g = build_combined_with_rag(
+                                self.scanner, original_code, language, vulns, meta_g, gslice
+                            )
+                        else:
+                            sys_g, usr_g = self._compose_slice_prompts_without_rag(
+                                original_code, language, vulns, meta_g, gslice
+                            )
+
                         prompts.append(((fnm, gs, ge), (sys_g, usr_g)))
 
-                    self.logger.info("[Patch] Dispatching %d parallel LLM calls", len(prompts))
+                    self.logger.info("[Patch] %d개 병렬 LLM 호출 전송", len(prompts))
                     tasks = [self.llm.ask_async(sys, usr) for _, (sys, usr) in prompts]
                     answers = await asyncio.gather(*tasks, return_exceptions=True)
 
-                    # Sequentially merge each slice's fixed code into the original
+                    # ✅ 개선: 끝 라인 기준 역순으로 그룹 정렬
+                    # 순차 병합 중 라인 오프셋 문제 방지
+                    indexed_prompts = [
+                        (prompts[i][0], i) for i in range(len(prompts))
+                    ]
+                    # 끝 라인(ge) 기준 내림차순 정렬
+                    indexed_prompts.sort(key=lambda x: x[0][2], reverse=True)
+
+                    self.logger.info(
+                        "[Patch] %d개 그룹을 역순으로 병합: %s",
+                        len(indexed_prompts),
+                        [(fnm, gs, ge) for (fnm, gs, ge), _ in indexed_prompts]
+                    )
+
                     merged_code_lines = original_code.splitlines()
-                    for idx, ans in enumerate(answers):
+
+                    for (fnm, gs, ge), idx in indexed_prompts:
+                        ans = answers[idx]
                         if isinstance(ans, Exception) or not ans:
-                            self.logger.warning("[Patch] LLM answer missing for group #%d; skipping", idx)
+                            self.logger.warning(
+                                "[Patch] 그룹 %s (%d-%d)에 대한 LLM 응답 누락; 건너뜀",
+                                fnm, gs, ge
+                            )
                             continue
-                        fnm, gs, ge = prompts[idx][0]
+
                         fixed_slice = self._extract_first_code_block(str(ans), language)
                         if not fixed_slice:
-                            self.logger.warning("[Patch] No code block in LLM answer for %s:%d-%d; skipping", fnm, gs, ge)
+                            self.logger.warning(
+                                "[Patch] %s:%d-%d에 대한 LLM 응답에 코드 블록 없음; 건너뜀",
+                                fnm, gs, ge
+                            )
                             continue
-                        # Replace function body range with returned code
-                        # Lines are 1-based inclusive
+
+                        # 함수 본문 범위를 반환된 코드로 교체
+                        # 라인 번호는 1-based 포함형
                         start_i = max(0, gs - 1)
                         end_i = max(start_i, ge - 1)
                         new_lines = fixed_slice.splitlines()
-                        merged_code_lines[start_i:end_i] = new_lines  # simple splice
+
+                        original_line_count = end_i - start_i
+                        new_line_count = len(new_lines)
+
+                        self.logger.debug(
+                            "[Patch] %s (%d-%d) 병합: %d줄 -> %d줄 (차이: %+d)",
+                            fnm, gs, ge, original_line_count, new_line_count,
+                            new_line_count - original_line_count
+                        )
+
+                        # 슬라이스 교체
+                        merged_code_lines[start_i:end_i] = new_lines
+
                     aggregated_code = "\n".join(merged_code_lines)
 
-                    # Now treat aggregated_code as first fixed_code
-                    prompt = type("P", (), {"system_prompt": "[parallel_slice_fix]", "user_prompt": ""})
+                    # 이제 aggregated_code를 첫 번째 fixed_code로 처리
+                    prompt = type("P", (), {
+                        "system_prompt": "[parallel_slice_fix]",
+                        "user_prompt": ""
+                    })
                     fixed_code = aggregated_code
-                    self.logger.info("[Patch] Parallel slice merge complete")
-                
+                    self.logger.info("[Patch] 병렬 슬라이스 병합 완료")
+
             if not parallel_fix:
+                # 단일 슬라이스 모드
                 group_vulns = []
                 for v in initial_scan.aggregated_vulnerabilities:
                     ls = int(getattr(v, "line_start", 0) or 0)
                     le = int(getattr(v, "line_end", ls) or ls)
                     if s_line <= ls and le <= e_line:
                         group_vulns.append(v)
+
                 if not group_vulns:
                     group_vulns = [first_v]
 
@@ -154,50 +228,67 @@ class PatchService:
                     "function_name": func_nm,
                     "start": s_line,
                     "end": e_line,
-                    "cwes": [getattr(v, "cwe", None) for v in group_vulns if getattr(v, "cwe", None) is not None],
+                    "cwes": [
+                        getattr(v, "cwe", None)
+                        for v in group_vulns
+                        if getattr(v, "cwe", None) is not None
+                    ],
                 }
-                sys_prompt, usr_prompt = build_combined_with_rag(
-                    scanner_service=self.scanner,
-                    request_source=original_code,
-                    language=language,
-                    group_vulns=group_vulns,
-                    meta=meta,
-                    code_slice=code_slice,
-                ) if use_rag else self._compose_slice_prompts_without_rag(original_code, language, group_vulns, meta, code_slice)
-                self.logger.info("[Patch] Asking LLM for single-slice fix")
+
+                if use_rag:
+                    sys_prompt, usr_prompt = build_combined_with_rag(
+                        scanner_service=self.scanner,
+                        request_source=original_code,
+                        language=language,
+                        group_vulns=group_vulns,
+                        meta=meta,
+                        code_slice=code_slice,
+                    )
+                else:
+                    sys_prompt, usr_prompt = self._compose_slice_prompts_without_rag(
+                        original_code, language, group_vulns, meta, code_slice
+                    )
+
+                self.logger.info("[Patch] 단일 슬라이스 수정을 위한 LLM 호출")
                 first_answer = await self.llm.ask_async(sys_prompt, usr_prompt)
-                prompt = type("P", (), {"system_prompt": sys_prompt, "user_prompt": usr_prompt})  # minimal holder
+                prompt = type("P", (), {
+                    "system_prompt": sys_prompt,
+                    "user_prompt": usr_prompt
+                })
+                fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
+
         else:
-            # Fallback: whole-file combined prompt
+            # 폴백: 전체 파일 통합 프롬프트
             prompt = self.scanner.generate_secure_code_prompt(
                 aggregated_vulnerabilities=initial_scan.aggregated_vulnerabilities,
                 source_code=original_code,
                 language=language,
             )
-            self.logger.info("[Patch] Asking LLM for whole-file fix")
+            self.logger.info("[Patch] 전체 파일 수정을 위한 LLM 호출")
             first_answer = await self.llm.ask_async(prompt.system_prompt, prompt.user_prompt)
-        if not parallel_fix:
             fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
 
         iterations: List[Dict[str, Any]] = []
 
-        # 3) Validate AST and rescan loop
+        # 3) AST 검증 및 재스캔 루프
         for it in range(1, max_iterations + 1):
-            self.logger.info("[Patch] Iteration %d: validating syntax", it)
+            self.logger.info("[Patch] 반복 %d: 구문 검증 중", it)
             syntax_ok, syntax_err = self._validate_syntax(fixed_code, language)
+
             iter_rec: Dict[str, Any] = {
                 "iteration": it,
                 "syntax_valid": syntax_ok,
                 "syntax_error": syntax_err,
             }
+
             if not syntax_ok:
-                # Provide syntax error feedback to LLM and retry
-                self.logger.warning("[Patch] Syntax invalid: %s", syntax_err)
+                # LLM에 구문 오류 피드백 제공 및 재시도
+                self.logger.warning("[Patch] 구문 오류: %s", syntax_err)
                 feedback_system, feedback_user = self._build_feedback_prompts(
                     base_system=prompt.system_prompt,
                     base_user=prompt.user_prompt,
                     language=language,
-                    feedback=f"SyntaxError: {syntax_err}\nPlease output corrected full code only.",
+                    feedback=f"구문 오류: {syntax_err}\n수정된 전체 코드만 출력해주세요.",
                     latest_code=fixed_code,
                 )
                 answer = await self.llm.ask_async(feedback_system, feedback_user)
@@ -207,8 +298,11 @@ class PatchService:
                 iterations.append(iter_rec)
                 continue
 
-            # 4) Rescan with specific scanners per language
-            specific_scanners = ["bandit", "semgrep"] if language == Language.PYTHON else ["horusec", "semgrep"]
+            # 4) 언어별 특정 스캐너로 재스캔
+            specific_scanners = (
+                ["bandit", "semgrep"] if language == Language.PYTHON else ["horusec", "semgrep"]
+            )
+
             rescan_req = ScanRequest(
                 language=language,
                 source_code=fixed_code,
@@ -220,24 +314,24 @@ class PatchService:
                     "timeout": request.options.timeout if getattr(request, "options", None) else 300,
                 },
             )
-            # Pydantic model expects ScanOptions; reconstruct via dict is allowed in BaseModel
-            self.logger.info("[Patch] Iteration %d: rescanning with %s", it, ",".join(specific_scanners))
+
+            self.logger.info("[Patch] 반복 %d: %s로 재스캔 중", it, ",".join(specific_scanners))
             rescan = await self.scanner.scan_code(rescan_req)
             iter_rec["rescan_total_issues"] = rescan.total_vulnerabilities
             iter_rec["rescan_severity_summary"] = rescan.severity_summary
-
             iterations.append(iter_rec)
 
             if rescan.total_vulnerabilities == 0:
-                self.logger.info("[Patch] Iteration %d: clean, stopping loop", it)
+                self.logger.info("[Patch] 반복 %d: 클린, 루프 중단", it)
                 break
             else:
-                # Log detailed vulnerabilities when rescan fails
+                # 재스캔 실패 시 상세 취약점 로깅
                 self.logger.warning(
-                    "[Patch] Iteration %d: rescan failed with %d issue(s)",
+                    "[Patch] 반복 %d: 재스캔 실패 - %d개 이슈 발견",
                     it,
                     rescan.total_vulnerabilities,
                 )
+
                 for v in getattr(rescan, "aggregated_vulnerabilities", []) or []:
                     try:
                         cwe = getattr(v, "cwe", None) or 0
@@ -246,7 +340,7 @@ class PatchService:
                         desc = getattr(v, "description", "")
                         loc = f"{getattr(v, 'file_path', '')}:{getattr(v, 'line_start', 0)}-{getattr(v, 'line_end', 0)}"
                         self.logger.warning(
-                            "[Patch]  - CWE-%s [%s] at %s: %s",
+                            "[Patch] - CWE-%s [%s] at %s: %s",
                             cwe,
                             sev_val,
                             loc,
@@ -255,22 +349,23 @@ class PatchService:
                     except Exception:
                         continue
 
-            # 5) Build vulnerability-aware prompt for next iteration
-            feedback_system, feedback_user = self._build_feedback_prompts(
-                base_system=prompt.system_prompt,
-                base_user=prompt.user_prompt,
-                language=language,
-                feedback=self._format_vuln_feedback(rescan.aggregated_vulnerabilities, fixed_code),
-                latest_code=fixed_code,
-                iteration=it,
-            )
-            self.logger.info("[Patch] Iteration %d: asking LLM for next fix", it)
-            answer = await self.llm.ask_async(feedback_system, feedback_user)
-            new_code = self._extract_first_code_block(answer or "", language) or fixed_code
-            fixed_code = new_code
+                # 5) 다음 반복을 위한 취약점 인식 프롬프트 빌드
+                feedback_system, feedback_user = self._build_feedback_prompts(
+                    base_system=prompt.system_prompt,
+                    base_user=prompt.user_prompt,
+                    language=language,
+                    feedback=self._format_vuln_feedback(rescan.aggregated_vulnerabilities, fixed_code),
+                    latest_code=fixed_code,
+                    iteration=it,
+                )
 
-        # 6) Compute unified diff and apply patch via whatthepatch (if available)
-        self.logger.info("[Patch] Computing unified diff and applying patch")
+                self.logger.info("[Patch] 반복 %d: 다음 수정을 위한 LLM 호출", it)
+                answer = await self.llm.ask_async(feedback_system, feedback_user)
+                new_code = self._extract_first_code_block(answer or "", language) or fixed_code
+                fixed_code = new_code
+
+        # 6) unified diff 계산 및 whatthepatch로 패치 적용 (가능한 경우)
+        self.logger.info("[Patch] unified diff 계산 및 패치 적용 중")
         unified_diff = self._unified_diff(original_code, fixed_code, request.filename)
         patched_via_patch = self._apply_patch_with_whatthepatch(original_code, unified_diff) or fixed_code
 
