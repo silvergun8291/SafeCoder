@@ -1,0 +1,33 @@
+rules:
+- id: java-os-command-injection-runtime-exec-cwe-78
+  message: Avoid using Runtime.getRuntime().exec() with string concatenation to prevent
+    OS command injection. Use ProcessBuilder with validated input and absolute command
+    path instead.
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    cwe: CWE-78
+    owasp: A03:2021 - Injection
+    source-rule: https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html
+    rationale: Using string concatenation with Runtime.getRuntime().exec() can lead
+      to OS command injection vulnerabilities. The fix uses ProcessBuilder with input
+      validation and an absolute command path to prevent command injection attacks.
+  fix: ProcessBuilder processBuilder = new ProcessBuilder("PING_COMMAND", $INPUT);
+    processBuilder.redirectErrorStream(true);
+    processBuilder.directory(new File(System.getProperty("java.io.tmpdir")));
+    Process process = processBuilder.start();
+    try (BufferedReader reader = new BufferedReader(
+        new InputStreamReader(process.getInputStream()))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+    }
+    int exitCode = process.waitFor();
+    if (exitCode != 0) {
+        System.err.println("Command failed with exit code: " + exitCode);
+    }
+  pattern-inside: |
+    public void executeCommand(String $INPUT) throws IOException
+  pattern: Runtime.getRuntime().exec($CMD + $INPUT)

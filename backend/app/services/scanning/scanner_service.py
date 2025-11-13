@@ -65,12 +65,15 @@ class ScannerService:
             # 언어별 스캐너 선택
             scanners = self.config.get_scanners_for_language(request.language)
 
-            # 특정 스캐너만 실행하는 경우
+            # CodeQL 기본 제외: specific_scanners가 명시되면 그 우선, 아니면 use_codeql=True일 때만 포함
             if request.options.specific_scanners:
                 scanners = [
                     s for s in scanners
                     if s["name"] in request.options.specific_scanners
                 ]
+            else:
+                if not request.options.use_codeql:
+                    scanners = [s for s in scanners if s.get("name") != "codeql"]
 
             # 동시성 제한 계산
             cpu_count = os.cpu_count() or 2

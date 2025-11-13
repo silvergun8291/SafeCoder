@@ -116,6 +116,7 @@ class ScanOptions(BaseModel):
     use_code_slicing: bool = Field(default=False, description="취약 함수 슬라이싱 기반 컨텍스트 사용")
     parallel_slice_fix: bool = Field(default=False, description="슬라이스별 병렬 LLM 호출 후 순차 패치 적용")
     use_rag: bool = Field(default=False, description="RAG 섹션 결합 프롬프트 사용")
+    use_codeql: bool = Field(default=False, description="CodeQL 스캐너 사용 여부 (기본 비활성화)")
     scanner_concurrency: Optional[int] = Field(
         default=None,
         description="스캐너 동시 실행 개수 (None 또는 0이면 CPU 코어 기반 자동 설정)"

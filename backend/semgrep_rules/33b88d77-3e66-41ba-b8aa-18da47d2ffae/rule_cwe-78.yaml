@@ -1,0 +1,34 @@
+rules:
+- id: java-xxe-document-builder-cwe-611
+  message: 'Use secure DocumentBuilderFactory configuration to prevent XXE attacks
+    (CWE-611). Disable DOCTYPE declarations, external entities, DTD loading, XInclude,
+    and entity expansion. Set a no-op EntityResolver to prevent external resource
+    resolution.
+
+    '
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    cwe: CWE-611
+    owasp: A05:2021 - Security Misconfiguration
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
+    - https://cwe.mitre.org/data/definitions/611.html
+  fix: "DocumentBuilderFactory $FACTORY = DocumentBuilderFactory.newInstance();\n\
+    $FACTORY.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\",\
+    \ true);\n$FACTORY.setFeature(\"http://xml.org/sax/features/external-general-entities\"\
+    , false);\n$FACTORY.setFeature(\"http://xml.org/sax/features/external-parameter-entities\"\
+    , false);\n$FACTORY.setFeature(\"http://apache.org/xml/features/nonvalidating/load-external-dtd\"\
+    , false);\n$FACTORY.setXIncludeAware(false);\n$FACTORY.setExpandEntityReferences(false);\n\
+    DocumentBuilder $BUILDER = $FACTORY.newDocumentBuilder();\n$BUILDER.setEntityResolver(new\
+    \ EntityResolver() {\n    @Override\n    public InputSource resolveEntity(String\
+    \ publicId, String systemId) {\n        return new InputSource(new StringReader(\"\
+    \"));\n    }\n});\n$BUILDER.parse(new InputSource(new StringReader($XMLDATA)));"
+  pattern-inside: "public * parseXML(String $XMLDATA) throws Exception {\n  ...\n\
+      }"
+  pattern: 'DocumentBuilderFactory $FACTORY = DocumentBuilderFactory.newInstance();
+
+      DocumentBuilder $BUILDER = $FACTORY.newDocumentBuilder();
+
+      $BUILDER.parse(new InputSource(new StringReader($XMLDATA)))'
