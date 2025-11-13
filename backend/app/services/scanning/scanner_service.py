@@ -1,6 +1,7 @@
 """스캐너 실행 및 결과 처리 서비스"""
 
 import asyncio
+import os
 import docker
 import json
 import time
@@ -71,9 +72,23 @@ class ScannerService:
                     if s["name"] in request.options.specific_scanners
                 ]
 
-            # 병렬 스캔 실행
+            # 동시성 제한 계산
+            cpu_count = os.cpu_count() or 2
+            auto_conc = max(2, cpu_count - 1)
+            # 스캐너 수와 비교해 과도한 동시성 방지
+            max_concurrency = min(len(scanners), request.options.scanner_concurrency or auto_conc)
+            sem = asyncio.Semaphore(max_concurrency if max_concurrency > 0 else len(scanners))
+
+            async def _run_with_sem(scanner_cfg: Dict[str, str]):
+                async with sem:
+                    # 스캐너별 결과 디렉터리 분리
+                    per_results = results_dir / scanner_cfg["name"]
+                    per_results.mkdir(exist_ok=True)
+                    return await self._run_scanner(scanner_cfg, source_dir, per_results, request.options, request.language)
+
+            # 병렬 스캔 실행 (세마포어로 동시성 제어)
             scan_tasks = [
-                self._run_scanner(scanner, source_dir, results_dir, request.options, request.language)
+                _run_with_sem(scanner)
                 for scanner in scanners
             ]
 
@@ -154,14 +169,19 @@ class ScannerService:
         image = scanner_config["image"]
         output_file = scanner_config["output_file"]
 
-        # 스캐너별 타임아웃 사용 (options.timeout보다 스캐너 고유 타임아웃 우선)
+        # 스캐너별 타임아웃: 설정된 옵션 상한 적용
         scanner_timeout = scanner_config.get("timeout", options.timeout)
+        if options.timeout:
+            try:
+                scanner_timeout = min(scanner_timeout, options.timeout)
+            except Exception:
+                pass
 
         start_time = time.time()
         scan_time = datetime.now()
 
         try:
-            # 커스텀 이미지 빌드 확인
+            # 커스텀 이미지 빌드 확인 (블로킹 → 스레드 오프로딩)
             if image in self.config.CUSTOM_IMAGES:
                 await self._ensure_image_built(scanner_config)
 
@@ -175,30 +195,46 @@ class ScannerService:
                 # 기본 entrypoint 스크립트 사용
                 command = ["/source", f"/results/{output_file}"]
 
-            # Docker 컨테이너 실행
-            container = self.docker_client.containers.run(
-                image=image,
-                command=command,
-                volumes={
-                    str(source_dir): {'bind': '/source', 'mode': 'rw'},
-                    str(results_dir): {'bind': '/results', 'mode': 'rw'}
-                },
-                detach=True,
-                remove=False  # 로그 확인을 위해 수동 삭제
-            )
+            # 리소스 제한 설정
+            nano_cpus = None
+            if options.scanner_cpus and options.scanner_cpus > 0:
+                try:
+                    nano_cpus = int(float(options.scanner_cpus) * 1_000_000_000)
+                except Exception:
+                    nano_cpus = None
 
-            # 컨테이너 완료 대기 (스캐너별 타임아웃 사용)
-            result = container.wait(timeout=scanner_timeout)
-            exit_code = result.get('StatusCode', -1)
+            mem_limit = options.scanner_mem if options.scanner_mem else None
 
-            # 로그 가져오기
-            # ⭐ 로그 가져와서 출력 (stdout과 stderr 모두)
-            logs = container.logs(stdout=True, stderr=True).decode('utf-8', errors='ignore')
+            def _run_and_collect() -> Dict[str, Any]:
+                container = self.docker_client.containers.run(
+                    image=image,
+                    command=command,
+                    volumes={
+                        str(source_dir): {'bind': '/source', 'mode': 'rw'},
+                        str(results_dir): {'bind': '/results', 'mode': 'rw'}
+                    },
+                    detach=True,
+                    remove=False,  # 로그 확인을 위해 수동 삭제
+                    nano_cpus=nano_cpus,
+                    mem_limit=mem_limit,
+                )
+                try:
+                    result = container.wait(timeout=scanner_timeout)
+                    exit_code_inner = result.get('StatusCode', -1)
+                    logs_inner = container.logs(stdout=True, stderr=True).decode('utf-8', errors='ignore')
+                finally:
+                    try:
+                        container.remove()
+                    except Exception:
+                        pass
+                return {"exit_code": exit_code_inner, "logs": logs_inner}
 
-            # 컨테이너 삭제
-            container.remove()
+            # 컨테이너 실행/대기/로그 수집을 스레드로 실행
+            run_result = await asyncio.to_thread(_run_and_collect)
+            exit_code = run_result.get("exit_code", -1)
+            logs = run_result.get("logs", "")
 
-            # 결과 파일 읽기
+            # 결과 파일 읽기 (파일 IO도 스레드로)
             result_file = results_dir / output_file
             if not result_file.exists():
                 print(f"[{scanner_name}] 결과 파일 없음: {output_file}")
@@ -209,8 +245,11 @@ class ScannerService:
                     scan_time
                 )
 
-            with open(result_file, 'r', encoding='utf-8') as f:
-                raw_result = json.load(f)
+            def _read_json(path: Path) -> Dict[str, Any]:
+                with open(path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+
+            raw_result = await asyncio.to_thread(_read_json, result_file)
 
             execution_time = time.time() - start_time
 
@@ -238,24 +277,29 @@ class ScannerService:
             return self._create_error_result(scanner_name, error_msg, -1, scan_time)
 
     async def _ensure_image_built(self, scanner_config: Dict[str, str]):
-        """커스텀 이미지가 빌드되어 있는지 확인하고 없으면 빌드"""
+        """커스텀 이미지가 빌드되어 있는지 확인하고 없으면 빌드 (블로킹 호출을 스레드로 오프로딩)"""
         image_name = scanner_config["image"]
         build_path = scanner_config.get("build_path")
 
         if not build_path:
             return
 
+        def _get_image():
+            return self.docker_client.images.get(image_name)
+
         try:
-            # 이미지 존재 확인
-            self.docker_client.images.get(image_name)
+            await asyncio.to_thread(_get_image)
         except docker.errors.ImageNotFound:
             print(f"[{scanner_config['name']}] 이미지 빌드 중: {image_name}")
-            # 동기 방식으로 빌드 (Docker API 제약)
-            self.docker_client.images.build(
-                path=build_path,
-                tag=image_name,
-                rm=True
-            )
+
+            def _build():
+                self.docker_client.images.build(
+                    path=build_path,
+                    tag=image_name,
+                    rm=True
+                )
+
+            await asyncio.to_thread(_build)
             print(f"[{scanner_config['name']}] 이미지 빌드 완료")
 
     @staticmethod

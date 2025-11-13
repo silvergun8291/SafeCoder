@@ -116,6 +116,18 @@ class ScanOptions(BaseModel):
     use_code_slicing: bool = Field(default=False, description="취약 함수 슬라이싱 기반 컨텍스트 사용")
     parallel_slice_fix: bool = Field(default=False, description="슬라이스별 병렬 LLM 호출 후 순차 패치 적용")
     use_rag: bool = Field(default=False, description="RAG 섹션 결합 프롬프트 사용")
+    scanner_concurrency: Optional[int] = Field(
+        default=None,
+        description="스캐너 동시 실행 개수 (None 또는 0이면 CPU 코어 기반 자동 설정)"
+    )
+    scanner_cpus: Optional[float] = Field(
+        default=None,
+        description="스캐너 컨테이너별 CPU 코어 수 제한 (예: 0.5, 1.0, 2.0). Docker nano_cpus로 적용"
+    )
+    scanner_mem: Optional[str] = Field(
+        default=None,
+        description="스캐너 컨테이너별 메모리 제한 (예: '1g', '512m')"
+    )
 
     model_config = ConfigDict(use_enum_values=True)
 
