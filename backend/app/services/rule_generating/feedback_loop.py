@@ -43,13 +43,14 @@ class FeedbackLoop:
             print(f"\n🔄 Attempt {attempt}/{self.max_attempts}")
 
             # 1. Rule 생성 (이전 피드백 포함)
+            augmented_feedback = self._augment_feedback(previous_feedback) if previous_feedback else None
             rule = self.generator.generate_rule(
                 before_code=before_code,
                 after_code=after_code,
                 ast_result=ast_result,
                 cwe=cwe,
                 language=language,
-                feedback=previous_feedback  # 피드백 전달
+                feedback=augmented_feedback  # 교정 힌트 포함 피드백 전달
             )
 
             if not rule:
@@ -81,6 +82,31 @@ class FeedbackLoop:
 
         print(f"❌ All {self.max_attempts} attempts failed")
         return None
+
+    def _augment_feedback(self, feedback: Optional[str]) -> str:
+        """
+        검증 실패 메시지를 분석하여 LLM에 전달할 구체 교정 지시어로 확장
+        - 'replacement' 키워드 사용 → 'replace'로 교정 지시
+        - 'Pattern' / 'Node' import 오류 → 해당 타입 및 import 금지 지시
+        - 구문 오류 → 단일 Python 코드블록, 주석/설명 금지 지시
+        """
+        base = feedback or ""
+        tips: list[str] = []
+        low = base.lower()
+
+        if "unexpected keyword" in low and "replacement" in low or "replacement" in low:
+            tips.append("Use 'replace' field instead of 'replacement' in Rule(...).")
+        if "cannot import name 'pattern'" in low or " pattern" in low:
+            tips.append("Do not import or use Pattern/Node. Only 'from polyglot_piranha import Rule' is allowed.")
+        if "syntax error" in low or "unterminated string" in low:
+            tips.append("Return a single valid Python code block only (triple backticks), no comments or extra text.")
+
+        # 항상 스펙 상기
+        tips.append("Allowed keys: name, query, replace_node, replace, holes. No other keys.")
+
+        if tips:
+            return base + "\n\nCorrection Hints:\n- " + "\n- ".join(tips)
+        return base
 
 
 class SelfHealingRuleGenerator:

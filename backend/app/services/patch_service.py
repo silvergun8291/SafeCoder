@@ -83,8 +83,11 @@ class PatchService:
 
         # 2) 프롬프트 빌드 (슬라이싱 활성화 시)
         opts = getattr(request, "options", None)
-        use_slice = bool(getattr(opts, "use_code_slicing", False))
-        parallel_fix = bool(getattr(opts, "parallel_slice_fix", False))
+        use_slice = True  # slicing 기본 활성화
+        parallel_fix = True  # 병렬 슬라이스 기본 활성화
+
+        # CWE별 before/after 코드 쌍 저장
+        cwe_code_pairs: Dict[int, Dict[str, str]] = {}
 
         if use_slice and initial_scan.aggregated_vulnerabilities:
             # 앵커: 첫 번째 취약점
@@ -220,6 +223,20 @@ class PatchService:
                         # 슬라이스 교체
                         merged_code_lines[start_i:end_i] = new_lines
 
+                        # 그룹의 CWE마다 before/after 슬라이스 저장(최초 1회)
+                        try:
+                            group_cwes = []
+                            for v in groups.get((fnm, gs, ge), []) or []:
+                                cv = getattr(v, "cwe", None)
+                                if cv is not None:
+                                    group_cwes.append(int(cv))
+                            before_slice = "\n".join(original_code.splitlines()[start_i:end_i])
+                            for cwe_id in group_cwes:
+                                if cwe_id not in cwe_code_pairs:
+                                    cwe_code_pairs[cwe_id] = {"before": before_slice, "after": fixed_slice}
+                        except Exception:
+                            pass
+
                     aggregated_code = "\n".join(merged_code_lines)
 
                     # 이제 aggregated_code를 첫 번째 fixed_code로 처리
@@ -277,6 +294,19 @@ class PatchService:
                 })
                 fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
 
+                # 해당 슬라이스의 CWE들에 대해 before/after 저장(최초 1회)
+                try:
+                    before_slice = code_slice
+                    after_slice = fixed_code if fixed_code != original_code else code_slice
+                    for v in group_vulns:
+                        cv = getattr(v, "cwe", None)
+                        if cv is not None:
+                            cid = int(cv)
+                            if cid not in cwe_code_pairs:
+                                cwe_code_pairs[cid] = {"before": before_slice, "after": after_slice}
+                except Exception:
+                    pass
+
         else:
             # 폴백: 전체 파일 통합 프롬프트
             prompt = self.scanner.generate_secure_code_prompt(
@@ -289,6 +319,14 @@ class PatchService:
             first_answer = await self.llm.ask_async(prompt.system_prompt, prompt.user_prompt)
             self.logger.info("[Patch] LLM 응답 수신 | elapsed=%.2fs", (_perf() - t_llm_w) )
             fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
+
+            # 폴백: 전체 파일을 모든 초기 CWE에 매핑(최초 1회만)
+            try:
+                for cv in initial_cwes:
+                    if cv not in cwe_code_pairs:
+                        cwe_code_pairs[cv] = {"before": original_code, "after": fixed_code}
+            except Exception:
+                pass
 
         iterations: List[Dict[str, Any]] = []
         last_rescan = None
@@ -428,6 +466,7 @@ class PatchService:
             "patched_code": patched_via_patch,
             "initial_cwes": initial_cwes,
             "final_cwes": final_cwes,
+            "cwe_code_pairs": cwe_code_pairs,
         }
 
     # ------------------------ Helpers ------------------------

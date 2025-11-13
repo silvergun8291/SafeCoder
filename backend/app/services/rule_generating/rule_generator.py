@@ -5,6 +5,9 @@ Java/Python 보안 취약점 Rule 생성기
 
 from typing import Dict, Optional, List
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class JavaPythonRuleGenerator:
@@ -188,6 +191,16 @@ class JavaPythonRuleGenerator:
 
         try:
             response = self.llm.generate(prompt, temperature=0.2)
+            try:
+                txt = str(response) if response is not None else "<None>"
+                # 길이 제한(최대 4000자)으로 로그 과다 방지
+                max_len = 4000
+                if len(txt) > max_len:
+                    logger.info("LLM 응답 원문 (truncated %d/%d): %s...", max_len, len(txt), txt[:max_len])
+                else:
+                    logger.info("LLM 응답 원문: %s", txt)
+            except Exception:
+                pass
             return self._parse_response(response)
         except Exception as e:
             print(f"Error: {e}")
@@ -242,16 +255,21 @@ class JavaPythonRuleGenerator:
                     2. Extract metavariables ($stmt, $conn, etc.)
                     3. Generate Piranha rule
                     
+                    STRICT CONSTRAINTS (must follow exactly):
+                    - Allowed fields in Rule(...): name, query, replace_node, replace, holes
+                    - Disallowed: replacement, Pattern, Node, any additional imports besides 'from polyglot_piranha import Rule'
+                    - Output must be a single Python code block only, no extra text or comments
+                    
                     Output (Python code):
                     
-                    ```
+                    ```python
                     from polyglot_piranha import Rule
                     
                     rule = Rule(
                     name="cwe_pattern_name",
                     query='''cs vulnerable_pattern''',
                     replace_node="cs vulnerable_pattern",
-                    replacement='''cs secure_pattern''',
+                    replace='''cs secure_pattern''',
                     holes={{"$var": {{"cs": "$var"}}}}
                     )
                     ```
@@ -299,17 +317,53 @@ class JavaPythonRuleGenerator:
     @staticmethod
     def _parse_response(response: str) -> Optional[Dict]:
         """응답 파싱"""
-        if "None" in response:
+        if not response:
             return None
 
-        code_match = re.search(r'``````', response, re.DOTALL)
-        if not code_match:
-            return None
+        text = str(response)
 
-        rule_code = code_match.group(1)
+        # 1) 언어 명시된 코드펜스 우선 탐색: ```python\n ... ``` (대소문자 무시)
+        m = re.search(r"```\s*(?:python|py)\s*\n(.*?)```", text, re.DOTALL | re.IGNORECASE)
+        if not m:
+            # 2) 일반 코드펜스: ```\n ... ```
+            m = re.search(r"```\s*\n(.*?)```", text, re.DOTALL)
+
+        if m:
+            rule_code = m.group(1).strip()
+        else:
+            # 3) 폴백: 응답 전체에서 'rule = Rule(' 주변을 포함한 텍스트 사용
+            #    너무 길면 그대로 넘기면 밸리데이터에서 거를 수 있도록 함
+            rule_code = text.strip()
+
+        # 사후 정규화: 지원하지 않는 필드/임포트 교정
+        rule_code = JavaPythonRuleGenerator._sanitize_rule_code(rule_code)
+
         name_match = re.search(r'name=["\']([^"\']+)["\']', rule_code)
 
         return {
             "rule_code": rule_code,
             "name": name_match.group(1) if name_match else "unknown"
         }
+
+    @staticmethod
+    def _sanitize_rule_code(code: str) -> str:
+        """
+        LLM 출력 정규화:
+        - replacement 키워드를 replace로 변경
+        - 금지된 import 제거: Pattern, Node 등
+        - 중복 공백 정리(보수적으로 최소한만)
+        """
+        try:
+            s = code
+            # replacement= -> replace= (양쪽 공백 허용)
+            s = re.sub(r"\breplacement\s=", "replace=", s)
+            # 금지 import 제거
+            s = re.sub(r"^\s*from\s+polyglot_piranha\s+import\s+Rule\s*,\s*Pattern\s*\n", "from polyglot_piranha import Rule\n", s, flags=re.MULTILINE)
+            s = re.sub(r"^\s*from\s+polyglot_piranha\s+import\s+Pattern\s*\n", "", s, flags=re.MULTILINE)
+            s = re.sub(r"^\s*from\s+polyglot_piranha\s+import\s+Node\s*\n", "", s, flags=re.MULTILINE)
+            # 혹시 다른 모듈에서 Pattern/Node를 임포트한 경우도 제거
+            s = re.sub(r"^\s*from\s+polyglot_piranha\s+import\s+.*\bPattern\b.*\n", "", s, flags=re.MULTILINE)
+            s = re.sub(r"^\s*from\s+polyglot_piranha\s+import\s+.*\bNode\b.*\n", "", s, flags=re.MULTILINE)
+            return s
+        except Exception:
+            return code

@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.dependencies import get_scanner_service
-from app.models.schemas import ScanRequest
+from app.models.schemas import ScanRequest, Language
 from app.services.patch_service import PatchService
 from app.services.scanning.scanner_service import ScannerService
 from app.services.llm_service import LLMService
 from app.services.rule_generating.rule_generate_service import RuleGenerateService
 from app.db.database import async_engine
-from app.db.crud import create_piranha_rule
+from app.db.crud import create_piranha_rule, get_piranha_rules_by_cwe
 
 router = APIRouter()
 
@@ -26,7 +26,115 @@ async def secure_patch(
 ):
     try:
         service = PatchService(scanner_service)
-        # use_rag은 요청 바디의 options에서 통일하여 제어
+
+        initial_scan = await scanner_service.scan_code(request)
+        initial_cwes: list[int] = []
+        try:
+            initial_cwes = sorted({
+                int(getattr(v, "cwe", 0) or 0)
+                for v in (getattr(initial_scan, "aggregated_vulnerabilities", []) or [])
+                if getattr(v, "cwe", None) is not None
+            })
+        except Exception:
+            initial_cwes = []
+
+        if initial_cwes:
+            SessionLocal = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
+            async with SessionLocal() as session:
+                for cwe_id in initial_cwes:
+                    cwe_str = f"CWE-{cwe_id}"
+                    rules = await get_piranha_rules_by_cwe(session, cwe_str)
+                    lang = str(getattr(request, "language", "")).lower()
+                    matched = [r for r in (rules or []) if str(getattr(r, "language", "")).lower() == lang]
+                    if matched:
+                        def _rate(r):
+                            s = int(getattr(r, "success_count", 0) or 0)
+                            f = int(getattr(r, "fail_count", 0) or 0)
+                            total = s + f
+                            sr = (s / total) if total > 0 else 0.0
+                            sim = float(getattr(r, "validation_similarity", 0.0) or 0.0)
+                            return sim, sr, s
+                        MIN_SIM = 0.85
+                        MIN_SR = 0.6
+                        filtered = []
+                        for r in matched:
+                            sim, sr, s = _rate(r)
+                            if sim >= MIN_SIM and sr >= MIN_SR:
+                                filtered.append((sim, sr, s, r))
+                        filtered.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+                    else:
+                        filtered = []
+                    if not filtered:
+                        continue
+
+                    rule_obj = filtered[0][3]
+                    rule_code = getattr(rule_obj, "rule_code", "") or ""
+                    if not rule_code:
+                        continue
+
+                    try:
+                        ns: dict = {}
+                        exec(rule_code, ns)
+                        if "rule" not in ns:
+                            continue
+
+                        try:
+                            from polyglot_piranha import execute_piranha, PiranhaArguments, RuleGraph
+                            transformed = execute_piranha(PiranhaArguments(
+                                code_snippet=request.source_code,
+                                language=str(request.language),
+                                rule_graph=RuleGraph(rules=[ns["rule"]], edges=[])
+                            ))
+                            patched_code = transformed[0].content if transformed else request.source_code
+                        except ImportError:
+                            patched_code = request.source_code
+
+                        if patched_code != request.source_code:
+                            try:
+                                lang_enum = Language(request.language)
+                            except Exception:
+                                lang_enum = Language(str(request.language))
+                            syntax_ok, _ = PatchService._validate_syntax(patched_code, lang_enum)
+                            if not syntax_ok:
+                                continue
+                            unified_diff = PatchService._unified_diff(
+                                request.source_code, patched_code, getattr(request, "filename", None)
+                            )
+
+                            try:
+                                rescan_req = ScanRequest(
+                                    language=request.language,
+                                    source_code=patched_code,
+                                    filename=request.filename,
+                                    options=getattr(request, "options", None),
+                                )
+                                rescan = await scanner_service.scan_code(rescan_req)
+                                final_cwes = sorted({
+                                    int(getattr(v, "cwe", 0) or 0)
+                                    for v in (getattr(rescan, "aggregated_vulnerabilities", []) or [])
+                                    if getattr(v, "cwe", None) is not None
+                                })
+                                improved = (int(getattr(rescan, "total_vulnerabilities", 0) or 0) <= int(getattr(initial_scan, "total_vulnerabilities", 0) or 0))
+                                target_removed = (cwe_id not in set(final_cwes))
+                                if not (improved and target_removed):
+                                    continue
+                            except Exception:
+                                final_cwes = []
+
+                            return {
+                                "job_id": initial_scan.job_id,
+                                "language": str(request.language),
+                                "iterations": [],
+                                "passed": (len(final_cwes) == 0),
+                                "unified_diff": unified_diff,
+                                "patched_code": patched_code,
+                                "initial_cwes": initial_cwes,
+                                "final_cwes": final_cwes,
+                                "cwe_code_pairs": {},
+                            }
+                    except Exception:
+                        continue
+
         use_rag = bool(getattr(getattr(request, "options", None), "use_rag", False))
         result = await service.run_patch(request=request, use_rag=use_rag)
 
@@ -78,6 +186,7 @@ async def _postprocess_rule_generation(request: ScanRequest, result: dict) -> No
         # DB 세션 준비 (루프 내 재사용)
         SessionLocal = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
         async with SessionLocal() as session:
+            cwe_pairs = result.get("cwe_code_pairs") or {}
             for idx, cwe_id in enumerate(fixed_cwes, 1):
                 cwe_str = f"CWE-{cwe_id}"
                 logger.info("\n%s", "=" * 80)
@@ -85,9 +194,13 @@ async def _postprocess_rule_generation(request: ScanRequest, result: dict) -> No
                 logger.info("%s", "=" * 80)
 
                 try:
+                    pair = cwe_pairs.get(int(cwe_id)) or {}
+                    before_src = pair.get("before") or original_code
+                    after_src = pair.get("after") or fixed_code
+
                     gen = rg_service.generate_rule(
-                        before_code=original_code,
-                        after_code=fixed_code,
+                        before_code=before_src,
+                        after_code=after_src,
                         cwe=cwe_str,
                         language=language,
                     )
@@ -114,8 +227,8 @@ async def _postprocess_rule_generation(request: ScanRequest, result: dict) -> No
                             rule_name=rule_name,
                             language=language,
                             rule_code=rule_code,
-                            before_code=original_code,
-                            after_code=fixed_code,
+                            before_code=before_src,
+                            after_code=after_src,
                             cwe=cwe_str,
                             diff_analysis=analysis.get("diff"),
                             ast_analysis=analysis.get("ast"),

@@ -158,9 +158,9 @@ class RuleGenerateService:
 
         return results
 
+    @staticmethod
     def analyze_only(
-        self,
-        before_code: str,
+            before_code: str,
         after_code: str,
         language: str = "java"
     ) -> Dict:
