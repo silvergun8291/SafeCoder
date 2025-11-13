@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String, Text, Float, TIMESTAMP, func, Index
-from sqlalchemy.dialects.postgresql import TIMESTAMP as PG_TIMESTAMP
-from sqlalchemy.orm import Mapped, mapped_column
-from app.db.database import Base
 from datetime import datetime
 from typing import Optional
+
+from sqlalchemy import Integer, String, Text, Float, func, Index
+from sqlalchemy.dialects.postgresql import TIMESTAMP as PG_TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.database import Base
+
 
 class SemgrepRule(Base):
     """

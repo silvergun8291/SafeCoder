@@ -1,16 +1,15 @@
-import re
-import time
 import asyncio
+import json
 import logging
 import os
-from datetime import datetime
-import json
+import re
+import time
+
 try:
     import yaml  # PyYAML for robust YAML merging
 except Exception:
     yaml = None  # fallback to regex merger
-from typing import Optional, List, Dict, Any, Tuple, DefaultDict
-from collections import defaultdict
+from typing import Optional, List, Dict, Any, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.models.schemas import ScanRequest, PromptTechnique
@@ -19,8 +18,6 @@ from app.services.rag_service import RAGService
 from app.services.patch_service import PatchService
 from app.dependencies import get_scanner_service
 from app.models.schemas import Language
-from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
-from app.services.llm_service import LLMService
 
 router = APIRouter()
 logger = logging.getLogger("pipeline")

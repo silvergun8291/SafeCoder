@@ -6,10 +6,11 @@ scanner_service 통합 테스트
     pytest backend/tests/test_scanner_service.py::test_scan_python_code -v -s
 """
 
-import pytest
 import asyncio
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 # 프로젝트 루트를 PYTHONPATH에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))

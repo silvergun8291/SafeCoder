@@ -1,16 +1,18 @@
 # app/api/routes/scan.py
-import logging
 import asyncio
+import logging
+
 import docker.errors
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import ValidationError
+
+from app.core.exceptions import ScannerException
+from app.dependencies import get_scanner_service
 from app.models.schemas import (
     ScanRequest, ScanResponse, LLMFixContext,
     SecureCodePrompt, PromptTechnique
 )
 from app.services.scanning.scanner_service import ScannerService
-from app.core.exceptions import ScannerException
-from app.dependencies import get_scanner_service
-from pydantic import ValidationError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

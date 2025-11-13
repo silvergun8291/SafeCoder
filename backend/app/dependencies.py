@@ -1,6 +1,8 @@
 from functools import lru_cache
-from app.services.scanning.scanner_service import ScannerService
+
 from app.core.config import Settings, get_settings
+from app.services.scanning.scanner_service import ScannerService
+
 
 # @lru_cache를 사용하여 ScannerService 인스턴스를
 # 애플리케이션 수명 주기 동안 싱글톤으로 관리합니다.

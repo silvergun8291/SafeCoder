@@ -1,5 +1,6 @@
 import logging.config
 import sys
+
 from app.core.config import get_settings
 
 # Uvicorn 기본 포맷과 유사하게 맞추되, 레벨과 모듈 이름 추가

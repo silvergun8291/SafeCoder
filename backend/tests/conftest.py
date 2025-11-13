@@ -2,9 +2,10 @@
 Pytest configuration and shared fixtures
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # backend 디렉터리를 sys.path에 추가
 BACKEND_DIR = Path(__file__).resolve().parent.parent

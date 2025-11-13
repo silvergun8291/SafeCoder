@@ -1,9 +1,8 @@
 from typing import List, Dict, Any, Tuple
 
 from app.models.schemas import Language, PromptTechnique, SecureCodePrompt
-from app.services.scanning.scanner_service import ScannerService
 from app.services.rag_service import RAGService
-
+from app.services.scanning.scanner_service import ScannerService
 
 HARD_RULES = (
     "[SECURITY HARD RULES]\n"

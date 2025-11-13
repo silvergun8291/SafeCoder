@@ -1,20 +1,21 @@
 # app/main.py
 import logging
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from starlette.middleware.cors import CORSMiddleware
+
+from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 # --- 1. 우리가 만든 모듈 임포트 ---
 from app.api.routers import api_router
-from app.core.logging_config import setup_logging
-from app.db.database import Base, sync_engine, async_engine
 from app.core.exceptions import (
     AppException,
     app_exception_handler,
     http_exception_handler,
     generic_exception_handler
 )
+from app.core.logging_config import setup_logging
+from app.db.database import Base, sync_engine, async_engine
 
 
 # --- 2. 애플리케이션 수명 주기 (LifeSpan) ---

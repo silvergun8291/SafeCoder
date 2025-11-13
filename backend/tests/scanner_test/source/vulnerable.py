@@ -2,11 +2,12 @@
 스캐너 테스트용 취약한 Python 코드
 Bandit, Dlint가 탐지해야 할 보안 취약점 포함
 """
-import sqlite3
+import hashlib
 import os
 import pickle
-import hashlib
+import sqlite3
 import subprocess
+
 
 # CWE-89: SQL Injection
 def get_user(username):

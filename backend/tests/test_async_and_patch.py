@@ -1,9 +1,9 @@
-import asyncio
 from types import SimpleNamespace
+
 import pytest
 
-from app.services.patch_service import PatchService
 from app.models.schemas import Language, SecureCodePrompt
+from app.services.patch_service import PatchService
 from app.services.rag_service import RAGService
 
 

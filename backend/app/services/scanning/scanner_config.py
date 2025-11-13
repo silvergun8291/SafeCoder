@@ -1,7 +1,8 @@
 """스캐너 설정 및 메타데이터"""
 
-from typing import Dict, List
 from pathlib import Path
+from typing import Dict, List
+
 from app.models.schemas import Language
 
 

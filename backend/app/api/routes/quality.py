@@ -3,12 +3,12 @@ from typing import List, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.models.schemas import ScanRequest, Language
-from app.services.scanning.scanner_service import ScannerService
 from app.dependencies import get_scanner_service
-from app.services.llm_service import LLMService
-from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
+from app.models.schemas import ScanRequest, Language
 from app.services import pipeline_prompt_strategies as strat
+from app.services.llm_service import LLMService
+from app.services.scanning.scanner_service import ScannerService
+from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
 
 router = APIRouter()
 

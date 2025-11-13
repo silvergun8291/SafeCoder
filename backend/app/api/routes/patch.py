@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.schemas import ScanRequest
-from app.services.scanning.scanner_service import ScannerService
-from app.services.patch_service import PatchService
 from app.dependencies import get_scanner_service
+from app.models.schemas import ScanRequest
+from app.services.patch_service import PatchService
+from app.services.scanning.scanner_service import ScannerService
 
 router = APIRouter()
 

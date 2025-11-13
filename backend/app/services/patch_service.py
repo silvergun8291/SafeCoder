@@ -4,10 +4,10 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.models.schemas import ScanRequest, Language, Severity
-from app.services.scanning.scanner_service import ScannerService
 from app.services.llm_service import LLMService
-from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
 from app.services.pipeline_prompt_strategies import build_combined_with_rag
+from app.services.scanning.scanner_service import ScannerService
+from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
 
 # Optional Java AST parser
 try:

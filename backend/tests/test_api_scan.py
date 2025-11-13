@@ -2,9 +2,10 @@
 Scanning API endpoint tests (FIXED)
 """
 
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
 
 from app.main import app
 from app.models.schemas import ScanResponse, VulnerabilityInfo, Language

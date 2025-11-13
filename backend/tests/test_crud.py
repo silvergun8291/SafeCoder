@@ -6,7 +6,6 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.db.database import Base
 from app.db.crud import (
     create_semgrep_rule,
     get_semgrep_rule_by_id,
@@ -21,7 +20,7 @@ from app.db.crud import (
     delete_all_rules_by_language,
     get_rule_statistics
 )
-from app.models.models import SemgrepRule
+from app.db.database import Base
 
 
 # ==================== FIXTURES ====================

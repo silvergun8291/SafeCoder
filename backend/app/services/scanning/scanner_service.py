@@ -1,24 +1,25 @@
 """스캐너 실행 및 결과 처리 서비스"""
 
 import asyncio
-import os
-import docker
 import json
-import time
+import os
 import tempfile
-import uuid
 import textwrap
+import time
+import uuid
+from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Any
-from datetime import datetime
-from collections import Counter
-from app.models.schemas import PromptTechnique, SecureCodePrompt
 
-from app.services.scanning.scanner_config import ScannerConfig
+import docker
+
 from app.models.schemas import (
     Language, ScanRequest, ScanResponse, ScannerResult,
     VulnerabilityInfo, Severity, ScanStatus, ScanOptions
 )
+from app.models.schemas import PromptTechnique, SecureCodePrompt
+from app.services.scanning.scanner_config import ScannerConfig
 from app.utils.code_slicing import slice_function_with_header
 
 

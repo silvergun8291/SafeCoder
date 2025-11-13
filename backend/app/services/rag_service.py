@@ -1,14 +1,14 @@
 from typing import Dict, Any, List, Optional
 
-from app.models.schemas import ScanRequest, PromptTechnique, SecureCodePrompt, VulnerabilityInfo
-from app.services.scanning.scanner_service import ScannerService
-from app.services.llm_service import LLMService
-from app.core.config import get_settings
-
+from langchain_upstage.embeddings import UpstageEmbeddings
 # Qdrant + Embeddings for RAG
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
-from langchain_upstage.embeddings import UpstageEmbeddings
+
+from app.core.config import get_settings
+from app.models.schemas import ScanRequest, PromptTechnique, SecureCodePrompt
+from app.services.llm_service import LLMService
+from app.services.scanning.scanner_service import ScannerService
 
 
 class RAGService:

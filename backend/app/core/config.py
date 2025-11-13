@@ -1,8 +1,9 @@
-from pydantic_settings import BaseSettings
-from pydantic import field_validator, ValidationInfo
 from functools import lru_cache
-from typing import Optional
 from pathlib import Path
+from typing import Optional
+
+from pydantic import field_validator, ValidationInfo
+from pydantic_settings import BaseSettings
 
 # ⬅️ 2. config.py 파일의 위치를 기준으로 backend 폴더 경로를 잡습니다.
 #    config.py -> app/core/ -> app/ -> backend/

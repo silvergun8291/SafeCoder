@@ -1,10 +1,11 @@
 import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.schemas import ScanRequest, SecureCodePrompt, PromptTechnique
-from app.services.scanning.scanner_service import ScannerService
-from app.services.rag_service import RAGService
 from app.dependencies import get_scanner_service
+from app.models.schemas import ScanRequest, SecureCodePrompt, PromptTechnique
+from app.services.rag_service import RAGService
+from app.services.scanning.scanner_service import ScannerService
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
