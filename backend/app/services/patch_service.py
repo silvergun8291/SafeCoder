@@ -260,8 +260,9 @@ class PatchService:
                 base_system=prompt.system_prompt,
                 base_user=prompt.user_prompt,
                 language=language,
-                feedback=self._format_vuln_feedback(rescan.aggregated_vulnerabilities),
+                feedback=self._format_vuln_feedback(rescan.aggregated_vulnerabilities, fixed_code),
                 latest_code=fixed_code,
+                iteration=it,
             )
             self.logger.info("[Patch] Iteration %d: asking LLM for next fix", it)
             answer = await self.llm.ask_async(feedback_system, feedback_user)
@@ -338,21 +339,48 @@ class PatchService:
         return "\n".join(list(diff))
 
     @staticmethod
-    def _format_vuln_feedback(vulns: List[Any]) -> str:
+    def _format_vuln_feedback(vulns: List[Any], code: str = "") -> str:
         lines: List[str] = [
-            "Please rework the code. The following vulnerabilities were still detected after your fix:",
+            "The following vulnerabilities were still detected after your fix:",
+            ""
         ]
-        for v in (vulns or []):
+
+        code_lines = code.splitlines() if code else []
+
+        for idx, v in enumerate(vulns or [], 1):
             try:
                 cwe = getattr(v, "cwe", None) or 0
                 sev = getattr(v, "severity", None)
                 sev_val = getattr(sev, "value", str(sev)) if sev is not None else "unknown"
-                desc = getattr(v, "description", "")
-                loc = f"{getattr(v, 'file_path', '')}:{getattr(v, 'line_start', 0)}-{getattr(v, 'line_end', 0)}"
-                lines.append(f"- CWE-{cwe} [{sev_val}] at {loc}: {desc}")
+                line_start = int(getattr(v, "line_start", 0))
+                line_end = int(getattr(v, "line_end", line_start))
+
+                lines.append(f"### Issue {idx}: CWE-{cwe} [{sev_val}]")
+                lines.append(f"**Location**: Lines {line_start}-{line_end}")
+
+                # 실제 코드 라인 표시 (앞뒤 3줄 컨텍스트)
+                if code_lines and 0 < line_start <= len(code_lines):
+                    lines.append("**Code:**")
+                    lines.append("```")
+
+                    start = max(0, line_start - 4)
+                    end = min(len(code_lines), line_end + 3)
+
+                    for i in range(start, end):
+                        if i < len(code_lines):
+                            is_problem = (line_start - 1) <= i < line_end
+                            prefix = ">>> " if is_problem else "    "
+                            lines.append(f"{prefix}{i + 1}: {code_lines[i]}")
+
+                    lines.append("```")
             except Exception:
                 continue
-        lines.append("Output the full corrected code only in a fenced code block.")
+
+        lines.append("**Instructions:**")
+        lines.append("- Review each vulnerability carefully")
+        lines.append("- Apply the necessary security fixes")
+        lines.append("- Output the COMPLETE corrected code in a fenced code block")
+
         return "\n".join(lines)
 
     @staticmethod
@@ -362,7 +390,18 @@ class PatchService:
         language: Language,
         feedback: str,
         latest_code: str,
+        iteration: int = 1,
     ) -> Tuple[str, str]:
+        # 1. Role
+        role = f"You are a security engineer specializing in {language.value} secure coding."
+
+        # 2. Iteration 컨텍스트
+        urgency = ""
+        if iteration == 2:
+            urgency = "\n[WARNING] First fix failed. Apply MORE defensive patterns.\n"
+        elif iteration >= 3:
+            urgency = "\n[CRITICAL] Last attempt! Use the MOST secure approach.\n"
+
         hard_rules = (
             "[SECURITY HARD RULES]\n"
             "- Never use shell invocation for command execution (no /bin/sh, cmd.exe, or single-string exec).\n"
@@ -372,11 +411,16 @@ class PatchService:
             "- Disallow relative paths; use only allowlisted absolute paths.\n"
             "- Principle of least privilege; preserve functionality.\n"
         )
-        system_prompt = f"{base_system}\n\n{hard_rules}\n\n[FEEDBACK]\n{feedback}"
+
+        output_rule = """
+        [OUTPUT]
+        Provide ONLY complete, syntactically valid code in a code fence. No explanations.
+        """
+
+        system_prompt = f"{role}{urgency}\n{base_system}\n{hard_rules}\n{output_rule}\nFEEDBACK:\n{feedback}"
         user_prompt = (
             f"Language: {language.value}\n\n"
             f"Latest code to revise:\n```{language.value}\n{latest_code}\n```\n"
-            f"Please return only the full corrected code in a fenced block."
         )
         return system_prompt, user_prompt
 
