@@ -56,15 +56,30 @@ class PatchService:
         """
         language = Language(request.language)
         original_code = request.source_code
+        _perf = __import__("time").perf_counter
+        t_all = _perf()
 
         # 1) 프롬프트 컨텍스트 준비를 위한 초기 스캔
-        self.logger.info("[Patch] 초기 스캔 시작")
+        self.logger.info("[Patch] Initial scan 시작")
+        t0 = _perf()
         initial_scan = await self.scanner.scan_code(request)
         self.logger.info(
-            "[Patch] 초기 스캔 완료: 총 취약점=%s 에러=%s",
+            "[Patch] Initial scan 완료 | vulns=%s, errors=%s, elapsed=%.2fs",
             initial_scan.total_vulnerabilities,
-            len(initial_scan.scanner_errors or [])
+            len(initial_scan.scanner_errors or []),
+            (_perf() - t0),
         )
+
+        # 초기 CWE 목록 수집 (중복 제거)
+        initial_cwes = []
+        try:
+            initial_cwes = sorted({
+                int(getattr(v, "cwe", 0) or 0)
+                for v in (getattr(initial_scan, "aggregated_vulnerabilities", []) or [])
+                if getattr(v, "cwe", None) is not None
+            })
+        except Exception:
+            initial_cwes = []
 
         # 2) 프롬프트 빌드 (슬라이싱 활성화 시)
         opts = getattr(request, "options", None)
@@ -78,7 +93,9 @@ class PatchService:
 
             # 헤더 컨텍스트를 포함한 함수/메서드 슬라이싱
             try:
+                t_slice = _perf()
                 code_slice = slice_function_with_header(language, original_code, target_line)
+                self.logger.info("[Patch] Code slicing 완료 | anchor_line=%d, elapsed=%.2fs", target_line, (_perf() - t_slice))
             except Exception:
                 # 폴백: 작은 윈도우 범위
                 lines = original_code.splitlines()
@@ -86,6 +103,7 @@ class PatchService:
                 start = max(0, i - 30)
                 end = min(len(lines), i + 30)
                 code_slice = "\n".join(lines[start:end])
+                self.logger.info("[Patch] Slicing fallback 사용 | window=[%d,%d]", start + 1, end)
 
             # 포함 심볼 결정 및 범위 내 취약점 그룹화
             func_nm, s_line, e_line = ("unknown", max(1, target_line - 1), target_line + 1)
@@ -95,7 +113,7 @@ class PatchService:
 
             # 병렬 슬라이스 수정이 활성화된 경우 포함 심볼별로 취약점 그룹화
             if parallel_fix:
-                self.logger.info("[Patch] 병렬 슬라이스 수정 활성화")
+                self.logger.info("[Patch] Parallel slice fix 활성화")
                 groups: Dict[Tuple[str, int, int], List[Any]] = {}
                 for v in initial_scan.aggregated_vulnerabilities:
                     ls = int(getattr(v, "line_start", 0) or 0)
@@ -210,7 +228,7 @@ class PatchService:
                         "user_prompt": ""
                     })
                     fixed_code = aggregated_code
-                    self.logger.info("[Patch] 병렬 슬라이스 병합 완료")
+                    self.logger.info("[Patch] Parallel slice merge complete")
 
             if not parallel_fix:
                 # 단일 슬라이스 모드
@@ -249,8 +267,10 @@ class PatchService:
                         original_code, language, group_vulns, meta, code_slice
                     )
 
-                self.logger.info("[Patch] 단일 슬라이스 수정을 위한 LLM 호출")
+                self.logger.info("[Patch] Ask LLM (single-slice)")
+                t_llm0 = _perf()
                 first_answer = await self.llm.ask_async(sys_prompt, usr_prompt)
+                self.logger.info("[Patch] LLM 응답 수신 | elapsed=%.2fs", (_perf() - t_llm0))
                 prompt = type("P", (), {
                     "system_prompt": sys_prompt,
                     "user_prompt": usr_prompt
@@ -264,15 +284,18 @@ class PatchService:
                 source_code=original_code,
                 language=language,
             )
-            self.logger.info("[Patch] 전체 파일 수정을 위한 LLM 호출")
+            self.logger.info("[Patch] Ask LLM (whole-file)")
+            t_llm_w = _perf()
             first_answer = await self.llm.ask_async(prompt.system_prompt, prompt.user_prompt)
+            self.logger.info("[Patch] LLM 응답 수신 | elapsed=%.2fs", (_perf() - t_llm_w) )
             fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
 
         iterations: List[Dict[str, Any]] = []
+        last_rescan = None
 
         # 3) AST 검증 및 재스캔 루프
         for it in range(1, max_iterations + 1):
-            self.logger.info("[Patch] 반복 %d: 구문 검증 중", it)
+            self.logger.info("[Patch] Iteration %d: syntax validate", it)
             syntax_ok, syntax_err = self._validate_syntax(fixed_code, language)
 
             iter_rec: Dict[str, Any] = {
@@ -291,8 +314,11 @@ class PatchService:
                     feedback=f"구문 오류: {syntax_err}\n수정된 전체 코드만 출력해주세요.",
                     latest_code=fixed_code,
                 )
+                t_llm_fix = _perf()
                 answer = await self.llm.ask_async(feedback_system, feedback_user)
-                fixed_code = self._extract_first_code_block(answer or "", language) or fixed_code
+                self.logger.info("[Patch] Iteration %d: LLM fix 응답 | elapsed=%.2fs", it, (_perf() - t_llm_fix) )
+                new_code = self._extract_first_code_block(answer or "", language) or fixed_code
+                fixed_code = new_code
                 iter_rec["rescan_total_issues"] = None
                 iter_rec["rescan_severity_summary"] = None
                 iterations.append(iter_rec)
@@ -315,19 +341,22 @@ class PatchService:
                 },
             )
 
-            self.logger.info("[Patch] 반복 %d: %s로 재스캔 중", it, ",".join(specific_scanners))
+            self.logger.info("[Patch] Iteration %d: Rescan (%s)", it, ",".join(specific_scanners))
+            t_rescan = _perf()
             rescan = await self.scanner.scan_code(rescan_req)
+            self.logger.info("[Patch] Iteration %d: Rescan done | vulns=%d, elapsed=%.2fs", it, rescan.total_vulnerabilities, (_perf() - t_rescan) )
+            last_rescan = rescan
             iter_rec["rescan_total_issues"] = rescan.total_vulnerabilities
             iter_rec["rescan_severity_summary"] = rescan.severity_summary
             iterations.append(iter_rec)
 
             if rescan.total_vulnerabilities == 0:
-                self.logger.info("[Patch] 반복 %d: 클린, 루프 중단", it)
+                self.logger.info("[Patch] Iteration %d: CLEAN ✅ — stop loop", it)
                 break
             else:
                 # 재스캔 실패 시 상세 취약점 로깅
                 self.logger.warning(
-                    "[Patch] 반복 %d: 재스캔 실패 - %d개 이슈 발견",
+                    "[Patch] Iteration %d: issues detected — count=%d",
                     it,
                     rescan.total_vulnerabilities,
                 )
@@ -359,15 +388,36 @@ class PatchService:
                     iteration=it,
                 )
 
-                self.logger.info("[Patch] 반복 %d: 다음 수정을 위한 LLM 호출", it)
+                self.logger.info("[Patch] Iteration %d: 다음 수정을 위한 LLM 호출", it)
                 answer = await self.llm.ask_async(feedback_system, feedback_user)
                 new_code = self._extract_first_code_block(answer or "", language) or fixed_code
                 fixed_code = new_code
 
         # 6) unified diff 계산 및 whatthepatch로 패치 적용 (가능한 경우)
-        self.logger.info("[Patch] unified diff 계산 및 패치 적용 중")
+        self.logger.info("[Patch] Generate unified diff")
+        t_diff = _perf()
         unified_diff = self._unified_diff(original_code, fixed_code, request.filename)
+        self.logger.info("[Patch] Diff 생성 완료 | elapsed=%.2fs", (_perf() - t_diff) )
+
+        self.logger.info("[Patch] Apply patch (whatthepatch)")
+        t_apply = _perf()
         patched_via_patch = self._apply_patch_with_whatthepatch(original_code, unified_diff) or fixed_code
+        self.logger.info("[Patch] Patch 적용 완료 | elapsed=%.2fs", (_perf() - t_apply) )
+
+        # 최종 CWE 목록 수집 (마지막 재스캔 기준)
+        final_cwes: List[int] = []
+        try:
+            if last_rescan is not None:
+                final_cwes = sorted({
+                    int(getattr(v, "cwe", 0) or 0)
+                    for v in (getattr(last_rescan, "aggregated_vulnerabilities", []) or [])
+                    if getattr(v, "cwe", None) is not None
+                })
+        except Exception:
+            final_cwes = []
+
+        total_ms = (_perf() - t_all)
+        self.logger.info("[Patch] DONE 🎯 | total_elapsed=%.2fs", total_ms)
 
         return {
             "job_id": initial_scan.job_id,
@@ -376,6 +426,8 @@ class PatchService:
             "passed": (iterations and iterations[-1].get("rescan_total_issues") == 0) or (len(iterations) == 0),
             "unified_diff": unified_diff,
             "patched_code": patched_via_patch,
+            "initial_cwes": initial_cwes,
+            "final_cwes": final_cwes,
         }
 
     # ------------------------ Helpers ------------------------

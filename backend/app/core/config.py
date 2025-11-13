@@ -39,10 +39,10 @@ class Settings(BaseSettings):
 
     # 3. 데이터베이스 설정
     DB_USER: str = "postgres"
-    DB_PASSWORD: str
+    DB_PASSWORD: str = "postgres"
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_NAME: str = "postgres"
+    DB_NAME: str = "safecoder"
 
     # 4. SQLAlchemy URL (동기/비동기)
     SQLALCHEMY_DATABASE_URL: Optional[str] = None
