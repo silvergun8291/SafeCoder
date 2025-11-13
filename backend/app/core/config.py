@@ -68,6 +68,11 @@ class Settings(BaseSettings):
     SCANNER_TIMEOUT_SECONDS: int = 180
     LLM_MAX_RETRIES: int = 3
 
+    # 8. LLM 캐시 설정
+    # 최대 캐시 항목 수, TTL(초). TTL=0이면 만료 사용 안 함.
+    LLM_CACHE_MAX: int = 128
+    LLM_CACHE_TTL_SECONDS: int = 0
+
     @field_validator("SQLALCHEMY_DATABASE_URL", mode='before')
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], info: ValidationInfo) -> str:

@@ -297,8 +297,8 @@ class RAGService:
                 technique=prompt.technique,
             )
 
-        # 3) Ask the LLM
-        llm_answer = self.llm_service.ask(
+        # 3) Ask the LLM (async)
+        llm_answer = await self.llm_service.ask_async(
             system_prompt=prompt.system_prompt,
             user_prompt=prompt.user_prompt,
         )

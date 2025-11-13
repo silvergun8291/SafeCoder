@@ -1,6 +1,6 @@
 import os
 import sys
-import json
+import argparse
 from pathlib import Path
 import re
 from dotenv import load_dotenv
@@ -67,7 +67,12 @@ def clean_pdf_text(text: str) -> str:
 
 def is_useful_chunk(text: str) -> bool:
     """유용한 청크 판단"""
-    if len(text.strip()) < 300:
+    txt = text.strip()
+    if len(txt) < 300:
+        # Semgrep autofix 관련 키워드가 있으면 길이가 짧아도 유지
+        low = txt.lower()
+        if "autofix" in low or "\nfix:" in low or low.startswith("fix:"):
+            return True
         return False
 
     csharp_patterns = [
@@ -152,8 +157,7 @@ def load_owasp_md(owasp_dir: Path) -> list:
             with open(md_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            if len(content) < 300:
-                continue
+            # Semgrep 문서는 작은 파일도 중요도가 높아 필터링하지 않음
 
             title = md_file.stem.replace('-', ' ').replace('_', ' ').title()
 
@@ -245,15 +249,46 @@ def index_to_qdrant(documents: list, collection_name: str, client: QdrantClient)
         return 0
 
     print(f"   🔄 임베딩 생성 중...")
-
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
-        length_function=len
-    )
-
-    chunks = text_splitter.split_documents(documents)
-    filtered_chunks = [c for c in chunks if is_useful_chunk(c.page_content)]
+    
+    # 컬렉션별 청킹 전략
+    is_semgrep = collection_name == COLLECTIONS.get("semgrep")
+    if is_semgrep:
+        # Semgrep은 더 세밀한 청킹과 작은 파일 통짜 업로드를 사용
+        semgrep_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200,
+            length_function=len
+        )
+        chunks = []
+        for doc in documents:
+            content = doc.page_content or ""
+            if len(content) <= 5000:
+                # 작은 파일은 통짜 업로드
+                chunks.append(doc)
+            else:
+                # 큰 파일만 분할
+                chunks.extend(semgrep_splitter.split_documents([doc]))
+        # 유용 청크 필터 + 키워드 예외는 is_useful_chunk에서 처리
+        filtered_chunks = [c for c in chunks if is_useful_chunk(c.page_content)]
+        # 파일당 최대 청크 수 제한으로 과도한 중복 방지 (예: rule-syntax.md 편중 완화)
+        MAX_CHUNKS_PER_SOURCE = 30
+        buckets = {}
+        capped_chunks = []
+        for c in filtered_chunks:
+            src = (c.metadata or {}).get("source", "")
+            cnt = buckets.get(src, 0)
+            if cnt < MAX_CHUNKS_PER_SOURCE:
+                capped_chunks.append(c)
+                buckets[src] = cnt + 1
+        filtered_chunks = capped_chunks
+    else:
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=CHUNK_SIZE,
+            chunk_overlap=CHUNK_OVERLAP,
+            length_function=len
+        )
+        chunks = text_splitter.split_documents(documents)
+        filtered_chunks = [c for c in chunks if is_useful_chunk(c.page_content)]
 
     if not filtered_chunks:
         print(f"   ❌ 유효한 청크 없음")
@@ -289,6 +324,10 @@ def index_to_qdrant(documents: list, collection_name: str, client: QdrantClient)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="텍스트 DB 생성 (KISA/OWASP/Semgrep)")
+    parser.add_argument("--semgrep-only", action="store_true", help="Semgrep 규칙 DB만 생성/업데이트")
+    args = parser.parse_args()
+
     print("=" * 70)
     print("🧪 텍스트 DB 생성 (KISA + OWASP + Semgrep MD)")
     print("=" * 70)
@@ -305,29 +344,37 @@ def main():
 
     results = {}
 
-    # 1. KISA DB
-    print("=" * 70)
-    print("📝 1. KISA 텍스트 DB 생성")
-    print("=" * 70)
-    init_qdrant_collection(client, COLLECTIONS["kisa"], TEXT_VECTOR_DIMENSION)
-    kisa_docs = load_kisa_pdfs(KISA_PDF_PATH)
-    results["kisa"] = index_to_qdrant(kisa_docs, COLLECTIONS["kisa"], client)
+    if args.semgrep_only:
+        print("=" * 70)
+        print("📝 Semgrep 규칙 DB 생성 (MD 파일)")
+        print("=" * 70)
+        init_qdrant_collection(client, COLLECTIONS["semgrep"], TEXT_VECTOR_DIMENSION)
+        semgrep_docs = load_semgrep_md(SEMGREP_MD_PATH)
+        results["semgrep"] = index_to_qdrant(semgrep_docs, COLLECTIONS["semgrep"], client)
+    else:
+        # 1. KISA DB
+        print("=" * 70)
+        print("📝 1. KISA 텍스트 DB 생성")
+        print("=" * 70)
+        init_qdrant_collection(client, COLLECTIONS["kisa"], TEXT_VECTOR_DIMENSION)
+        kisa_docs = load_kisa_pdfs(KISA_PDF_PATH)
+        results["kisa"] = index_to_qdrant(kisa_docs, COLLECTIONS["kisa"], client)
 
-    # 2. OWASP DB (MD 파일)
-    print("\n" + "=" * 70)
-    print("📝 2. OWASP 텍스트 DB 생성 (Cheatsheet MD)")
-    print("=" * 70)
-    init_qdrant_collection(client, COLLECTIONS["owasp"], TEXT_VECTOR_DIMENSION)
-    owasp_docs = load_owasp_md(OWASP_MD_PATH)
-    results["owasp"] = index_to_qdrant(owasp_docs, COLLECTIONS["owasp"], client)
+        # 2. OWASP DB (MD 파일)
+        print("\n" + "=" * 70)
+        print("📝 2. OWASP 텍스트 DB 생성 (Cheatsheet MD)")
+        print("=" * 70)
+        init_qdrant_collection(client, COLLECTIONS["owasp"], TEXT_VECTOR_DIMENSION)
+        owasp_docs = load_owasp_md(OWASP_MD_PATH)
+        results["owasp"] = index_to_qdrant(owasp_docs, COLLECTIONS["owasp"], client)
 
-    # 3. Semgrep DB (MD 파일)
-    print("\n" + "=" * 70)
-    print("📝 3. Semgrep 규칙 DB 생성 (MD 파일)")
-    print("=" * 70)
-    init_qdrant_collection(client, COLLECTIONS["semgrep"], TEXT_VECTOR_DIMENSION)
-    semgrep_docs = load_semgrep_md(SEMGREP_MD_PATH)
-    results["semgrep"] = index_to_qdrant(semgrep_docs, COLLECTIONS["semgrep"], client)
+        # 3. Semgrep DB (MD 파일)
+        print("\n" + "=" * 70)
+        print("📝 3. Semgrep 규칙 DB 생성 (MD 파일)")
+        print("=" * 70)
+        init_qdrant_collection(client, COLLECTIONS["semgrep"], TEXT_VECTOR_DIMENSION)
+        semgrep_docs = load_semgrep_md(SEMGREP_MD_PATH)
+        results["semgrep"] = index_to_qdrant(semgrep_docs, COLLECTIONS["semgrep"], client)
 
     # 완료 요약
     print("\n" + "=" * 70)
@@ -342,7 +389,6 @@ def main():
     print("-" * 70)
     print(f"🎯 총합: {total:,}개 벡터")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     main()

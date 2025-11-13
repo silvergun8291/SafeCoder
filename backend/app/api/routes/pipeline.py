@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.models.schemas import ScanRequest, PromptTechnique
 from app.services.scanning.scanner_service import ScannerService
 from app.services.rag_service import RAGService
-from app.services.semgrep_rule_service import SemgrepRuleService
+from app.services.patch_service import PatchService
 from app.dependencies import get_scanner_service
 from app.models.schemas import Language
 from app.utils.code_slicing import slice_function_with_header, find_enclosing_symbol
@@ -52,22 +52,29 @@ def _extract_first_code_block(text: str, language: Language) -> Optional[str]:
 
 @router.post(
     "/secure-coding/pipeline/scan-llm-autofix-rule",
-    summary="스캔 → 슬라이싱(모든 취약점) → LLM 시큐어코딩(블록별) → 단일 Semgrep Autofix Rule",
+    summary="스캔 → LLM 시큐어코딩 → AST 검증 → 재스캔 루프 → 디프 → 패치 적용",
     description=(
-        "소스 코드를 스캔하고, 탐지된 모든 취약점에 대해 해당 코드 블록을 파서 기반으로 슬라이싱합니다. "
-        "각 블록별로 LLM 시큐어 코딩을 수행한 뒤, 모든 변경을 종합하여 하나의 Semgrep Autofix Rule을 생성합니다."
+        "소스 코드를 스캔하고, LLM으로 전체 코드를 시큐어 코딩합니다. AST 유효성 검사와 언어별 스캐너 재스캔(Bandit/Semgrep 또는 Horusec/Semgrep) 루프를 통과하면, "
+        "difflib 유니파이드 디프를 생성하고 whatthepatch로 원본에 패치를 적용하여 최종 코드를 반환합니다."
+    ),
+)
+@router.post(
+    "/secure-coding/pipeline/scan-llm-patch",
+    summary="스캔 → LLM 시큐어코딩 → AST 검증 → 재스캔 루프 → 디프 → 패치 적용",
+    description=(
+        "소스 코드를 스캔하고, LLM으로 전체 코드를 시큐어 코딩합니다. AST 유효성 검사와 언어별 스캐너 재스캔(Bandit/Semgrep 또는 Horusec/Semgrep) 루프를 통과하면, "
+        "difflib 유니파이드 디프를 생성하고 whatthepatch로 원본에 패치를 적용하여 최종 코드를 반환합니다."
     ),
 )
 async def scan_llm_autofix_rule(
     request: ScanRequest,
     technique: PromptTechnique = PromptTechnique.COMBINED,
     use_rag: bool = True,
-    # strategy 약어: combined|combined_rag|one_shot|one_shot_rag (제공 시 technique/use_rag를 덮어씀)
+    # 기존 파라미터는 호환을 위해 유지
     strategy: Optional[str] = None,
-    # semgrep rule 생성용 프롬프트 전략 약어: combined_rag|combined|cot_rag|cot|one_shot_rag|one_shot
     rule_strategy: Optional[str] = None,
-    mode: str = "per_function",  # per_function | combined
-    rule_mode: str = "single",  # single | per_cwe
+    mode: str = "combined",
+    rule_mode: str = "single",
     llm_concurrency: int = 3,
     rule_concurrency: int = 3,
     log_verbose: bool = False,
@@ -116,84 +123,21 @@ async def scan_llm_autofix_rule(
         # 1) 스캔 실행
         if log_verbose:
             logger.info("[pipeline] scan:start")
+        # 새 전략: PatchService로 전체 코드 단위 수행
+        t_scan = time.perf_counter()
         scan_response = await scanner_service.scan_code(request)
-        timings["scan_seconds"] = round(time.perf_counter() - t0, 3)
+        timings["scan_seconds"] = round(time.perf_counter() - t_scan, 3)
         if log_verbose:
             logger.info(f"[pipeline] scan:end elapsed={timings['scan_seconds']}s")
 
         language = Language(request.language)
-        if not scan_response.aggregated_vulnerabilities:
-            raise HTTPException(status_code=400, detail="스캔 결과에 취약점이 없습니다.")
-        vulns = scan_response.aggregated_vulnerabilities
+        if not scan_response:  # 방어적 체크
+            raise HTTPException(status_code=500, detail="스캔 실패")
 
-        # 2) 그룹핑: 함수 단위로 취약점 묶기 (per_function 모드)
-        t1 = time.perf_counter()
-        if log_verbose:
-            logger.info("[pipeline] grouping:start mode=%s", mode)
-        group_map: DefaultDict[Tuple[str, int, int], Dict[str, Any]] = defaultdict(lambda: {"vulns": []})
-        if mode == "per_function":
-            for v in vulns:
-                tl = int(v.line_start or 1)
-                sym = find_enclosing_symbol(language, request.source_code, tl)
-                if not sym:
-                    # 파서 실패 시 해당 라인 기준 근사 그룹 키
-                    key = (request.filename or "unknown", max(1, tl - 1), tl + 1)
-                    group_map[key]["name"] = "unknown"
-                    group_map[key]["start"] = max(1, tl - 1)
-                    group_map[key]["end"] = tl + 1
-                else:
-                    name, s_line, e_line = sym
-                    key = (request.filename or "unknown", s_line, e_line)
-                    group_map[key]["name"] = name
-                    group_map[key]["start"] = s_line
-                    group_map[key]["end"] = e_line
-                group_map[key]["vulns"].append(v)
-        else:
-            # combined 모드: 단일 그룹으로 취급
-            if vulns:
-                key = (request.filename or "unknown", 1, max(1, len(request.source_code.splitlines())))
-                group_map[key] = {
-                    "name": "__combined__",
-                    "start": 1,
-                    "end": max(1, len(request.source_code.splitlines())),
-                    "vulns": list(vulns),
-                }
-
-        timings["grouping_seconds"] = round(time.perf_counter() - t1, 3)
-        if log_verbose:
-            logger.info(f"[pipeline] grouping:end elapsed={timings['grouping_seconds']}s groups={len(group_map)}")
-
-        # 3) 각 그룹별 슬라이스 생성
-        t2 = time.perf_counter()
-        if log_verbose:
-            logger.info("[pipeline] slicing:start groups=%d", len(group_map))
-        original_slices: List[str] = []
-        grouped_meta: List[Dict[str, Any]] = []
-        for (fname, s_line, e_line), meta in group_map.items():
-            try:
-                s = slice_function_with_header(language, request.source_code, s_line)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"슬라이싱 실패 (start {s_line}): {e}")
-            original_slices.append(s)
-            # 그룹 메타 구성 (CWE 리스트 등)
-            cwes = sorted({int(getattr(v, 'cwe', 0) or 0) for v in meta["vulns"]})
-            grouped_meta.append({
-                "function_name": meta.get("name", "unknown"),
-                "start": s_line,
-                "end": e_line,
-                "cwes": cwes,
-                "count": len(meta["vulns"]),
-            })
-        timings["slicing_seconds"] = round(time.perf_counter() - t2, 3)
-        if log_verbose:
-            logger.info(f"[pipeline] slicing:end elapsed={timings['slicing_seconds']}s")
-
-        # 4) 각 그룹별 LLM 시큐어 코딩 수행 (그룹 단위, 병렬)
-        t3 = time.perf_counter()
-        if log_verbose:
-            logger.info("[pipeline] llm_fix:start groups=%d concurrency=%d", len(grouped_meta), llm_concurrency)
-        llm = LLMService()
-        sem = asyncio.Semaphore(max(1, llm_concurrency))
+        t_patch = time.perf_counter()
+        patch_service = PatchService(scanner_service)
+        patch_result = await patch_service.run_patch(request=request)
+        timings["patch_seconds"] = round(time.perf_counter() - t_patch, 3)
 
         # async def _fix_one(meta: Dict[str, Any], s: str) -> Tuple[str, str]:
         #     system_prompt = (
@@ -325,23 +269,7 @@ async def scan_llm_autofix_rule(
             fixed = _extract_first_code_block(ans, language) or s
             return fixed, ans
 
-        tasks = [
-            _fix_one(meta, s)
-            for meta, s in zip(grouped_meta, original_slices)
-        ]
-        results = await asyncio.gather(*tasks)
-        fixed_slices = [fx for fx, _ in results]
-        llm_texts = [tx for _, tx in results]
-        timings["llm_fix_seconds"] = round(time.perf_counter() - t3, 3)
-        if log_verbose:
-            logger.info(f"[pipeline] llm_fix:end elapsed={timings['llm_fix_seconds']}s")
-
-        # 5) Semgrep Autofix Rule 생성
-        t4 = time.perf_counter()
-        if log_verbose:
-            logger.info("[pipeline] rule_gen:start rule_mode=%s", rule_mode)
-        sep = "// ---- slice ----\n" if language == Language.JAVA else "# ---- slice ----\n"
-        semgrep_service = SemgrepRuleService()
+        # Semgrep 룰 생성 단계는 제거되었으며, 대신 patch_result를 반환
 
         def _strip_yaml_fence(s: str) -> str:
             s = (s or "").strip()
@@ -406,98 +334,7 @@ async def scan_llm_autofix_rule(
                 normalized.append(it_s)
             return "rules:\n" + "\n".join(normalized)
 
-        if rule_mode == "per_cwe":
-            # split by CWE and create rules per CWE, return as array (no merge)
-            t_split = time.perf_counter()
-            by_cwe: Dict[int, Dict[str, List[str]]] = {}
-            # map group index to its meta for CWE membership
-            for meta, orig, fix in zip(grouped_meta, original_slices, fixed_slices):
-                for c in meta.get("cwes", []):
-                    bucket = by_cwe.setdefault(int(c), {"orig": [], "fix": []})
-                    bucket["orig"].append(orig)
-                    bucket["fix"].append(fix)
-            timings["rule_cwe_split_seconds"] = round(time.perf_counter() - t_split, 3)
-            if log_verbose:
-                logger.info(f"[pipeline] rule_cwe_split:end elapsed={timings['rule_cwe_split_seconds']}s cwe_count={len(by_cwe)}")
-
-            per_yaml: List[str] = []
-            per_paths: List[str] = []
-            sem_rules = asyncio.Semaphore(max(1, rule_concurrency))
-
-            async def _gen_rule_one(cwe_id: int, parts: Dict[str, List[str]]) -> Tuple[int, str]:
-                original_combined = (sep).join(parts["orig"])  # type: ignore[index]
-                fixed_combined = (sep).join(parts["fix"])      # type: ignore[index]
-                def _work() -> str:
-                    resp = semgrep_service.generate_autofix_rule(
-                        request=type("_Req", (), {
-                            "language": language,
-                            "filename": request.filename or "unknown",
-                            "original_code": request.source_code,
-                            "fixed_code": fixed_combined,
-                            "original_slice": original_combined,
-                            "fixed_slice": fixed_combined,
-                            "target_cwes": [int(cwe_id)],
-                        })(),
-                        prompt_strategy=semgrep_prompt_strategy,
-                    )
-                    return resp.rule_yaml
-                async with sem_rules:
-                    rule_yaml = await asyncio.to_thread(_work)
-                return int(cwe_id), rule_yaml
-
-            tasks_rules = [
-                _gen_rule_one(int(cwe_id), parts) for cwe_id, parts in by_cwe.items()
-            ]
-            results_rules = await asyncio.gather(*tasks_rules)
-            # 유지 보수성을 위해 CWE id 순으로 정렬
-            results_rules.sort(key=lambda x: x[0])
-            per_yaml = [ry for _, ry in results_rules]
-            # save to disk
-            base_dir = os.environ.get("SEMGREP_RULE_OUTPUT_DIR", "semgrep_rules")
-            job_dir = os.path.join(base_dir, scan_response.job_id)
-            os.makedirs(job_dir, exist_ok=True)
-            for cwe_id, body in zip(by_cwe.keys(), per_yaml):
-                fname = f"rule_cwe-{int(cwe_id)}.yaml"
-                path = os.path.join(job_dir, fname)
-                with open(path, "w", encoding="utf-8") as f:
-                    f.write(body)
-                per_paths.append(path)
-            rule_yaml = None
-            rules_yaml = per_yaml
-            rules_paths = per_paths
-        else:
-            # single rule for all changes (current behavior)
-            original_combined = (sep).join(original_slices)
-            fixed_combined = (sep).join(fixed_slices)
-            rule_resp = semgrep_service.generate_autofix_rule(
-                request=type("_Req", (), {
-                    "language": language,
-                    "filename": request.filename or "unknown",
-                    "original_code": request.source_code,
-                    "fixed_code": fixed_combined,
-                    "original_slice": original_combined,
-                    "fixed_slice": fixed_combined,
-                    # pass merged CWE scope hint
-                    "target_cwes": sorted({int(c) for meta in grouped_meta for c in meta.get("cwes", [])}),
-                })(),
-                prompt_strategy=semgrep_prompt_strategy,
-            )
-            rule_yaml = rule_resp.rule_yaml
-            rules_yaml = [rule_yaml]
-            # save to disk
-            base_dir = os.environ.get("SEMGREP_RULE_OUTPUT_DIR", "semgrep_rules")
-            job_dir = os.path.join(base_dir, scan_response.job_id)
-            os.makedirs(job_dir, exist_ok=True)
-            fname = "rule_single.yaml"
-            single_path = os.path.join(job_dir, fname)
-            with open(single_path, "w", encoding="utf-8") as f:
-                f.write(rule_yaml)
-            rules_paths = [single_path]
-        timings["rule_gen_seconds"] = round(time.perf_counter() - t4, 3)
-        if log_verbose:
-            logger.info(f"[pipeline] rule_gen:end elapsed={timings['rule_gen_seconds']}s")
-
-        # 6) Save scan results JSON alongside rules
+        # 6) Save scan results JSON (keep behavior for visibility)
         try:
             base_dir = os.environ.get("SEMGREP_RULE_OUTPUT_DIR", "semgrep_rules")
             job_dir = os.path.join(base_dir, scan_response.job_id)
@@ -518,8 +355,8 @@ async def scan_llm_autofix_rule(
                 "language": language.value,
                 "filename": request.filename,
                 "options": getattr(request, "options", None).__dict__ if getattr(request, "options", None) else None,
-                "vulnerabilities_processed": len(vulns),
-                "groups_processed": len(grouped_meta),
+                "vulnerabilities_processed": len(scan_response.aggregated_vulnerabilities or []),
+                "groups_processed": None,
                 "vulnerabilities": [
                     _vuln_to_dict(v) for v in (scan_response.aggregated_vulnerabilities or [])
                 ],
@@ -542,15 +379,12 @@ async def scan_llm_autofix_rule(
             "language": language.value,
             "technique": technique.value,
             "rag_used": use_rag,
-            "mode": mode,
-            "vulnerabilities_processed": len(vulns),
-            "groups_processed": len(grouped_meta),
-            "original_slices": original_slices,
-            "fixed_slices": fixed_slices,
-            "llm_responses": llm_texts,
-            "semgrep_rule_yaml": rule_yaml,
-            "semgrep_rules_yaml": rules_yaml if rule_mode == "per_cwe" or rule_yaml else None,
-            "semgrep_rule_paths": rules_paths,
+            "pipeline": "patch",
+            "vulnerabilities_processed": len(scan_response.aggregated_vulnerabilities or []),
+            "patched_code": patch_result.get("patched_code"),
+            "unified_diff": patch_result.get("unified_diff"),
+            "iterations": patch_result.get("iterations"),
+            "passed": patch_result.get("passed"),
             "scan_result_path": scan_path,
             "timings": {
                 **timings,

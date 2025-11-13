@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import health, scan, rag, semgrep, pipeline, quality, quality_semgrep
+from app.api.routes import health, scan, rag, pipeline, quality, patch
 
 api_router = APIRouter()
 
@@ -25,13 +25,6 @@ api_router.include_router(
     tags=["LLM"]
 )
 
-# Semgrep Autofix Rule 라우터
-api_router.include_router(
-    semgrep.router,
-    prefix="",  # ⬅️ /api/secure-coding/semgrep/*
-    tags=["Semgrep"]
-)
-
 # One-shot Pipeline (Scan → LLM → Semgrep Rule)
 api_router.include_router(
     pipeline.router,
@@ -46,9 +39,11 @@ api_router.include_router(
     tags=["Quality"]
 )
 
-# Semgrep Rule Generation Quality Comparison
+# Semgrep-related routes have been deprecated and moved to legacy; not registered.
+
+# Patch pipeline (LLM → AST → Rescan → Diff → Patch)
 api_router.include_router(
-    quality_semgrep.router,
-    prefix="",  # ⬅️ /api/secure-coding/semgrep-quality/*
-    tags=["Quality"]
+    patch.router,
+    prefix="",  # ⬅️ /api/secure-coding/patch
+    tags=["Patch"]
 )
