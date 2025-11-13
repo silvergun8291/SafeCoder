@@ -19,7 +19,9 @@ async def secure_patch(
 ):
     try:
         service = PatchService(scanner_service)
-        result = await service.run_patch(request=request)
+        # use_rag은 요청 바디의 options에서 통일하여 제어
+        use_rag = bool(getattr(getattr(request, "options", None), "use_rag", False))
+        result = await service.run_patch(request=request, use_rag=use_rag)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"패치 처리 실패: {e}")

@@ -113,6 +113,9 @@ class ScanOptions(BaseModel):
     specific_scanners: Optional[List[str]] = Field(None, description="특정 스캐너만 실행")
     min_severity: Severity = Field(default=Severity.LOW, description="최소 심각도 필터")
     timeout: int = Field(default=300, description="타임아웃 (초)")
+    use_code_slicing: bool = Field(default=False, description="취약 함수 슬라이싱 기반 컨텍스트 사용")
+    parallel_slice_fix: bool = Field(default=False, description="슬라이스별 병렬 LLM 호출 후 순차 패치 적용")
+    use_rag: bool = Field(default=False, description="RAG 섹션 결합 프롬프트 사용")
 
     model_config = ConfigDict(use_enum_values=True)
 
