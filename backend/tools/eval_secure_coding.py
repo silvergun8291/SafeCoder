@@ -16,7 +16,7 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_eval.bak.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation.txt"
 
 CONCURRENCY = 10
 
@@ -170,6 +170,22 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
     else:
         status = 0
 
+    # Build remaining vulnerability details (post-filter)
+    remaining_details = []
+    if after_cnt > 0:
+        for v in fix_kept:
+            try:
+                remaining_details.append({
+                    "scanner": getattr(v, "scanner", None),
+                    "cwe": int(getattr(v, "cwe", 0) or 0),
+                    "line_start": int(getattr(v, "line_start", 0) or 0),
+                    "line_end": int(getattr(v, "line_end", 0) or 0),
+                    "code_snippet": getattr(v, "code_snippet", "") or "",
+                    "reason": getattr(v, "description", "") or getattr(v, "rule_id", ""),
+                })
+            except Exception:
+                continue
+
     detail = {
         "question": item.get("question"),
         "before_vulns": before_cnt,
@@ -179,6 +195,7 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
         "fixed_code": fixed_code,
         "hybrid_used": hybrid_used,
         "false_positives": sorted(set(init_fps + fix_fps)),
+        "remaining_vulnerabilities": remaining_details,
     }
     return before_cnt, after_cnt, status, detail
 
@@ -261,13 +278,25 @@ async def main() -> None:
                 for fp in fps:
                     parts.append(f"- {fp}")
                 parts.append("")
-            if status == -1:
-                fixed_code = detail.get("fixed_code") or ""
-                if fixed_code:
-                    parts.append("Patched code (still vulnerable):")
-                    parts.append("```java")
-                    parts.append(fixed_code)
-                    parts.append("```")
+            # If still vulnerable, list remaining issues with details
+            if after_cnt > 0:
+                rem = list(detail.get("remaining_vulnerabilities") or [])
+                if rem:
+                    parts.append("Remaining vulnerabilities:")
+                    for i, rv in enumerate(rem, 1):
+                        line_range = f"L{rv.get('line_start', 0)}-{rv.get('line_end', 0)}"
+                        parts.append(f"- [{i}] Scanner={rv.get('scanner')}, CWE-{rv.get('cwe')}, Lines={line_range}")
+                        reason = str(rv.get('reason') or "").strip()
+                        if reason:
+                            parts.append(f"  Reason: {reason}")
+                        code_snip = rv.get('code_snippet') or ""
+                        if code_snip:
+                            parts.append("  Code snippet:")
+                            parts.append("  ```")
+                            # indent snippet lines for readability
+                            for ln in str(code_snip).splitlines():
+                                parts.append(f"  {ln}")
+                            parts.append("  ```")
                     parts.append("")
 
             case_block = "\n".join(parts)
