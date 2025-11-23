@@ -17,6 +17,8 @@ HARD_RULES = (
     "- Log only an opaque errorId for correlation; send full details to a secure error collector (e.g., APM/Sentry).\n"
     "- Allow stack traces only in debug/development mode.\n"
     "- Never include sensitive data in logs (tokens, keys, credentials, PII, headers, request/response bodies).\n"
+    "- Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).\n"
+    "- Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.\n"
     "- Regular Expressions: enforce strict validation rules.\n"
     "  - Always anchor with ^...$ to match the entire input.\n"
     "  - Specify explicit length limits (e.g., {1,64}).\n"

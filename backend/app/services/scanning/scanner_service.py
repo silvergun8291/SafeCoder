@@ -582,6 +582,8 @@ class ScannerService:
                 - Preserve functionality; use secure defaults; add robust error handling; avoid logging sensitive data.
                 - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
                 - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
+                - Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).
+                - Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.
 
                 **Verification Checklist (must be satisfied in the final answer)**:
                 - [ ] No hard-coded secrets introduced
@@ -637,6 +639,8 @@ class ScannerService:
                 - Preserve functionality; secure defaults; robust error handling.
                 - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
                 - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
+                - Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).
+                - Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets
@@ -690,6 +694,8 @@ class ScannerService:
                 - Preserve functionality; secure defaults; robust error handling.
                 - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
                 - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
+                - Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).
+                - Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets
@@ -745,6 +751,8 @@ class ScannerService:
                 - Preserve functionality; secure defaults; robust error handling.
                 - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
                 - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
+                - Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).
+                - Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets

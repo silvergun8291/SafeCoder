@@ -619,6 +619,8 @@ class PatchService:
             "- Principle of least privilege; preserve functionality.\n"
             "- Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.\n"
             "- Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).\n"
+            "- Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).\n"
+            "- Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.\n"
         )
 
         output_rule = """

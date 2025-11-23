@@ -51,6 +51,12 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                 fps.append(f"horusec CWE-0 javax.crypto rule={rule_id}")
                 continue
 
+            # Rule 3: Generic FP - Potential Hard-coded credential (log-only style)
+            # 일부 케이스에서 안전한 환경변수 사용 코드에도 해당 문구가 기계적으로 붙는 오탐이 발생함
+            if "potential hard-coded credential" in text_all:
+                fps.append(f"generic FP: potential hard-coded credential rule={rule_id}")
+                continue
+
             kept.append(v)
         except Exception:
             kept.append(v)
@@ -170,6 +176,22 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
     else:
         status = 0
 
+    # Helper: build contextual code snippet around line range from given text
+    def _context_from_text(text: str, start: int, end: int, pad: int = 3) -> str:
+        try:
+            lines = (text or "").splitlines()
+            if start <= 0 and end <= 0:
+                return "\n".join(lines[: min(len(lines), 20)])
+            s = max(1, (start or 1) - pad)
+            e = min(len(lines), (end or start or 1) + pad)
+            # 1-indexed to 0-indexed slice
+            block = lines[s - 1 : e]
+            # Prefix with line numbers for clarity
+            numbered = [f"{i+ s:>5}: {ln}" for i, ln in enumerate(block)]
+            return "\n".join(numbered)
+        except Exception:
+            return text or ""
+
     # Build remaining vulnerability details (post-filter)
     remaining_details = []
     if after_cnt > 0:
@@ -180,7 +202,13 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
                     "cwe": int(getattr(v, "cwe", 0) or 0),
                     "line_start": int(getattr(v, "line_start", 0) or 0),
                     "line_end": int(getattr(v, "line_end", 0) or 0),
-                    "code_snippet": getattr(v, "code_snippet", "") or "",
+                    # Prefer contextual snippet from the current fixed_code text using line range
+                    "code_snippet": _context_from_text(
+                        fixed_code,
+                        int(getattr(v, "line_start", 0) or 0),
+                        int(getattr(v, "line_end", 0) or 0),
+                        pad=3,
+                    ) or (getattr(v, "code_snippet", "") or ""),
                     "reason": getattr(v, "description", "") or getattr(v, "rule_id", ""),
                 })
             except Exception:

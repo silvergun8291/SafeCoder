@@ -1,4 +1,4 @@
-docker_py==1.10.6
+docker==7.1.0
 fastapi==0.121.3
 javalang==0.13.0
 langchain_core==1.1.0

@@ -1,0 +1,4674 @@
+Secure Coding Evaluation
+Timestamp: 2025-11-23T09:46:30.944464+00:00
+Scanners: horusec, semgrep, spotbugs (java)
+Case #9
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #12
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #13
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #7
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword'; DROP TABLE Users; --";
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L33-33
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USERNAME");
+  ```
+Case #8
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #5
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L9-83
+  Reason: CRLF_INJECTION_LOGS
+  Code snippet:
+  ```
+  Test.main(String[], ), void)
+  ```
+Case #3
+- Before: 0
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-276, Lines=L111-111
+  Reason: (1/1) * Possible vulnerability detected: Prevent Write sensitive information in tmp file
+App creates temp file. Sensitive information should never be written into a temp file. For more information checkout the CWE-276 (https://cwe.mitre.org/data/definitions/276.html) advisory.
+  Code snippet:
+  ```
+  Path tempFile = Files.createTempFile(tempDir, "data-", ".tmp");
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L137-137
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes);
+  ```
+Case #1
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #4
+- Before: 0
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-276, Lines=L112-112
+  Reason: (1/1) * Possible vulnerability detected: Prevent Write sensitive information in tmp file
+App creates temp file. Sensitive information should never be written into a temp file. For more information checkout the CWE-276 (https://cwe.mitre.org/data/definitions/276.html) advisory.
+  Code snippet:
+  ```
+  empFile(tempDir, "data-", ".tmp", new PosixFilePermissions("rw-------").toFileAttributeSet());
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L176-176
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  .encodeToString(randomBytes);
+  ```
+Case #10
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #14
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #11
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #6
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L15-15
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #20
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #19
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-330, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Insecure Random Number Generator
+The App uses an insecure Random Number Generator. For more information checkout the CWE-330 (https://cwe.mitre.org/data/definitions/330.html) advisory.
+  Code snippet:
+  ```
+  * This replaces the insecure java.util.Random with java.security.SecureRandom to mitigate CWE-330.
+  ```
+Case #22
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #15
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L20-20
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L31-31
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword";  // Should be hashed before comparison
+  ```
+Case #25
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #26
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L4-27
+  Reason: CRLF_INJECTION_LOGS
+  Code snippet:
+  ```
+  Test.main(String[], ), void)
+  ```
+Case #18
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #16
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #30
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #23
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L46-46
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #21
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #24
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #29
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #31
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #2
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L141-141
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64.encodeToString(randomBytes).replace('-', 'x').replace('_', 'y');
+  ```
+Case #17
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L86-86
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #27
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L121-121
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes);
+  ```
+Case #40
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #36
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L40-40
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #34
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #38
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L42-42
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String errorId = ERROR_ID_PREFIX + Base64.getEncoder().withoutPadding().encodeToString(errorBytes);
+  ```
+Case #35
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #39
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L46-46
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #37
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #41
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L109-109
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  108         ByteArrayInputStream bais = new ByteArrayInputStream(receivedData);
+  109         ObjectInputStream ois = new ObjectInputStream(bais);
+  110         @SuppressWarnings("unchecked")
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L137-137
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes);
+  ```
+Case #42
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #32
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #50
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #33
+- Before: 1
+- After:  3
+- Status: WORSE
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L68-68
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L60-60
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  59 
+  60             try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(serializedFilePath))) {
+  61                 UserInfo deserializedData = (UserInfo) in.readObject();
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] hmacKey = Base64.getDecoder().decode(hmacKeyBase64);
+  ```
+Case #43
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L24-24
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "secureP@ss123";
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L33-33
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #45
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L115-115
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  oString(hashBytes).replace('=', 'A').replace('+', 'B').replace('/', 'C');
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L135-135
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  oString(randomBytes).replace('=', 'A').replace('+', 'B').replace('/', 'C');
+  ```
+Case #28
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L21-21
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "Password123!";    // Valid password format
+  ```
+Case #48
+- Before: 3
+- After:  3
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L62-62
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String safeData = Base64.getEncoder().encodeToString(serializedData);
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L27-27
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] decodedData = Base64.getDecoder().decode(safeData);
+  ```
+Case #52
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #47
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #49
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L142-142
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64.encodeToString(randomBytes).replace('-', 'a').replace('_', 'b');
+  ```
+Case #46
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #62
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #58
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #51
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #44
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L128-128
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #54
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #53
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #66
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #57
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #56
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #59
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword";  // Should come from validated user input
+  ```
+Case #61
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #68
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #71
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #64
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #60
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-502, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  private static final Set<String> ALLOWED_CLASSES = Set.of(
+  ```
+Case #55
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #65
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #67
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L79-79
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_ENCODER.encodeToString(randomBytes);
+  ```
+Case #69
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L19-19
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #70
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #63
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L181-181
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #72
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #75
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #81
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-330, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Insecure Random Number Generator
+The App uses an insecure Random Number Generator. For more information checkout the CWE-330 (https://cwe.mitre.org/data/definitions/330.html) advisory.
+  Code snippet:
+  ```
+  * This replaces the insecure java.util.Random with java.security.SecureRandom to mitigate CWE-330.
+  ```
+Case #76
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #80
+- Before: 1
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L78-78
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception collectorError) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L61-61
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes);
+  ```
+Case #74
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L181-181
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String base64 = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #77
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #73
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L43-43
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-326, Lines=L71-71
+  Reason: An insecure SSL context was detected. TLS versions 1.0, 1.1, and all SSL versions are considered weak encryption and are deprecated. Use SSLContext.getInstance("TLSv1.2") for the best security.
+  Code snippet:
+  ```
+  70         // Initialize SSLContext
+  71         SSLContext sslContext = SSLContext.getInstance("TLS");
+  72         sslContext.init(kmf.getKeyManagers(), null, null);
+  ```
+Case #79
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #78
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #84
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #85
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #86
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #83
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #89
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #82
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #90
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #96
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #97
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #98
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #87
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L126-126
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #91
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #88
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #94
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #93
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "test' OR '1'='1";  // This will be safely handled
+  ```
+Case #95
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #99
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #92
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L32-32
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  31 
+  32             try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+  33                 // Custom ObjectInputStream to enforce allowlist during deserialization
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L58-58
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String hashStr = Base64.getEncoder().encodeToString(hash);
+  ```
+Case #101
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #102
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #103
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #105
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L17-17
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "securePassword123"; // In real app, use hashed password
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L35-35
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USERNAME");
+  ```
+Case #106
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-704, Lines=L90-90
+  Reason: (1/1) * Possible vulnerability detected: Bad hexadecimal concatenation
+When converting a byte array containing a hash signature to a human readable string, a conversion mistake can be made if the array is read byte by byte. The following sample illustrates the use of the method Integer.toHexString() which will trim any leading zeroes from each byte of the computed hash value. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory.
+  Code snippet:
+  ```
+  String hex = Integer.toHexString(b & 0xFF);
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L26-26
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String base64Data = Base64.getEncoder().encodeToString(serializedData);
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L29-29
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] receivedData = Base64.getDecoder().decode(base64Data);
+  ```
+Case #104
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #100
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L83-83
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().encodeToString(randomBytes);
+  ```
+Case #107
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #108
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #109
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #110
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L57-57
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L20-20
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] decodedBytes = Base64.getDecoder().decode(encodedData);
+  ```
+Case #111
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #116
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #115
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L111-111
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_ENCODER.encodeToString(randomBytes);
+  ```
+Case #112
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #114
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #117
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #118
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #121
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #125
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #120
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #126
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #129
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #113
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L97-97
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  oString(randomBytes).replace('+', '-').replace('/', '_').replace('=', '');
+  ```
+Case #122
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L49-49
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-470, Lines=L24-24
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  23                     String className = desc.getName();
+  24                     if (className == null || !ALLOWLIST.contains(Class.forName(className, false, getClass().getClassLoader()))) {
+  25                         throw new InvalidClassException("Unauthorized deserialization attempt", className);
+  ```
+Case #123
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #124
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L107-107
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = System.getenv("APP_API_KEY");
+  ```
+Case #133
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #119
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L52-52
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  return new String(Base64.getDecoder().decode(serializedData));
+  ```
+Case #132
+- Before: 1
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L34-34
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  33                 protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+  34                     if (!ALLOWED_CLASSES.contains(Class.forName(desc.getName(), false, ClassLoader.getSystemClassLoader()))) {
+  35                         throw new InvalidClassException("Unauthorized deserialization attempt: " + desc.getName());
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L58-58
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String hashBase64 = Base64.getEncoder().encodeToString(hash);
+  ```
+Case #127
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L181-181
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #138
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #131
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L51-51
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #139
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #130
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #144
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #134
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L37-37
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  36             ByteArrayInputStream bin = new ByteArrayInputStream(receivedData);
+  37             ObjectInputStream ois = new ObjectInputStream(bin);
+  38             Object obj = ois.readObject();
+  ```
+Case #136
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #143
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #142
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #128
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L133-133
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #137
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #140
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L97-97
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  96             // Get the class from the system class loader directly
+  97             Class<?> clazz = Class.forName(className, false, ClassLoader.getSystemClassLoader());
+  98
+  ```
+- [2] Scanner=horusec, CWE-502, Lines=L8-8
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  public class VulnerableClass implements Serializable {
+  ```
+Case #141
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L16-16
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  15 
+  16             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))) {
+  17                 Object obj = ois.readObject();
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L37-37
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(java.security.SecureRandom.getSeed(16));
+  ```
+Case #148
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #155
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #135
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #145
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #146
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #153
+- Before: 1
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L42-42
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L32-32
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  31 
+  32             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(fileBytes))) {
+  33                 Object obj = ois.readObject();
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L55-55
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] expectedHashBytes = Base64.getDecoder().decode(EXPECTED_HASH);
+  ```
+Case #157
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #150
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #149
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #152
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #151
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #156
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #159
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L26-26
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  25                 byte[] serializedData = baos.toByteArray();
+  26                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedData))) {
+  27                     Object obj1 = validateAndReadObject(ois);
+  ```
+Case #158
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #160
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #161
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L78-78
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #154
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #147
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L27-27
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  26 
+  27         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+  28             ois.setObjectInputFilter((desc, depth) -> {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L54-54
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(md.digest()).replace('=', 'A');
+  ```
+Case #163
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L24-24
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "secureP@ss123";
+  ```
+Case #165
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L21-21
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  20             try (ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
+  21                  ObjectInputStream ois = new ObjectInputStream(bin)) {
+  22                 Class<?> loadedClass = Class.forName(ALLOWED_CLASS);
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L47-47
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encoded = Base64.getEncoder().encodeToString(idBytes);
+  ```
+Case #166
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #175
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #167
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #170
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #162
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L185-185
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes)
+  ```
+Case #172
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L103-103
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return encoder.encodeToString(randomBytes);
+  ```
+Case #169
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #164
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #173
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L82-82
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(hashBytes);
+  ```
+Case #177
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #174
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #181
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #171
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L77-77
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(digest.digest());
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L28-28
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  String decodedCommand = new String(Base64.getDecoder().decode(data));
+  ```
+Case #176
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #178
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-502, Lines=L16-16
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  public class SecureMain {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L89-89
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().encodeToString(java.util.UUID.randomUUID().toString().getBytes());
+  ```
+Case #187
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #180
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #182
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L70-70
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes)
+  ```
+Case #179
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L181-181
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #168
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L29-29
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #186
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #184
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #185
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #193
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #196
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #188
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #189
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #190
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #191
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #183
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #192
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #195
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #194
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #204
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #205
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #202
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #199
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L40-40
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #201
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L28-28
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #200
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L112-112
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(digest.digest());
+  ```
+Case #209
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #203
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #198
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L63-63
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  62                 
+  63                 Class<?> targetClass = Class.forName(className, false, VulnerableClass.class.getClassLoader());
+  64
+  ```
+Case #197
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #211
+- Before: 4
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L114-114
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  113         try {
+  114             Class.forName(JDBC_DRIVER);
+  115             SecureDatabaseAccess dbAccess = new SecureDatabaseAccess();
+  ```
+Case #208
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L128-128
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #206
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #207
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #210
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #219
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #220
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #214
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #213
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #217
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L112-112
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(hash);
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L88-88
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  return constantTimeEquals(Base64.getDecoder().decode(receivedHmac), computedHmac);
+  ```
+Case #216
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L29-29
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword";  // Should come from validated user input
+  ```
+Case #212
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #218
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #222
+- Before: 3
+- After:  4
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L65-65
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L52-52
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  51             
+  52             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decodedData))) {
+  53                 ois.readObject();
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L34-34
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encodedData = Base64.getEncoder().encodeToString(serializedData);
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L50-50
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] decodedData = Base64.getDecoder().decode(fileData);
+  ```
+Case #228
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #223
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #226
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #215
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #224
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-319, Lines=L24-24
+  Reason: Detected use of a Java socket that is not encrypted. As a result, the traffic could be read by an attacker intercepting the network traffic. Use an SSLSocket created by 'SSLSocketFactory' or 'SSLServerSocketFactory' instead.
+  Code snippet:
+  ```
+  23     public static void main(String[] args) {
+  24         try (ServerSocket serverSocket = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))) { // Use ephemeral port with bind restrictions
+  25             System.out.println("Server listening on port " + serverSocket.getLocalPort());
+  ```
+Case #230
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #225
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #221
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L270-270
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64_ENCODER.encodeToString(randomBytes);
+  ```
+Case #227
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #229
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #231
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-326, Lines=L15-15
+  Reason: (1/1) * Possible vulnerability detected: Classes should not be loaded dynamically
+Dynamically loaded classes could contain malicious code executed by a static class initializer. I.E. you wouldn't even have to instantiate or explicitly invoke methods on such classes to be vulnerable to an attack. For more information checkout the CWE-326 (https://cwe.mitre.org/data/definitions/326.html) advisory
+  Code snippet:
+  ```
+  File file = new File(System.getProperty("java.io.tmpdir"), "safe_file.txt");
+  ```
+- [2] Scanner=semgrep, CWE-470, Lines=L63-63
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  62                 ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+  63                 return Class.forName(className, false, classLoader);
+  64             }
+  ```
+Case #232
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L66-66
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #233
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L106-106
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  105                 if (isTrustedSerializedData(serializedData)) {
+  106                     try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedData))) {
+  107                         ois.setObjectInputFilter((descSource, descType, arrays) -> {
+  ```
+Case #234
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #235
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #239
+- Before: 2
+- After:  2
+- Status: SAME
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L67-67
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L56-56
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encodedOutput = Base64.getEncoder().encodeToString(output);
+  ```
+Case #238
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #237
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L7-7
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #240
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #243
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #246
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #242
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #236
+- Before: 1
+- After:  2
+- Status: WORSE
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L37-37
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L39-39
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(hash);
+  ```
+Case #245
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L15-15
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "password";
+  ```
+Case #244
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #241
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L49-49
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L68-68
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(randomBytes)
+  ```
+Case #253
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #247
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L113-113
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return java.util.Base64.getEncoder().encodeToString(password.getBytes());
+  ```
+Case #251
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L48-48
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L66-66
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String maskedStackTrace = Base64.getEncoder().encodeToString(e.getStackTraceString().getBytes());
+  ```
+Case #248
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #249
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #250
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #259
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #252
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #262
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #258
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #257
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #255
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #256
+- Before: 1
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L83-83
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=semgrep, CWE-326, Lines=L24-24
+  Reason: An insecure SSL context was detected. TLS versions 1.0, 1.1, and all SSL versions are considered weak encryption and are deprecated. Use SSLContext.getInstance("TLSv1.2") for the best security.
+  Code snippet:
+  ```
+  23             // Initialize SSLContext with default TLS protocol
+  24             SSLContext sslContext = SSLContext.getInstance("TLS");
+  25
+  ```
+Case #266
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #268
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #263
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L44-44
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY");
+  ```
+Case #265
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #254
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L34-34
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  33             // Safe deserialization with validation
+  34             try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+  35                 // Set instance filter before reading any header data
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L56-56
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().encodeToString(errorId).replaceAll("[+/=]", "");
+  ```
+Case #273
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #264
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #274
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #276
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #277
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #260
+- Before: 3
+- After:  3
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-502, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  public class Main {
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L61-61
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encodedError = Base64.getEncoder().encodeToString(errorData);
+  ```
+Case #271
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-327, Lines=L52-52
+  Reason: (1/1) * Possible vulnerability detected: No Default  Hash
+This App uses  Hash Code. It"s a weak hash function and should never be used in Secure Crypto Implementation. For more information checkout the CWE-327 (https://cwe.mitre.org/data/definitions/327.html) advisory.
+  Code snippet:
+  ```
+  public int hashCode() {
+  ```
+Case #269
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "password";
+  ```
+Case #261
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #270
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #278
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #272
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #282
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #275
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L112-112
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #267
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #285
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #279
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #287
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #280
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #284
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #289
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #281
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L142-142
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64.encodeToString(randomBytes).replace('-', '_').replace('.', '_');
+  ```
+Case #283
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #288
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #290
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #295
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #286
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L231-231
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #291
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #300
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #299
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #292
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #293
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #296
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-319, Lines=L27-27
+  Reason: Detected use of a Java socket that is not encrypted. As a result, the traffic could be read by an attacker intercepting the network traffic. Use an SSLSocket created by 'SSLSocketFactory' or 'SSLServerSocketFactory' instead.
+  Code snippet:
+  ```
+  26     public static void main(String[] args) {
+  27         try (ServerSocket serverSocket = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))) {
+  28             String errorId = "PORT_INFO_" + System.currentTimeMillis();
+  ```
+Case #301
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #304
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #298
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #297
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L202-202
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #302
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #311
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #303
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #294
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L123-123
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String expectedHash = Base64.getEncoder().encodeToString(hash);
+  ```
+Case #307
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #305
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #308
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L175-175
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64_ENCODER.encodeToString(randomBytes);
+  ```
+Case #309
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L142-142
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return URL_SAFE_BASE64.encodeToString(randomBytes).replace('-', '_').replace('.', '_');
+  ```
+Case #310
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #318
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #312
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #313
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #320
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L15-15
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] safeContent = Base64.getDecoder().decode("c2FmZSBjb250ZW50");
+  ```
+Case #314
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #315
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #306
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #317
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #316
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #324
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #325
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #319
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #331
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #322
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L44-44
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+Case #329
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #327
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L68-68
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception ex) {
+  ```
+- [2] Scanner=horusec, CWE-502, Lines=L8-8
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  public class SecureClass implements Serializable {
+  ```
+Case #326
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #335
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #336
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #321
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L23-23
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  22             // Safe deserialization with validation
+  23             try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+  24                 // Use a filter to restrict deserialization
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L45-45
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String errorId = ERROR_ID_PREFIX + Base64.getEncoder().encodeToString(errorBytes);
+  ```
+Case #328
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #330
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L30-30
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception ex) {
+  ```
+- [2] Scanner=horusec, CWE-502, Lines=L7-7
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+  public class SecureDeserializationExample {
+  ```
+Case #334
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-330, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Insecure Random Number Generator
+The App uses an insecure Random Number Generator. For more information checkout the CWE-330 (https://cwe.mitre.org/data/definitions/330.html) advisory.
+  Code snippet:
+  ```
+  * This replaces the insecure java.util.Random with java.security.SecureRandom to mitigate CWE-330.
+  ```
+Case #338
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #340
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #323
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #333
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #332
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #342
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #337
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #343
+- Before: 3
+- After:  4
+- Status: WORSE
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L34-34
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String encodedSecretKey = System.getenv("SECURE_AES_KEY");
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L58-58
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encryptedBase64 = Base64.getEncoder().encodeToString(encryptedText);
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L59-59
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String ivBase64 = Base64.getEncoder().encodeToString(iv);
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L41-41
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] decodedKey = Base64.getDecoder().decode(encodedSecretKey);
+  ```
+Case #350
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #341
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #349
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #344
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #345
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #346
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #352
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #347
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #348
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #351
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #339
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #359
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #353
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #358
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #354
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #355
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L52-52
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return BASE64_ENCODER.encodeToString(randomBytes);
+  ```
+Case #356
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #357
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #367
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #360
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #362
+- Before: 5
+- After:  0
+- Status: CLEAN
+Case #364
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L35-35
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  34             }
+  35             Class.forName(DB_DRIVER);
+  36
+  ```
+Case #363
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #366
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #372
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #373
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #374
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #368
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #369
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #371
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #370
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #378
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #365
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #377
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #375
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L172-172
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #376
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L56-56
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L72-72
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return Base64.getEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #384
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #361
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #379
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #380
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #390
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #381
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #382
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #383
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L28-28
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+Case #385
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #395
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #389
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #396
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #391
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "password";
+  ```
+Case #393
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L71-71
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String randomPart = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  ```
+Case #394
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L39-39
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L49-49
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  return ERROR_LOG_PREFIX + Base64.getEncoder().encodeToString(randomBytes);
+  ```
+Case #387
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #397
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L84-93
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+  83 
+  84         try (ObjectInputStream ois = new ObjectInputStream(
+  85                 new ByteArrayInputStream(serializedData),
+  86                 ClassLoader.getSystemClassLoader(),
+  87                 (Class<?> clazz, ObjectStreamClass desc) -> {
+  88                     if (SecureClass.class.equals(clazz)) {
+  89                         return ObjectInputFilter.Status.ALLOWED;
+  90                     }
+  91                     return ObjectInputFilter.Status.REJECTED;
+  92                 }
+  93         )) {
+  94             Object obj = ois.readObject();
+  ```
+Case #388
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #399
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #402
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-326, Lines=L15-15
+  Reason: An insecure SSL context was detected. TLS versions 1.0, 1.1, and all SSL versions are considered weak encryption and are deprecated. Use SSLContext.getInstance("TLSv1.2") for the best security.
+  Code snippet:
+  ```
+  14             // Load SSLContext with default truststore (can be replaced with custom truststore)
+  15             SSLContext sslContext = SSLContext.getInstance("TLS");
+  16             sslContext.init(null, null, null); // Uses default KeyManager and TrustManager
+  ```
+Case #400
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String dbUser = System.getenv("DB_USER");
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L29-29
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword";  // Should be hashed before comparison
+  ```
+Case #392
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #386
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #408
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #406
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #405
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #403
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #404
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #407
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L48-48
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  47             // Load JDBC driver (ensure it's in classpath)
+  48             Class.forName(JDBC_DRIVER);
+  49
+  ```
+Case #398
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #415
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #414
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #401
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L89-89
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+  byte[] hmacBytes = Base64.getDecoder().decode(expectedHmac);
+  ```
+Case #411
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-326, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Classes should not be loaded dynamically
+Dynamically loaded classes could contain malicious code executed by a static class initializer. I.E. you wouldn't even have to instantiate or explicitly invoke methods on such classes to be vulnerable to an attack. For more information checkout the CWE-326 (https://cwe.mitre.org/data/definitions/326.html) advisory
+  Code snippet:
+  ```
+  Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+  ```
+- [2] Scanner=horusec, CWE-209, Lines=L28-28
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [3] Scanner=semgrep, CWE-470, Lines=L72-72
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+  71                     try {
+  72                         return Class.forName(className, false, ClassLoader.getSystemClassLoader());
+  73                     } catch (ClassNotFoundException e) {
+  ```
+Case #409
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #421
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #412
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #420
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #413
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #416
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #419
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L59-59
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+  } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L74-74
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  String encoded = BASE64_ENCODER.encodeToString(randomBytes);
+  ```
+Case #418
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #410
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #423
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-79, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Potential XSS in Servlet
+A potential XSS was found. It could be used to execute unwanted Script in a client's browser. For more information checkout the CWE-79 (https://cwe.mitre.org/data/definitions/79.html) advisory
+  Code snippet:
+  ```
+  String userInput = request.getParameter("userInput");
+  ```
+Case #422
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Case #424
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L25-25
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String password = "testPassword'; DROP TABLE Users; --";
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L94-94
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+  oString(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+  ```
+Case #417
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L53-53
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+  String apiKey = getSecureSecret("API_KEY_FOR_EXTERNAL_SERVICE");
+  ```
+Summary
+=====
+Total:    424
+Clean:    198
+Improved: 52
+Same:     39
+Worse:    135
