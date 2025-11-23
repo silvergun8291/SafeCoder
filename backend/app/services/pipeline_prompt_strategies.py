@@ -13,6 +13,17 @@ HARD_RULES = (
     "- Disallow relative paths (./, ../). Use only allowlisted absolute commands/paths.\n"
     "- Principle of least privilege: do not escalate privileges; do not add dangerous flags.\n"
     "- Preserve original functionality while applying the fixes.\n"
+    "- Do NOT log exception names, stack traces, or raw error messages in production logs.\n"
+    "- Log only an opaque errorId for correlation; send full details to a secure error collector (e.g., APM/Sentry).\n"
+    "- Allow stack traces only in debug/development mode.\n"
+    "- Never include sensitive data in logs (tokens, keys, credentials, PII, headers, request/response bodies).\n"
+    "- Regular Expressions: enforce strict validation rules.\n"
+    "  - Always anchor with ^...$ to match the entire input.\n"
+    "  - Specify explicit length limits (e.g., {1,64}).\n"
+    "  - Use a minimal, purpose-specific allowlist character set (e.g., [A-Za-z0-9._-]).\n"
+    "  - Forbid leading '-' (CLI option injection) and leading '.' (hidden/relative).\n"
+    "  - Forbid '..' and any path separators ('/' or '\\').\n"
+    "  - Prefer fixed allowlists (Set/Enum) over regex when feasible.\n"
 )
 
 

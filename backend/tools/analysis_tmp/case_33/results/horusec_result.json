@@ -1,0 +1,40 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:16:52.088245",
+  "total_issues": 3,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 4,
+      "line_end": 4,
+      "code_snippet": "import javax.crypto.*;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 5,
+      "line_end": 5,
+      "code_snippet": "import javax.crypto.spec.GCMParameterSpec;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 6,
+      "line_end": 6,
+      "code_snippet": "import javax.crypto.spec.SecretKeySpec;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    }
+  ]
+}

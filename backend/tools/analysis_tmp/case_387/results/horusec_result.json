@@ -1,0 +1,18 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:18:07.576519",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "CWE-209",
+      "file_path": "Main.java",
+      "line_start": 124,
+      "line_end": 124,
+      "code_snippet": "} catch (Exception e) {",
+      "description": "(1/1) * Possible vulnerability detected: Information Exposure Through An Error Message\nThe sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory."
+    }
+  ]
+}

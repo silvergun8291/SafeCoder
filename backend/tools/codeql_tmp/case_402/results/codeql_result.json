@@ -1,0 +1,17 @@
+{
+  "scanner": "codeql",
+  "scan_time": "2025-11-16T11:25:47.935582",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "codeql",
+      "rule_id": "java/polynomial-redos",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 71,
+      "line_end": 71,
+      "code_snippet": "",
+      "description": "This [regular expression](1) that depends on a [user-provided value](2) may run slow on strings starting with '!' and with many repetitions of '!'."
+    }
+  ]
+}

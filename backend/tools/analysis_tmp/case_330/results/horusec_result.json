@@ -1,0 +1,29 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:17:54.553360",
+  "total_issues": 2,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "CWE-704",
+      "file_path": "Main.java",
+      "line_start": 69,
+      "line_end": 69,
+      "code_snippet": "if (Objects.equals(hashCommand(allowedCommand), commandHash)) {",
+      "description": "(1/1) * Possible vulnerability detected: Unsafe hash equals\nAn attacker might be able to detect the value of the secret hash due to the exposure of comparison timing. When the functions Arrays.equals() or String.equals() are called, they will exit earlier if fewer bytes are matched. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "CWE-502",
+      "file_path": "Main.java",
+      "line_start": 6,
+      "line_end": 6,
+      "code_snippet": "public class SecureCommandExecutor implements Serializable {",
+      "description": "(1/1) * Possible vulnerability detected: Object deserialization is used\nObject deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory."
+    }
+  ]
+}

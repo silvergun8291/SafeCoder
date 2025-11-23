@@ -1,0 +1,17 @@
+{
+  "scanner": "codeql",
+  "scan_time": "2025-11-16T09:54:42.479540",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "codeql",
+      "rule_id": "java/overly-large-range",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 49,
+      "line_end": 49,
+      "code_snippet": "",
+      "description": "Suspicious character range that overlaps with 0-9 in the same character class, and overlaps with A-Z in the same character class, and is equivalent to \\[.\\/0-9:;<=>?@A-Z\\\\[\\\\\\\\]^_\\]."
+    }
+  ]
+}

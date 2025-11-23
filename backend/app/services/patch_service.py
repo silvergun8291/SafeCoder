@@ -33,10 +33,18 @@ class PatchService:
       6) Apply patch to original using whatthepatch (if available) and return patched code
     """
 
-    def __init__(self, scanner_service: Optional[ScannerService] = None, llm: Optional[LLMService] = None):
+    def __init__(self, scanner_service: Optional[ScannerService] = None, llm: Optional[LLMService] = None, progress_callback: Optional[callable] = None):
         self.scanner = scanner_service or ScannerService()
         self.llm = llm or LLMService()
         self.logger = logging.getLogger(__name__)
+        self._progress_cb = progress_callback
+
+    def _notify(self, stage: str, info: Optional[dict] = None) -> None:
+        try:
+            if self._progress_cb:
+                self._progress_cb(stage, info or {})
+        except Exception:
+            pass
 
     # ------------------------ Public API ------------------------
     async def run_patch(
@@ -60,6 +68,7 @@ class PatchService:
         t_all = _perf()
 
         # 1) 프롬프트 컨텍스트 준비를 위한 초기 스캔
+        self._notify("initial_scan_start", {})
         self.logger.info("[Patch] Initial scan 시작")
         t0 = _perf()
         initial_scan = await self.scanner.scan_code(request)
@@ -69,6 +78,7 @@ class PatchService:
             len(initial_scan.scanner_errors or []),
             (_perf() - t0),
         )
+        self._notify("initial_scan_done", {"total_vulns": int(getattr(initial_scan, "total_vulnerabilities", 0) or 0)})
 
         # 초기 CWE 목록 수집 (중복 제거)
         initial_cwes = []
@@ -246,6 +256,7 @@ class PatchService:
                     })
                     fixed_code = aggregated_code
                     self.logger.info("[Patch] Parallel slice merge complete")
+                    self._notify("first_fix_ready", {"mode": "parallel_slice"})
 
             if not parallel_fix:
                 # 단일 슬라이스 모드
@@ -293,6 +304,7 @@ class PatchService:
                     "user_prompt": usr_prompt
                 })
                 fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
+                self._notify("first_fix_ready", {"mode": "single_slice"})
 
                 # 해당 슬라이스의 CWE들에 대해 before/after 저장(최초 1회)
                 try:
@@ -319,6 +331,7 @@ class PatchService:
             first_answer = await self.llm.ask_async(prompt.system_prompt, prompt.user_prompt)
             self.logger.info("[Patch] LLM 응답 수신 | elapsed=%.2fs", (_perf() - t_llm_w) )
             fixed_code = self._extract_first_code_block(first_answer or "", language) or original_code
+            self._notify("first_fix_ready", {"mode": "whole_file"})
 
             # 폴백: 전체 파일을 모든 초기 CWE에 매핑(최초 1회만)
             try:
@@ -334,6 +347,7 @@ class PatchService:
         # 3) AST 검증 및 재스캔 루프
         for it in range(1, max_iterations + 1):
             self.logger.info("[Patch] Iteration %d: syntax validate", it)
+            self._notify("iteration_start", {"iteration": it})
             syntax_ok, syntax_err = self._validate_syntax(fixed_code, language)
 
             iter_rec: Dict[str, Any] = {
@@ -357,6 +371,7 @@ class PatchService:
                 self.logger.info("[Patch] Iteration %d: LLM fix 응답 | elapsed=%.2fs", it, (_perf() - t_llm_fix) )
                 new_code = self._extract_first_code_block(answer or "", language) or fixed_code
                 fixed_code = new_code
+                self._notify("iteration_fix_done", {"iteration": it, "syntax_fixed": True})
                 iter_rec["rescan_total_issues"] = None
                 iter_rec["rescan_severity_summary"] = None
                 iterations.append(iter_rec)
@@ -383,6 +398,7 @@ class PatchService:
             t_rescan = _perf()
             rescan = await self.scanner.scan_code(rescan_req)
             self.logger.info("[Patch] Iteration %d: Rescan done | vulns=%d, elapsed=%.2fs", it, rescan.total_vulnerabilities, (_perf() - t_rescan) )
+            self._notify("iteration_rescan_done", {"iteration": it, "vulns": int(getattr(rescan, "total_vulnerabilities", 0) or 0)})
             last_rescan = rescan
             iter_rec["rescan_total_issues"] = rescan.total_vulnerabilities
             iter_rec["rescan_severity_summary"] = rescan.severity_summary
@@ -430,17 +446,20 @@ class PatchService:
                 answer = await self.llm.ask_async(feedback_system, feedback_user)
                 new_code = self._extract_first_code_block(answer or "", language) or fixed_code
                 fixed_code = new_code
+                self._notify("iteration_fix_done", {"iteration": it, "syntax_fixed": True})
 
         # 6) unified diff 계산 및 whatthepatch로 패치 적용 (가능한 경우)
         self.logger.info("[Patch] Generate unified diff")
         t_diff = _perf()
         unified_diff = self._unified_diff(original_code, fixed_code, request.filename)
         self.logger.info("[Patch] Diff 생성 완료 | elapsed=%.2fs", (_perf() - t_diff) )
+        self._notify("diff_done", {})
 
         self.logger.info("[Patch] Apply patch (whatthepatch)")
         t_apply = _perf()
         patched_via_patch = self._apply_patch_with_whatthepatch(original_code, unified_diff) or fixed_code
         self.logger.info("[Patch] Patch 적용 완료 | elapsed=%.2fs", (_perf() - t_apply) )
+        self._notify("apply_done", {})
 
         # 최종 CWE 목록 수집 (마지막 재스캔 기준)
         final_cwes: List[int] = []
@@ -457,7 +476,7 @@ class PatchService:
         total_ms = (_perf() - t_all)
         self.logger.info("[Patch] DONE 🎯 | total_elapsed=%.2fs", total_ms)
 
-        return {
+        result = {
             "job_id": initial_scan.job_id,
             "language": language.value,
             "iterations": iterations,
@@ -468,6 +487,8 @@ class PatchService:
             "final_cwes": final_cwes,
             "cwe_code_pairs": cwe_code_pairs,
         }
+        self._notify("done", {"passed": bool(result.get("passed"))})
+        return result
 
     # ------------------------ Helpers ------------------------
     @staticmethod
@@ -596,6 +617,8 @@ class PatchService:
             "- Validate and allowlist external inputs.\n"
             "- Disallow relative paths; use only allowlisted absolute paths.\n"
             "- Principle of least privilege; preserve functionality.\n"
+            "- Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.\n"
+            "- Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).\n"
         )
 
         output_rule = """
@@ -627,6 +650,8 @@ class PatchService:
             "- Validate and allowlist external inputs.\n"
             "- Disallow relative paths; use only allowlisted absolute paths.\n"
             "- Principle of least privilege; preserve functionality.\n"
+            "- Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.\n"
+            "- Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).\n"
         )
         system_prompt = hard_rules
         cwe_list = ", ".join(f"CWE-{getattr(v, 'cwe', 'N/A')}" for v in (group_vulns or [])) or "N/A"

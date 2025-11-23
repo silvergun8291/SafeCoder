@@ -1,0 +1,73 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:17:57.182791",
+  "total_issues": 6,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "CWE-209",
+      "file_path": "Main.java",
+      "line_start": 61,
+      "line_end": 61,
+      "code_snippet": "} catch (Exception e) {",
+      "description": "(1/1) * Possible vulnerability detected: Information Exposure Through An Error Message\nThe sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 1,
+      "line_end": 1,
+      "code_snippet": "import javax.crypto.Cipher;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 2,
+      "line_end": 2,
+      "code_snippet": "import javax.crypto.spec.GCMParameterSpec;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 3,
+      "line_end": 3,
+      "code_snippet": "import javax.crypto.spec.SecretKeySpec;",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "CWE-532",
+      "file_path": "Main.java",
+      "line_start": 58,
+      "line_end": 58,
+      "code_snippet": "System.out.println(\"Encrypted (Base64): \" + Base64.getEncoder().encodeToString(encryptedText));",
+      "description": "(1/2) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.\n         \n(2/2) * Possible vulnerability detected: No Log Sensitive Information\nThe App logs information. Sensitive information should never be logged. For more information checkout the CWE-532 (https://cwe.mitre.org/data/definitions/532.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "low",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 37,
+      "line_end": 37,
+      "code_snippet": "byte[] decodedKey = Base64.getDecoder().decode(base64Key);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Decode\nBase64 Decode"
+    }
+  ]
+}

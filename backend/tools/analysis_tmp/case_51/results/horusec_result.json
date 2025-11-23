@@ -1,0 +1,51 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:16:57.347043",
+  "total_issues": 4,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "CWE-704",
+      "file_path": "Main.java",
+      "line_start": 85,
+      "line_end": 85,
+      "code_snippet": "if (computedHash.equals(storedHash)) {",
+      "description": "(1/1) * Possible vulnerability detected: Unsafe hash equals\nAn attacker might be able to detect the value of the secret hash due to the exposure of comparison timing. When the functions Arrays.equals() or String.equals() are called, they will exit earlier if fewer bytes are matched. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 104,
+      "line_end": 104,
+      "code_snippet": "return Base64.getEncoder().encodeToString(hash);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 119,
+      "line_end": 119,
+      "code_snippet": "return Base64.getEncoder().encodeToString(salt);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "low",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 102,
+      "line_end": 102,
+      "code_snippet": "md.init(65536, Base64.getDecoder().decode(salt));",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Decode\nBase64 Decode"
+    }
+  ]
+}

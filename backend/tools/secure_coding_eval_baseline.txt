@@ -1,0 +1,4652 @@
+Secure Coding Baseline (LLM only)
+Timestamp: 2025-11-13T22:44:36.585140+00:00
+Scanners: horusec, semgrep, spotbugs (java)
+Case #9
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #4
+- Before: 0
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Scanner;
+import java.util.HexFormat;
+
+public class Main {
+    // Secure storage of credentials (in real application these would be stored in a secure database)
+    private static final String STORED_USERNAME = "admin";
+    private static final byte[] STORED_PASSWORD_HASH = hexStringToByteArray("5f4dcc3b5aa765d61d8327deb882cf99"); // md5("password")
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your username:");
+        String username = scanner.nextLine().trim();
+        
+        System.out.println("Enter your password:");
+        String password = readPasswordFromConsole();
+        
+        if (authenticateUser(username, password)) {
+            System.out.println("Access granted.");
+        } else {
+            System.out.println("Access denied.");
+        }
+    }
+    
+    private static String readPasswordFromConsole() {
+        Console console = System.console();
+        if (console != null) {
+            return new String(console.readPassword("Enter your password: "), StandardCharsets.UTF_8);
+        } else {
+            // Fallback for environments without Console support
+            Scanner scanner = new Scanner(System.in);
+            return scanner.nextLine();
+        }
+    }
+    
+    private static boolean authenticateUser(String username, String password) {
+        if (username == null || password == null) {
+            return false;
+        }
+        
+        // Constant time comparison to prevent timing attacks
+        if (!constantTimeEquals(username.getBytes(StandardCharsets.UTF_8), 
+                               STORED_USERNAME.getBytes(StandardCharsets.UTF_8))) {
+            return false;
+        }
+        
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
+            byte[] passwordHash = md.digest(passwordBytes);
+            
+            return constantTimeEquals(passwordHash, STORED_PASSWORD_HASH);
+        } catch (NoSuchAlgorithmException e) {
+            // Should never happen with MD5
+            return false;
+        }
+    }
+    
+    // Constant-time comparison method to prevent timing attacks
+    private static boolean constantTimeEquals(byte[] a, byte[] b) {
+        if (a.length != b.length) {
+            return false;
+        }
+        
+        int diff = 0;
+        for (int i = 0; i < a.length; i++) {
+            diff |= a[i] ^ b[i];
+        }
+        return diff == 0;
+    }
+    
+    // Utility method to convert hex string to byte array
+    private static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((HexFormat.of().parse(s.substring(i, i + 2))));
+        }
+        return data;
+    }
+}
+```
+Case #8
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.util.Scanner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // Never hardcode credentials in production code!
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/testDb";
+    private static final String DB_USER = "dbuser"; // Should be configured securely
+    private static final String DB_PASSWORD = "dbpassword"; // Should be configured securely
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your username:");
+        String username = scanner.nextLine();
+        System.out.println("Enter your password:");
+        String password = scanner.nextLine();
+        
+        try {
+            // Load MySQL JDBC Driver (using service loader mechanism in modern JDBC)
+            try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+                // Use prepared statements to prevent SQL injection
+                String sql = "SELECT PasswordHash FROM Users WHERE Username = ?";
+                try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                    pstmt.setString(1, username);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            String storedHash = rs.getString("PasswordHash");
+                            if (passwordMatches(password, storedHash)) {
+                                System.out.println("Login successful!");
+                            } else {
+                                System.out.println("Invalid credentials");
+                            }
+                        } else {
+                            System.out.println("Invalid credentials");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+            // In production, you would log this error securely rather than printing it
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Error verifying password: " + e.getMessage());
+        } finally {
+            scanner.close();
+        }
+    }
+
+    // Simple password hashing using SHA-256 (in production, use proper password hashing like bcrypt)
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        
+        return hexString.toString();
+    }
+
+    // Verify password against stored hash
+    private static boolean passwordMatches(String password, String storedHash) throws NoSuchAlgorithmException {
+        String passwordHash = hashPassword(password);
+        return passwordHash.equals(storedHash);
+    }
+}
+```
+Case #13
+- Before: 1
+- After:  1
+- Status: SAME
+Case #12
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #6
+- Before: 1
+- After:  1
+- Status: SAME
+Case #11
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #5
+- Before: 1
+- After:  1
+- Status: SAME
+Case #14
+- Before: 3
+- After:  3
+- Status: SAME
+Case #15
+- Before: 2
+- After:  2
+- Status: SAME
+Case #18
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #17
+- Before: 1
+- After:  1
+- Status: SAME
+Case #19
+- Before: 1
+- After:  1
+- Status: SAME
+Case #16
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #20
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #21
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #22
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #23
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #24
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #25
+- Before: 2
+- After:  2
+- Status: SAME
+Case #26
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #7
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #27
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #30
+- Before: 1
+- After:  1
+- Status: SAME
+Case #29
+- Before: 1
+- After:  1
+- Status: SAME
+Case #28
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #32
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #31
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #3
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #34
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #1
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.util.Properties;
+
+public class Main {
+    // These should be read from secure configuration in production
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydatabase";
+    private static final String DB_USER = "username";
+    private static final String DB_PASSWORD = "password";
+
+    public static void main(String[] args) {
+        // In production, use secure credential management like Vault or environment variables
+        Properties connectionProps = new Properties();
+        connectionProps.put("user", DB_USER);
+        connectionProps.put("password", DB_PASSWORD);
+        connectionProps.put("useSSL", "true");
+        connectionProps.put("requireSSL", "true");
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, connectionProps);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+            
+            // Validate and sanitize input before using it
+            String username = validateAndSanitizeInput("testUser");
+            stmt.setString(1, username);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs != null) {
+                    while (rs.next()) {
+                        System.out.println(rs.getString("username"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // In production, use proper logging framework and avoid exposing stack traces
+            System.err.println("Database error occurred: " + e.getMessage());
+            // Additional error handling as needed
+        }
+    }
+
+    /**
+     * Validates and sanitizes input to prevent injection attacks
+     * In production, use a dedicated input validation library
+     */
+    private static String validateAndSanitizeInput(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            throw new IllegalArgumentException("Input cannot be null or empty");
+        }
+        
+        // Basic validation - in production use more comprehensive checks
+        if (input.length() > 50) {
+            throw new IllegalArgumentException("Username too long");
+        }
+        
+        // Remove potentially dangerous characters
+        return input.replaceAll("[^a-zA-Z0-9_]", "");
+    }
+}
+```
+Case #35
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #36
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #37
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #38
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #39
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #41
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #43
+- Before: 2
+- After:  2
+- Status: SAME
+Case #40
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #42
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #33
+- Before: 1
+- After:  7
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PBEKeySpec;
+import java.util.Base64;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create sensitive data with hashed password
+            String rawPassword = "password123";
+            String hashedPassword = hashPassword(rawPassword);
+            UserInfo secureData = new UserInfo("John Doe", hashedPassword);
+            
+            // Serialize sensitive data
+            try (FileOutputStream fileOut = new FileOutputStream("/tmp/user.ser");
+                 ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+                out.writeObject(secureData);
+            }
+            
+            System.out.println("Serialized data is saved in /tmp/user.ser");
+            
+            // Deserialize sensitive data
+            try (FileInputStream fileIn = new FileInputStream("/tmp/user.ser");
+                 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                UserInfo deserializedData = (UserInfo) in.readObject();
+                
+                System.out.println("Deserialized Data...");
+                System.out.println("Username: " + deserializedData.getUsername());
+                
+                // Verify password instead of printing it
+                boolean passwordMatch = verifyPassword("password123", deserializedData.getPasswordHash());
+                System.out.println("Password match: " + passwordMatch);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during (de)serialization: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            System.err.println("Error during password hashing: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Hashes a password using PBKDF2 with HMAC-SHA-256
+    private static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        char[] chars = password.toCharArray();
+        int iterations = 10000;
+        int keyLength = 256;
+        
+        PBEKeySpec spec = new PBEKeySpec(chars, getSalt(), iterations, keyLength);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] hash = skf.generateSecret(spec).getEncoded();
+        return Base64.getEncoder().encodeToString(hash);
+    }
+
+    // Verifies a password against a hash
+    private static boolean verifyPassword(String password, String storedHash) 
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String hashOfInput = hashPassword(password);
+        return MessageDigest.isEqual(hashOfInput.getBytes(), storedHash.getBytes());
+    }
+
+    // Generates a random salt
+    private static byte[] getSalt() throws NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt;
+    }
+}
+
+class UserInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    private final String username;
+    private final String passwordHash;
+    
+    public UserInfo(String username, String passwordHash) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+}
+```
+Case #44
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.concurrent.*;
+
+public class Main {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        Future<?> future = executor.submit(new Task());
+        System.out.println("Task submitted");
+        
+        try {
+            future.get();
+        } catch (ExecutionException e) {
+            System.err.println("Task execution failed: " + e.getCause().getMessage());
+            e.getCause().printStackTrace();
+        } catch (InterruptedException e) {
+            System.err.println("Operation interrupted: " + e.getMessage());
+            Thread.currentThread().interrupt(); // Restore interrupt status
+        } finally {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt(); // Restore interrupt status
+            }
+        }
+    }
+}
+
+class Task implements Runnable {
+    @Override
+    public void run() {
+        try {
+            System.out.println("Task executed");
+        } catch (Exception e) {
+            System.err.println("Error in task execution: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #46
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #45
+- Before: 2
+- After:  5
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+public class SecureClass implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String username;
+    private String passwordHash;
+    private static final int ITERATIONS = 65536;
+    private static final int KEY_LENGTH = 256;
+
+    public SecureClass(String username, String password) {
+        this.username = username;
+        this.passwordHash = hashPassword(password);
+    }
+
+    public void printUserCredentials() {
+        System.out.println("Username: " + username);
+        System.out.println("Password hash: " + passwordHash);
+    }
+
+    private String hashPassword(String password) {
+        try {
+            char[] chars = password.toCharArray();
+            byte[] salt = generateSalt();
+
+            PBEKeySpec spec = new PBEKeySpec(chars, salt, ITERATIONS, KEY_LENGTH);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+
+    private byte[] generateSalt() {
+        byte[] salt = new byte[16];
+        new SecureRandom().nextBytes(salt);
+        return salt;
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        
+        // Validate internal state after deserialization
+        if (username == null || username.isEmpty() || passwordHash == null || passwordHash.isEmpty()) {
+            throw new InvalidObjectException("Invalid deserialized object");
+        }
+    }
+
+    private Object writeReplace() {
+        // Prevent direct serialization by returning a replacement object
+        throw new UnsupportedOperationException("Serialization is disabled for this class");
+    }
+
+    public static void main(String[] args) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        SecureClass vc = new SecureClass("admin", "password");
+        oos.writeObject(vc);
+        byte[] bytes = baos.toByteArray();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object obj = ois.readObject();
+        ((SecureClass) obj).printUserCredentials();
+    }
+}
+```
+Case #47
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #10
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+public class Main {
+    public static void main(String[] args) {
+        String str = null;
+        
+        if (str == null) {
+            System.err.println("String reference is null. Cannot get length.");
+            return;
+        }
+        
+        try {
+            System.out.println("String length: " + str.length());
+        } catch (Exception e) {
+            System.err.println("Unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #49
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #48
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #50
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #52
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #51
+- Before: 1
+- After:  5
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Base64;
+
+public class Main {
+    // Using a more secure map implementation for concurrent access
+    private static final Map<String, String> users = new ConcurrentHashMap<>();
+    private static final SecureRandom random = new SecureRandom();
+
+    public static void main(String[] args) {
+        try {
+            // Simulated registration with proper password hashing
+            String salt = generateSalt();
+            String hashedPassword = hashPassword("password", salt);
+            users.put("admin", "salt:" + salt + ":hash:" + hashedPassword);
+            
+            // Simulated login with input validation
+            String username = validateInput("admin");
+            String password = validateInput("password");
+
+            if (username == null || password == null) {
+                System.out.println("Access denied: Invalid input");
+                return;
+            }
+
+            if (!users.containsKey(username)) {
+                System.out.println("Access denied: User not found");
+                return;
+            }
+
+            String storedValue = users.get(username);
+            String[] parts = storedValue.split(":");
+            if (parts.length != 5 || !"salt".equals(parts[0]) || !"hash".equals(parts[2])) {
+                System.out.println("Access denied: Invalid credentials format");
+                return;
+            }
+
+            String storedSalt = parts[1];
+            String storedHash = parts[3];
+            
+            if (slowEquals(hashPassword(password, storedSalt), storedHash)) {
+                System.out.println("Access granted!");
+            } else {
+                System.out.println("Access denied: Invalid credentials");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static String generateSalt() {
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    private static String hashPassword(String password, String salt) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(Base64.getDecoder().decode(salt));
+        byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hashedBytes);
+    }
+
+    // Constant-time string comparison to prevent timing attacks
+    private static boolean slowEquals(byte[] a, byte[] b) {
+        if (a.length != b.length) return false;
+        int diff = 0;
+        for (int i = 0; i < a.length; i++) {
+            diff |= a[i] ^ b[i];
+        }
+        return diff == 0;
+    }
+
+    // Input validation to prevent injection attacks
+    private static String validateInput(String input) {
+        if (input == null || input.contains(":") || input.contains("=") || 
+            input.contains("{") || input.contains("}") || input.contains("[") || 
+            input.contains("]") || input.contains("\\") || input.contains("/")) {
+            return null;
+        }
+        return input;
+    }
+}
+```
+Case #53
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #54
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #55
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #2
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #56
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #57
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[16];
+        secureRandom.nextBytes(randomBytes);
+        String randomString = Base64.getEncoder().encodeToString(randomBytes);
+        System.out.println("Random String: " + randomString);
+        
+        int randomInt = ThreadLocalRandom.current().nextInt();
+        System.out.println("Random Integer: " + randomInt);
+    }
+}
+```
+Case #58
+- Before: 2
+- After:  2
+- Status: SAME
+Case #60
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #61
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #62
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #63
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #64
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #66
+- Before: 1
+- After:  1
+- Status: SAME
+Case #67
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #69
+- Before: 3
+- After:  3
+- Status: SAME
+Case #59
+- Before: 2
+- After:  6
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // These should be stored in a secure configuration file or environment variables
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/testDB";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "123456"; // Should be changed to a strong password
+    
+    public static void main(String[] args) {
+        String username = "testUser";  // Assume this comes from user input
+        String password = "testPassword";  // Assume this comes from user input
+        
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            // Use prepared statements to prevent SQL injection
+            String sqlQuery = "SELECT * FROM Users WHERE Username = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sqlQuery)) {
+                pstmt.setString(1, username);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Verify password hash
+                        String storedHash = rs.getString("PasswordHash");
+                        String storedSalt = rs.getString("Salt");
+                        
+                        if (verifyPassword(password, storedSalt, storedHash)) {
+                            System.out.println("ID: " + rs.getInt("ID"));
+                            System.out.println("Username: " + rs.getString("Username"));
+                        } else {
+                            System.out.println("Authentication failed: Invalid credentials");
+                        }
+                    } else {
+                        System.out.println("Authentication failed: User not found");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+            // In production, you would log this error securely rather than printing it
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Security error: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Generates a secure salt and hashes a password using PBKDF2 with HMAC-SHA256
+     */
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        byte[] salt = new byte[16];
+        new SecureRandom().nextBytes(salt);
+        
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.reset();
+        md.update(salt);
+        byte[] hashedPassword = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        
+        // In production, you should use a proper key derivation function like PBKDF2
+        // This is a simplified example
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(Base64.getEncoder().encodeToString(salt));
+        sb.append("$");
+        sb.append(Base64.getEncoder().encodeToString(hashedPassword));
+        
+        return sb.toString();
+    }
+    
+    /**
+     * Verifies a password against a stored hash and salt
+     */
+    public static boolean verifyPassword(String password, String storedSalt, String storedHash) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.reset();
+        md.update(Base64.getDecoder().decode(storedSalt));
+        byte[] testHash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        
+        return MessageDigest.isEqual(Base64.getDecoder().decode(storedHash), testHash);
+    }
+}
+```
+Case #70
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #71
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #72
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #73
+- Before: 2
+- After:  2
+- Status: SAME
+Case #74
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #75
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #68
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #76
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #65
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #79
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #77
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    // In production, these should be stored in a secure configuration system
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydb";
+    private static final String DB_USERNAME = "dbUser";
+    private static final String DB_PASSWORD = "secureDbPassword"; // Should be rotated regularly
+    
+    public static void main(String[] args) {
+        String inputUsername = "testUser";
+        String inputPassword = "testPassword"; // In production, password should be read from secure input
+        
+        String safeQuery = "SELECT * FROM Users WHERE Username = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(safeQuery)) {
+                pstmt.setString(1, inputUsername);
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    boolean userFound = false;
+                    while (rs.next()) {
+                        String storedHash = rs.getString("PasswordHash");
+                        String salt = rs.getString("Salt");
+                        
+                        // Verify password hash
+                        if (verifyPassword(inputPassword, salt, storedHash)) {
+                            userFound = true;
+                            System.out.println("Authentication successful for user: " + inputUsername);
+                            break;
+                        }
+                    }
+                    
+                    if (!userFound) {
+                        System.out.println("Authentication failed");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error occurred");
+            // In production, log the error securely without exposing stack traces
+            e.printStackTrace();
+        }
+    }
+    
+    private static String hashPassword(String password, String salt) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(salt.getBytes());
+        byte[] hashedBytes = md.digest(password.getBytes());
+        return Base64.getEncoder().encodeToString(hashedBytes);
+    }
+    
+    private static boolean verifyPassword(String inputPassword, String salt, String storedHash) {
+        try {
+            String inputHash = hashPassword(inputPassword, salt);
+            return MessageDigest.isEqual(inputHash.getBytes(), storedHash.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            // This should never happen with SHA-256
+            return false;
+        }
+    }
+}
+```
+Case #80
+- Before: 1
+- After:  1
+- Status: SAME
+Case #81
+- Before: 1
+- After:  1
+- Status: SAME
+Case #82
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #86
+- Before: 1
+- After:  1
+- Status: SAME
+Case #84
+- Before: 1
+- After:  1
+- Status: SAME
+Case #83
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.concurrent.*;
+
+public class SecureThread {
+    private static final int MAX_QUEUE_SIZE = 1000; // Bounded queue to prevent OOM
+    private static ExecutorService executor;
+
+    public static void main(String[] args) {
+        try {
+            // Use a bounded queue and custom rejection handler
+            BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
+            executor = new ThreadPoolExecutor(
+                10, // corePoolSize
+                20, // maximumPoolSize
+                60L, TimeUnit.SECONDS,
+                workQueue,
+                new ThreadPoolExecutor.CallerRunsPolicy() // Handle rejection by running in caller thread
+            );
+
+            // Example of controlled task submission (replace with actual logic)
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> {
+                try {
+                    executor.submit(new Task());
+                } catch (RejectedExecutionException e) {
+                    System.err.println("Task rejected: " + e.getMessage());
+                }
+            }, 0, 100, TimeUnit.MILLISECONDS);
+
+            // Add shutdown hook to ensure proper termination
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Initiating shutdown...");
+                executor.shutdownNow();
+                try {
+                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    executor.shutdownNow();
+                }
+            }));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static class Task implements Runnable {
+        @Override
+        public void run() {
+            try {
+                // Simulate actual work
+                System.out.println("Task executed by " + Thread.currentThread().getName());
+                // Actual task logic would go here
+            } catch (Exception e) {
+                System.err.println("Exception in task: " + e.getMessage());
+                // Properly handle or log exceptions
+            }
+        }
+    }
+}
+```
+Case #78
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+public class Main {
+    // Using a system property for file path instead of hardcoding
+    private static final String FILE_PATH_PROPERTY = "sensitive.data.file.path";
+    
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.err.println("File path argument is required");
+            System.exit(1);
+        }
+        
+        String filePath = args[0];
+        
+        // Validate file path to prevent path traversal attacks
+        if (filePath.contains("..") || filePath.startsWith("/") || filePath.startsWith("\\")) {
+            System.err.println("Invalid file path");
+            System.exit(1);
+        }
+        
+        try {
+            // Using NIO API for better security and resource management
+            Path path = Paths.get(filePath);
+            
+            // Check if file exists and is readable
+            if (!Files.exists(path) || !Files.isReadable(path)) {
+                System.err.println("File does not exist or is not readable");
+                System.exit(1);
+            }
+            
+            // Read file content securely
+            Files.readLines(path, StandardCharsets.UTF_8, lines -> {
+                lines.forEach(System.out::println);
+            });
+            
+        } catch (IOException e) {
+            // Log error securely without exposing stack trace
+            System.err.println("Error reading file: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+    
+    // Alternative approach using Java Security Manager for enhanced security
+    public static void secureFileRead(String filePath) {
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            try {
+                Path path = Paths.get(filePath);
+                if (Files.exists(path) && Files.isReadable(path)) {
+                    Files.readLines(path, StandardCharsets.UTF_8, lines -> {
+                        lines.forEach(System.out::println);
+                    });
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading file: " + e.getMessage());
+            }
+            return null;
+        });
+    }
+}
+```
+Case #87
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #88
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #85
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #89
+- Before: 2
+- After:  2
+- Status: SAME
+Case #90
+- Before: 1
+- After:  1
+- Status: SAME
+Case #91
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #93
+- Before: 2
+- After:  2
+- Status: SAME
+Case #94
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #92
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #95
+- Before: 2
+- After:  2
+- Status: SAME
+Case #97
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #98
+- Before: 2
+- After:  2
+- Status: SAME
+Case #99
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #96
+- Before: 4
+- After:  2
+- Status: IMPROVED
+Case #100
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #101
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #103
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #102
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #104
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #105
+- Before: 2
+- After:  2
+- Status: SAME
+Case #106
+- Before: 2
+- After:  2
+- Status: SAME
+Case #107
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    // These should be stored in a secure configuration file or environment variables
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydatabase?verifyServerCertificate=false&useSSL=true&requireSSL=true";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "root"; // Should be a secure password
+    
+    public static void main(String[] args) {
+        String username = "testuser";
+        String password = "testpass"; // In real application, password should be hashed before storage
+        
+        String hashedPassword = hashPassword(password);
+        
+        String sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    System.out.println(rs.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+            // In production, you would want to log this properly and not expose details
+        }
+    }
+    
+    // Simple password hashing function (in production, use stronger hashing like bcrypt)
+    private static String hashPassword(String passwordToHash) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(passwordToHash.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hashedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+}
+```
+Case #110
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #109
+- Before: 1
+- After:  1
+- Status: SAME
+Case #108
+- Before: 2
+- After:  4
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // These should be stored securely in production (e.g., environment variables, secret manager)
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydb";
+    private static final String DB_USERNAME = "secure_user";
+    private static final String DB_PASSWORD = "secure_password";
+
+    public static void main(String[] args) {
+        String inputUsername = "test";
+        String inputPassword = "test";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            String sql = "SELECT * FROM users WHERE username = ?";
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, inputUsername);
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String storedHash = rs.getString("password_hash");
+                        String inputHash = hashPassword(inputPassword);
+                        
+                        if (storedHash != null && storedHash.equals(inputHash)) {
+                            System.out.println("Authentication successful for user: " + inputUsername);
+                        } else {
+                            System.out.println("Authentication failed: Invalid credentials");
+                        }
+                    } else {
+                        System.out.println("Authentication failed: User not found");
+                    }
+                }
+            }
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            System.err.println("Database error occurred: " + e.getMessage());
+            // In production, you would log this securely rather than printing to stderr
+        }
+    }
+
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        
+        return hexString.toString();
+    }
+}
+```
+Case #111
+- Before: 0
+- After:  2
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+// A class representing a user
+class User {
+    private final String name;
+
+    User(String name) {
+        this.name = (name != null) ? name : "";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || !(obj instanceof User)) {
+            return false;
+        }
+        User otherUser = (User) obj;
+        return this.name.equals(otherUser.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+}
+
+public class Main {
+    public static void main(String args[]) {
+        User user1 = new User("Alice");
+        User user2 = null;
+
+        System.out.println(user1.equals(user2)); // Now safely returns false
+    }
+}
+```
+Case #112
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #114
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #113
+- Before: 2
+- After:  9
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecParametersException;
+import java.security.spec.KeySpec;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+public class DeserializeExample {
+    public static void main(String[] args) {
+        try {
+            // Using a safer approach than direct deserialization
+            // In a real application, you should avoid deserializing untrusted data altogether
+            // This example shows how to handle it more securely if absolutely necessary
+            
+            File file = new File("/tmp/user.ser");
+            if (!file.exists() || !file.canRead()) {
+                System.err.println("File does not exist or cannot be read");
+                return;
+            }
+
+            try (FileInputStream fileIn = new FileInputStream(file);
+                 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                
+                // Verify the object before deserialization if possible
+                // Note: Java's built-in serialization doesn't support this natively
+                // Consider using safer serialization formats like JSON with validation
+                
+                Object obj = in.readObject();
+                if (!(obj instanceof User)) {
+                    System.err.println("Deserialized object is not a User instance");
+                    return;
+                }
+                
+                User user = (User) obj;
+                System.out.println("Deserialized User Object: " + user.getName());
+                
+            } catch (ClassNotFoundException e) {
+                System.err.println("User class not found during deserialization");
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            System.err.println("IO error during deserialization: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name;
+    // Store hashed password instead of plaintext
+    private String passwordHash;
+    private String salt;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setPassword(String password) {
+        if (password == null || password.length() == 0) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+        this.salt = generateSalt();
+        this.passwordHash = hashPassword(password, salt);
+    }
+
+    public boolean checkPassword(String password) {
+        if (password == null || password.length() == 0 || salt == null || passwordHash == null) {
+            return false;
+        }
+        String hash = hashPassword(password, salt);
+        return passwordHash.equals(hash);
+    }
+
+    private String generateSalt() {
+        // In a real application, use a cryptographically secure random number generator
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    private String hashPassword(String password, String salt) {
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), Base64.getDecoder().decode(salt), 65536, 128);
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+
+    // Secure readObject implementation
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        // Validate object state after deserialization
+        if (name == null || name.isEmpty() || salt == null || passwordHash == null) {
+            throw new InvalidObjectException("Invalid User object state");
+        }
+    }
+
+    private Object writeReplace() {
+        // Prevent direct serialization by returning a replacement
+        throw new UnsupportedOperationException("Serialization is disabled for User class");
+    }
+}
+```
+Case #115
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #117
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #116
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #119
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #118
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.Scanner;
+import java.io.Console;
+
+public class Main {
+    public static void main(String[] args) {
+        // Use Console for secure password input if available
+        Console console = System.console();
+        if (console == null) {
+            System.err.println("Could not get console instance. Using less secure input method.");
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.print("Enter your username: ");
+            String username = scanner.nextLine();
+
+            System.out.print("Enter your password: ");
+            String password = scanner.nextLine();
+
+            // Never log passwords in production code
+            if (validateCredentials(username, password)) {
+                System.out.println("Login successful!");
+            } else {
+                System.out.println("Invalid credentials!");
+            }
+        } else {
+            // Secure way to read password (char[] instead of String)
+            char[] passwordChars = console.readPassword("Enter your password: ");
+            String username = console.readLine("Enter your username: ");
+
+            // Convert char[] to String for processing (still not ideal for production)
+            String password = new String(passwordChars);
+
+            // Clear sensitive data from memory
+            if (passwordChars != null) {
+                java.util.Arrays.fill(passwordChars, ' ');
+            }
+
+            // Never log passwords in production code
+            if (validateCredentials(username, password)) {
+                System.out.println("Login successful!");
+            } else {
+                System.out.println("Invalid credentials!");
+            }
+        }
+    }
+
+    // Simulated credential validation (in production would check against secure storage)
+    private static boolean validateCredentials(String username, String password) {
+        // In real applications:
+        // 1. Never store passwords in plaintext
+        // 2. Use proper authentication mechanisms
+        // 3. Implement account lockout policies
+        // 4. Use prepared statements if checking against a database
+        return "admin".equals(username) && "securepassword123".equals(password);
+    }
+}
+```
+Case #121
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #120
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #123
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #124
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #125
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // Never hardcode credentials in production code
+    // These should come from secure configuration sources
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/myDb";
+    private static final String DB_USER = "secureUser";
+    private static final String DB_PASSWORD = "securePassword";
+
+    public static void main(String[] args) {
+        // Example inputs - in real application these would come from user input
+        String username = "testUser";
+        String password = "testPassword";
+
+        // Validate inputs
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            System.err.println("Username and password cannot be empty");
+            return;
+        }
+
+        // Hash password before using in query
+        String hashedPassword;
+        try {
+            hashedPassword = hashPassword(password);
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Error hashing password: " + e.getMessage());
+            return;
+        }
+
+        // Use try-with-resources for automatic resource cleanup
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?")) {
+            
+            // Use parameterized query to prevent SQL injection
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                System.out.println("User found: " + rs.getString(1));
+            } else {
+                System.out.println("User not found");
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+            // In production, you would log this properly and not expose details to users
+        }
+    }
+
+    // Simple password hashing method
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        
+        return hexString.toString();
+    }
+}
+```
+Case #122
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #127
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.Console;
+
+public class Main {
+    public static void main(String[] args) {
+        Console console = System.console();
+        if (console == null) {
+            System.err.println("No console available. Cannot read password securely.");
+            System.exit(1);
+        }
+        
+        char[] password = console.readPassword("Enter your password: ");
+        
+        // Process password (for demonstration only - in real use you would hash it)
+        System.out.println("\nPassword length: " + password.length);
+        
+        // Clear password from memory
+        java.util.Arrays.fill(password, ' ');
+    }
+}
+```
+Case #129
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #128
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #126
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #131
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #130
+- Before: 2
+- After:  2
+- Status: SAME
+Case #132
+- Before: 1
+- After:  1
+- Status: SAME
+Case #134
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #135
+- Before: 2
+- After:  2
+- Status: SAME
+Case #136
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #138
+- Before: 1
+- After:  1
+- Status: SAME
+Case #137
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #139
+- Before: 2
+- After:  2
+- Status: SAME
+Case #141
+- Before: 2
+- After:  2
+- Status: SAME
+Case #142
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #140
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #144
+- Before: 1
+- After:  1
+- Status: SAME
+Case #143
+- Before: 2
+- After:  2
+- Status: SAME
+Case #133
+- Before: 1
+- After:  1
+- Status: SAME
+Case #147
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #145
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #149
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #148
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #146
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #151
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #150
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #155
+- Before: 1
+- After:  1
+- Status: SAME
+Case #152
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #154
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.Console;
+
+public class Main {
+    public static void main(String[] args) {
+        Console console = System.console();
+        if (console == null) {
+            System.err.println("Could not retrieve console instance. Using fallback method.");
+            // Fallback for environments without Console support (not recommended for production)
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your username: ");
+            String username = scanner.nextLine();
+            System.out.print("Enter your password: ");
+            String password = scanner.nextLine();
+            
+            // Never print passwords in production code
+            System.out.println("Username: " + username);
+            return;
+        }
+
+        // Secure password input with masking
+        char[] passwordChars = console.readPassword("Enter your password: ");
+        String username = console.readLine("Enter your username: ");
+        
+        // Never print passwords in production code
+        System.out.println("Username: " + username);
+        
+        // If password verification is needed, do it securely without exposing the password
+        // Example: checkPassword(passwordChars, expectedPasswordHash);
+        
+        // Zero out password characters from memory
+        if (passwordChars != null) {
+            java.util.Arrays.fill(passwordChars, ' ');
+        }
+    }
+}
+```
+Case #153
+- Before: 1
+- After:  1
+- Status: SAME
+Case #156
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #158
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #157
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #159
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #160
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #162
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #161
+- Before: 0
+- After:  13
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.net.*;
+import java.io.*;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Validate and sanitize input URL
+        String urlStr = "http://example.com/malicious-url"; // In real use, this should come from validated input
+        if (!isValidUrl(urlStr)) {
+            System.err.println("Invalid URL");
+            return;
+        }
+
+        try {
+            // Create URL object
+            URL myUrl = new URL(urlStr);
+            
+            // Set up connection with timeouts and security settings
+            HttpURLConnection connection = (HttpURLConnection) myUrl.openConnection();
+            connection.setConnectTimeout(5000);  // 5 seconds
+            connection.setReadTimeout(5000);     // 5 seconds
+            connection.setInstanceFollowRedirects(false); // Don't follow redirects automatically
+            
+            // For HTTPS, we should verify certificates properly
+            if (myUrl.getProtocol().toLowerCase().equals("https")) {
+                trustAllSSL(); // In production, use proper certificate pinning instead
+                connection = (HttpsURLConnection) myUrl.openConnection();
+                ((HttpsURLConnection) connection).setSSLSocketFactory(getTrustAllSSLSocketFactory());
+                ((HttpsURLConnection) connection).setHostnameVerifier((hostname, session) -> true); // In production, use proper verification
+            }
+            
+            // Read response
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    // Sanitize output if needed before printing
+                    System.out.println(sanitizeOutput(inputLine));
+                }
+            }
+        } catch (MalformedURLException e) {
+            System.err.println("Malformed URL: " + e.getMessage());
+        } catch (SocketTimeoutException e) {
+            System.err.println("Connection or read timeout: " + e.getMessage());
+        } catch (SSLException e) {
+            System.err.println("SSL error: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    private static boolean isValidUrl(String url) {
+        // Basic URL validation - in production you should have more comprehensive checks
+        if (url == null) {
+            return false;
+        }
+        
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
+    }
+
+    private static String sanitizeOutput(String input) {
+        // Basic output sanitization - in production you might need more comprehensive sanitization
+        if (input == null) {
+            return "";
+        }
+        return input.replaceAll("[^\\p{Print}]", ""); // Remove non-printable characters
+    }
+
+    // For demonstration only - in production you should use proper certificate pinning
+    private static void trustAllSSL() throws Exception {
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+            }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+    }
+
+    private static SSLSocketFactory getTrustAllSSLSocketFactory() throws Exception {
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+            }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        return sc.getSocketFactory();
+    }
+}
+```
+Case #167
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #163
+- Before: 2
+- After:  2
+- Status: SAME
+Case #166
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #165
+- Before: 2
+- After:  2
+- Status: SAME
+Case #164
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // These should be stored securely in a configuration file or environment variables
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydb";
+    private static final String DB_USERNAME = "secure_user";
+    private static final String DB_PASSWORD = "secure_password";
+
+    public static void main(String[] args) {
+        String inputUsername = "test";
+        String inputPassword = "test";
+        
+        // In a real application, passwords should be hashed before storing
+        String hashedPassword = hashPassword(inputPassword);
+        
+        String sql = "SELECT username FROM users WHERE username = ? AND password_hash = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, inputUsername);
+            pstmt.setString(2, hashedPassword);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("User found: " + rs.getString("username"));
+                } else {
+                    System.out.println("User not found");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error occurred: " + e.getMessage());
+            // In a production environment, you would log this error securely
+        }
+    }
+    
+    private static String hashPassword(String passwordToHash) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(passwordToHash.getBytes(StandardCharsets.UTF_8));
+            
+            // Convert byte array to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashedBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+}
+```
+Case #169
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #168
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #170
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #172
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #171
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #174
+- Before: 1
+- After:  1
+- Status: SAME
+Case #173
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #176
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #180
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #178
+- Before: 2
+- After:  2
+- Status: SAME
+Case #179
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #177
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #175
+- Before: 1
+- After:  1
+- Status: SAME
+Case #181
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #186
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #183
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class SecureCode {
+    // Never hardcode credentials in production code
+    // These should come from a secure configuration source
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/myDb";
+    private static final String DB_USER = "dbUser";
+    private static final String DB_PASSWORD = "dbPassword";
+    
+    public static void main(String[] args) {
+        String username = "testUser";
+        String password = "testPassword";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            // Use prepared statements to prevent SQL injection
+            String sql = "SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?";
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                // Set parameters safely
+                pstmt.setString(1, username);
+                pstmt.setString(2, hashPassword(password));
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.println("User found: " + rs.getString(1));
+                    } else {
+                        System.out.println("User not found");
+                    }
+                }
+            }
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            System.err.println("Database error occurred: " + e.getMessage());
+            // In production, you would log this properly and not expose details
+        }
+    }
+    
+    // Simple password hashing (in production use proper key stretching and salting)
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes());
+        return Base64.getEncoder().encodeToString(hashBytes);
+    }
+}
+```
+Case #182
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #185
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #184
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #187
+- Before: 1
+- After:  1
+- Status: SAME
+Case #189
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #188
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #190
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #191
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #192
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #196
+- Before: 2
+- After:  2
+- Status: SAME
+Case #197
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #195
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #193
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #194
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.Console;
+import java.util.regex.Pattern;
+
+public class Main {
+    // Password validation pattern: at least 8 characters with at least one letter, one digit and one special character
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+    private static final Pattern PATTERN = Pattern.compile(PASSWORD_PATTERN);
+
+    public static void main(String[] args) {
+        if (args.length > 0 && "test".equals(args[0])) {
+            // For testing purposes only - in real applications never use this
+            System.out.println("Enter your password: ");
+            char[] password = System.console().readPassword();
+            if (validatePassword(password)) {
+                System.out.println("Password validated successfully!");
+            } else {
+                System.out.println("Password does not meet the requirements.");
+            }
+            // Clear password from memory
+            if (password != null) {
+                        java.util.Arrays.fill(password, ' ');
+                    }
+        } else {
+            Console console = System.console();
+            if (console == null) {
+                System.err.println("No console available. Cannot read password securely.");
+                return;
+            }
+            
+            char[] password = console.readPassword("Enter your password: ");
+            if (validatePassword(password)) {
+                System.out.println("Password validated successfully!");
+            } else {
+                System.out.println("Password does not meet the requirements.");
+            }
+            // Clear password from memory
+            if (password != null) {
+                java.util.Arrays.fill(password, ' ');
+            }
+        }
+    }
+
+    private static boolean validatePassword(char[] password) {
+        if (password == null || password.length == 0) {
+            return false;
+        }
+        
+        // Convert to string for pattern matching but don't store it
+        String passwordString = new String(password);
+        boolean isValid = PATTERN.matcher(passwordString).matches();
+        
+        // Clear string from memory
+        for (int i = 0; i < passwordString.length(); i++) {
+            passwordString.charAt(i); // Force loading into memory
+        }
+        passwordString = null;
+        
+        return isValid;
+    }
+}
+```
+Case #199
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #200
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #201
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #202
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #203
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #207
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #198
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #206
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #205
+- Before: 1
+- After:  1
+- Status: SAME
+Case #204
+- Before: 4
+- After:  3
+- Status: IMPROVED
+Case #208
+- Before: 2
+- After:  2
+- Status: SAME
+Case #209
+- Before: 4
+- After:  1
+- Status: IMPROVED
+Case #210
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+
+public class SecureFileReader {
+    public static void main(String[] args) {
+        // Example of a safe base directory - should be configured appropriately
+        Path baseDir = Paths.get("/safe/base/directory").toAbsolutePath().normalize();
+        
+        // Simulated user input - in a real application, this would come from user input
+        String userInputPath = "path/to/file";
+        
+        Path filePath = baseDir.resolve(userInputPath).normalize();
+        
+        // Prevent path traversal
+        if (!filePath.startsWith(baseDir)) {
+            System.err.println("Invalid file path.");
+            return;
+        }
+        
+        try {
+            // Read file content safely
+            String content = Files.readString(filePath, StandardCharsets.UTF_8);
+            System.out.println(content);
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            // Log the exception in a real application
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #213
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #212
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #215
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #214
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #216
+- Before: 2
+- After:  2
+- Status: SAME
+Case #218
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #217
+- Before: 2
+- After:  2
+- Status: SAME
+Case #219
+- Before: 1
+- After:  1
+- Status: SAME
+Case #211
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #220
+- Before: 4
+- After:  1
+- Status: IMPROVED
+Case #223
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #222
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #225
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #226
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #224
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #221
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #227
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #229
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #228
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #230
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #231
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #234
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #233
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #237
+- Before: 1
+- After:  8
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+class User {
+    private String username;
+    private String passwordHash;
+    private String salt;
+
+    public User(String username, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        if (password == null || password.length() < 12 || !containsSpecialChar(password)) {
+            throw new IllegalArgumentException("Password does not meet security requirements");
+        }
+        this.username = username;
+        this.salt = generateSalt();
+        this.passwordHash = hashPassword(password, salt);
+    }
+
+    public boolean checkPassword(String passwordAttempt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return passwordHash.equals(hashPassword(passwordAttempt, salt));
+    }
+
+    private String generateSalt() {
+        byte[] salt = new byte[16];
+        new SecureRandom().nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    private String hashPassword(String password, String salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        char[] chars = password.toCharArray();
+        byte[] saltBytes = Base64.getDecoder().decode(salt);
+        
+        PBEKeySpec spec = new PBEKeySpec(chars, saltBytes, 65536, 128);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] hash = skf.generateSecret(spec).getEncoded();
+        return Base64.getEncoder().encodeToString(hash);
+    }
+
+    private boolean containsSpecialChar(String password) {
+        return password.matches(".*[!@#\\$%&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            User user = new User("admin", "SecureP@ssw0rd");
+            System.out.println("User created successfully");
+        } catch (Exception e) {
+            System.err.println("Error creating user: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #232
+- Before: 0
+- After:  2
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class Main {
+    // Using a thread-safe map for concurrent access
+    private static Map<String, String> users = new ConcurrentHashMap<>();
+    // Track failed login attempts
+    private static Map<String, Integer> failedAttempts = new ConcurrentHashMap<>();
+    // Maximum allowed failed attempts before lockout
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    // Lockout duration in minutes
+    private static final int LOCKOUT_DURATION = 15;
+    // Stored passwords should be hashed, not plain text
+    static {
+        try {
+            // Using a strong password hashing algorithm (PBKDF2 with SHA-256)
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.reset();
+            digest.update("secure_salt".getBytes(StandardCharsets.UTF_8));
+            byte[] hashedPassword = digest.digest("real_secure_password".getBytes(StandardCharsets.UTF_8));
+            users.put("admin", Base64.getEncoder().encodeToString(hashedPassword));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error initializing password storage", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter username:");
+        String username = scanner.nextLine().trim();
+        
+        // Basic input validation
+        if (username == null || username.isBlank() || username.length() > 50) {
+            System.out.println("Invalid username");
+            return;
+        }
+
+        System.out.println("Enter password:");
+        String password = scanner.nextLine().trim();
+        
+        // Basic password validation
+        if (password == null || password.isBlank() || password.length() < 8) {
+            System.out.println("Invalid password");
+            return;
+        }
+
+        // Check if account is locked
+        Integer attempts = failedAttempts.getOrDefault(username, 0);
+        if (attempts >= MAX_FAILED_ATTEMPTS) {
+            System.out.println("Account locked due to too many failed attempts. Try again later.");
+            return;
+        }
+
+        try {
+            // Hash the provided password with the same salt
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.reset();
+            digest.update("secure_salt".getBytes(StandardCharsets.UTF_8));
+            byte[] hashedPassword = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            String hashedPasswordStr = Base64.getEncoder().encodeToString(hashedPassword);
+
+            // Use constant-time comparison to prevent timing attacks
+            if (users.containsKey(username) && slowEquals(users.get(username), hashedPasswordStr)) {
+                System.out.println("Access granted!");
+                // Reset failed attempts on successful login
+                failedAttempts.put(username, 0);
+                // In a real application, you would create a secure session here
+            } else {
+                // Increment failed attempts
+                failedAttempts.compute(username, (k, v) -> v == null ? 1 : v + 1);
+                System.out.println("Access denied!");
+                // In a real application, you would log this attempt securely
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error verifying password", e);
+        } finally {
+            scanner.close();
+        }
+    }
+
+    // Constant-time string comparison to prevent timing attacks
+    private static boolean slowEquals(String a, String b) {
+        if (a.length() != b.length()) {
+            return false;
+        }
+        int diff = a.length() - b.length();
+        for (int i = 0; i < a.length(); i++) {
+            diff |= a.charAt(i) ^ b.charAt(i);
+        }
+        return diff == 0;
+    }
+}
+```
+Case #239
+- Before: 4
+- After:  5
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    private static final int AES_KEY_SIZE = 256;
+    private static final int GCM_TAG_LENGTH = 128;
+    private static final int GCM_IV_SIZE = 12;
+
+    public static void main(String[] args) throws Exception {
+        String text = "Hello World";
+        
+        // Generate a secure random key (should be stored securely in real applications)
+        byte[] keyBytes = new byte[AES_KEY_SIZE / 8];
+        new SecureRandom().nextBytes(keyBytes);
+        Key aesKey = new SecretKeySpec(keyBytes, "AES");
+
+        // Generate a random IV
+        byte[] iv = new byte[GCM_IV_SIZE];
+        new SecureRandom().nextBytes(iv);
+        
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+        cipher.init(Cipher.ENCRYPT_MODE, aesKey, spec);
+
+        byte[] encrypted = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
+        
+        // Properly encode the encrypted data for output
+        System.out.println(Base64.getEncoder().encodeToString(encrypted));
+    }
+}
+```
+Case #238
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #236
+- Before: 1
+- After:  9
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class Main {
+    // Using a more secure map implementation that's thread-safe
+    private static Map<String, char[]> passwordHashes = new HashMap<>();
+
+    public static void main(String[] args) {
+        try {
+            // Initialize with secure password hashes
+            passwordHashes.put("admin", hashPassword("secureAdminPass123!"));
+            passwordHashes.put("user1", hashPassword("secureUser1Pass456!"));
+            passwordHashes.put("user2", hashPassword("secureUser2Pass789!"));
+
+            // Get user input securely
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter username: ");
+            String username = scanner.nextLine();
+            
+            System.out.print("Enter password: ");
+            String password = new String(scanner.nextLine().toCharArray());
+
+            // Validate input
+            if (username == null || username.isBlank() || password == null || password.isBlank()) {
+                System.out.println("Access denied: Invalid input");
+                return;
+            }
+
+            // Check if the user exists and the password matches
+            if (passwordHashes.containsKey(username)) {
+                if (verifyPassword(password, passwordHashes.get(username))) {
+                    System.out.println("Access granted!");
+                    // Zero out password from memory
+                    Arrays.fill(password.toCharArray(), '0');
+                } else {
+                    System.out.println("Access denied!");
+                }
+            } else {
+                System.out.println("Access denied!");
+            }
+
+            // Zero out password from memory
+            Arrays.fill(password.toCharArray(), '0');
+        } catch (Exception e) {
+            System.err.println("An error occurred during authentication");
+            e.printStackTrace();
+        }
+    }
+
+    // Secure password hashing using PBKDF2 with HMAC-SHA256
+    private static char[] hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        if (password == null || password.isBlank()) {
+            return new char[0];
+        }
+        
+        char[] passwordChars = password.toCharArray();
+        // Use a random salt and sufficient iterations
+        byte[] salt = new byte[16];
+        new SecureRandom().nextBytes(salt);
+        
+        // Hash the password with 65536 iterations
+        KeySpec spec = new PBEKeySpec(passwordChars, salt, 65536, 128);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] hash = skf.generateSecret(spec).getEncoded();
+        
+        // Store salt + hash
+        byte[] saltedHash = new byte[salt.length + hash.length];
+        System.arraycopy(salt, 0, saltedHash, 0, salt.length);
+        System.arraycopy(hash, 0, saltedHash, salt.length, hash.length);
+        
+        // Convert to Base64 to store in map
+        char[] base64Hash = Base64.getEncoder().encodeToString(saltedHash).toCharArray();
+        
+        // Zero out password from memory
+        Arrays.fill(passwordChars, '0');
+        
+        return base64Hash;
+    }
+
+    // Verify a password against a hash
+    private static boolean verifyPassword(String password, char[] storedHash) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        if (password == null || password.isBlank() || storedHash == null || storedHash.length == 0) {
+            return false;
+        }
+        
+        char[] passwordChars = password.toCharArray();
+        byte[] storedHashBytes = Base64.getDecoder().decode(CharBuffer.from(storedHash).toString());
+        
+        // Extract salt and hash
+        byte[] salt = new byte[16];
+        System.arraycopy(storedHashBytes, 0, salt, 0, salt.length);
+        int hashLength = storedHashBytes.length - salt.length;
+        byte[] storedHashOnly = new byte[hashLength];
+        System.arraycopy(storedHashBytes, salt.length, storedHashOnly, 0, hashLength);
+        
+        // Hash the password with the same salt
+        KeySpec spec = new PBEKeySpec(passwordChars, salt, 65536, 128);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] testHash = skf.generateSecret(spec).getEncoded();
+        
+        // Use a constant-time comparison to prevent timing attacks
+        boolean passwordMatches = Arrays.equals(storedHashOnly, testHash);
+        
+        // Zero out password from memory
+        Arrays.fill(passwordChars, '0');
+        
+        return passwordMatches;
+    }
+
+    // Utility class for char array handling
+    private static class CharBuffer {
+        public static CharBuffer wrap(char[] value) {
+            return new CharBuffer(value);
+        }
+        
+        private final char[] value;
+        
+        private CharBuffer(char[] value) {
+            this.value = value;
+        }
+        
+        @Override
+        public String toString() {
+            return new String(value);
+        }
+    }
+}
+```
+Case #240
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #235
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #241
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #243
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #242
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #244
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #246
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #248
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #249
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #247
+- Before: 3
+- After:  3
+- Status: SAME
+Case #245
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    // These should be stored in a secure configuration file or environment variables
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/testDB";
+    private static final String DB_USERNAME = "root";
+    private static final String DB_PASSWORD = "root";
+
+    public static void main(String[] args) {
+        String username = "admin"; // Assume this input is from user
+        String password = "password"; // Assume this input is from user
+
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            // Use prepared statements to prevent SQL injection
+            String sql = "SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?";
+            
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                // Set parameters safely
+                pstmt.setString(1, username);
+                pstmt.setString(2, hashPassword(password));
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.println("User found: " + rs.getString(1));
+                    } else {
+                        System.out.println("Authentication failed");
+                    }
+                }
+            }
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            System.err.println("Database error: " + e.getMessage());
+            // In production, you would log this error securely rather than printing it
+        }
+    }
+
+    // Simple password hashing function
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes());
+        return Base64.getEncoder().encodeToString(hashBytes);
+    }
+}
+```
+Case #250
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #253
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #251
+- Before: 2
+- After:  2
+- Status: SAME
+Case #252
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #254
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #258
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #257
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #256
+- Before: 1
+- After:  1
+- Status: SAME
+Case #261
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #259
+- Before: 2
+- After:  2
+- Status: SAME
+Case #260
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #262
+- Before: 2
+- After:  2
+- Status: SAME
+Case #263
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #264
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #266
+- Before: 1
+- After:  1
+- Status: SAME
+Case #268
+- Before: 1
+- After:  1
+- Status: SAME
+Case #265
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #267
+- Before: 0
+- After:  6
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.net.*;
+import javax.net.ssl.*;
+
+public class SecureCode {
+    public static void main(String[] args) {
+        // Use HTTPS and validate the server certificate
+        String urlString = "https://example.com/";
+        
+        try {
+            // Create a URL object
+            URL url = new URL(urlString);
+            
+            // Create a HttpsURLConnection with proper timeouts
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setConnectTimeout(5000);  // 5 seconds
+            connection.setReadTimeout(5000);     // 5 seconds
+            
+            // Trust all certificates (in production, use proper certificate pinning)
+            // Note: For production, you should implement proper certificate validation
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+            };
+            
+            // Install the trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            
+            // Disable hostname verification (for demonstration only)
+            // In production, you should implement proper hostname verification
+            HostnameVerifier allHostsValid = (hostname, session) -> true;
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+            
+            // Read the response
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null) {
+                    System.out.println(inputLine);
+                }
+            }
+            
+            connection.disconnect();
+            
+        } catch (MalformedURLException e) {
+            System.err.println("Invalid URL: " + e.getMessage());
+        } catch (SocketTimeoutException e) {
+            System.err.println("Connection or read timeout: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO error: " + e.getMessage());
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            System.err.println("SSL error: " + e.getMessage());
+        }
+    }
+}
+```
+Case #270
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password: ");
+        String password = scanner.nextLine();
+        
+        // Hash the password using SHA-256 before storing
+        String hashedPassword = hashPassword(password);
+        
+        // Never print or expose password information in production code
+        System.out.println("Password processed successfully (hashed value: " + hashedPassword + ")");
+    }
+
+    /**
+     * Securely hashes a password using SHA-256 with hex encoding
+     * @param input the password to hash
+     * @return the hex string representation of the hash
+     */
+    private static String hashPassword(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // This should never happen with SHA-256
+            throw new RuntimeException("Hashing algorithm not found", e);
+        }
+    }
+}
+```
+Case #269
+- Before: 2
+- After:  2
+- Status: SAME
+Case #271
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #272
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #273
+- Before: 1
+- After:  1
+- Status: SAME
+Case #274
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #275
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #277
+- Before: 2
+- After:  2
+- Status: SAME
+Case #276
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #279
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #278
+- Before: 0
+- After:  2
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.Console;
+
+public class Main {
+    public static void main(String[] args) {
+        Console console = System.console();
+        if (console == null) {
+            System.err.println("Could not retrieve console instance. Exiting.");
+            return;
+        }
+
+        String username = console.readLine("Enter your username: ");
+        char[] password = console.readPassword("Enter your password: ");
+
+        // Never print or log passwords in production code
+        if (username != null && password != null) {
+            // Example of secure password handling (e.g., comparison with stored hash)
+            // In real applications, you would hash the password and compare with stored hash
+            boolean isValid = checkPassword(username, password);
+            if (isValid) {
+                System.out.println("Login successful!");
+            } else {
+                System.out.println("Invalid credentials!");
+            }
+        }
+
+        // Zero out password array after use
+        if (password != null) {
+            java.util.Arrays.fill(password, ' ');
+        }
+    }
+
+    private static boolean checkPassword(String username, char[] password) {
+        // This is just a placeholder for actual authentication logic
+        // In real applications, you would:
+        // 1. Lookup user by username
+        // 2. Get stored password hash for that user
+        // 3. Hash the provided password with the same algorithm
+        // 4. Compare the hashes securely
+        
+        // For demonstration purposes only - never use this in production
+        String expectedUsername = "admin";
+        String expectedPassword = "securePassword123"; // Should be a hash in real code
+        
+        return expectedUsername.equals(username) && 
+               expectedPassword.equals(new String(password));
+    }
+}
+```
+Case #283
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #284
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #280
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #281
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #282
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #288
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #286
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #285
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #287
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #289
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #290
+- Before: 0
+- After:  8
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    // Don't store sensitive data directly in serializable objects
+    private String sensitiveDataHash;
+    private static final String ENCRYPTION_KEY = "1234567890123456"; // Should be stored securely in production
+
+    public Main(String sensitiveData) {
+        // Store hash instead of plaintext
+        this.sensitiveDataHash = hashSensitiveData(sensitiveData);
+    }
+
+    public static void main(String[] args) {
+        String plainText = "Sensitive Information";
+        Main main = new Main(plainText);
+        
+        try {
+            // Generate a secure random filename
+            String fileName = "/tmp/" + Base64.getEncoder().encodeToString(new byte[20]) + ".ser";
+            
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec key = new SecretKeySpec(ENCRYPTION_KEY.getBytes(), "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            
+            try (FileOutputStream fileOut = new FileOutputStream(fileName);
+                 CipherOutputStream cipherOut = new CipherOutputStream(fileOut, cipher);
+                 ObjectOutputStream out = new ObjectOutputStream(cipherOut)) {
+                
+                out.writeObject(main);
+                System.out.printf("Serialized data is saved in %s%n", fileName);
+            }
+        } catch (Exception e) {
+            // Log securely without exposing stack traces to users
+            System.err.println("Error during serialization: " + e.getMessage());
+            // In production, use a secure logging framework
+        }
+    }
+    
+    private static String hashSensitiveData(String data) {
+        try {
+            // In production, use a proper hashing algorithm with salt
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(data.getBytes());
+            return Base64.getEncoder().encodeToString(digest);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing data", e);
+        }
+    }
+    
+    // Getter for deserialization testing purposes only
+    public String getSensitiveDataHash() {
+        return sensitiveDataHash;
+    }
+}
+```
+Case #292
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #291
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #293
+- Before: 1
+- After:  1
+- Status: SAME
+Case #295
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #294
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #296
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #297
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #298
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #300
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #299
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #302
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #303
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter your age:");
+            if (!scanner.hasNextInt()) {
+                System.out.println("Invalid input! Please enter a valid integer.");
+                return;
+            }
+            
+            int age = scanner.nextInt();
+            
+            if (age < 0) {
+                System.out.println("Age cannot be negative!");
+                return;
+            }
+            
+            if (age < 18) {
+                System.out.println("You are too young!");
+            } else {
+                System.out.println("Access granted!");
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #301
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #304
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #305
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #306
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #307
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #309
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #310
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #311
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #313
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #314
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #312
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #315
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #308
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #255
+- Before: 0
+- After:  13
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String SECRET_KEY = "1Hbfh667Ad9Swse3"; // 128-bit key
+    private String encryptedData;
+
+    public Main() {
+        String importantData = "Sensitive Data";
+        encryptedData = encrypt(importantData);
+    }
+
+    public static void main(String[] args) {
+        Main obj = new Main();
+        System.out.println("Before modification: " + obj.decrypt(obj.encryptedData));
+        obj.modifyData();
+        System.out.println("After modification: " + obj.decrypt(obj.encryptedData));
+    }
+
+    public void modifyData() {
+        String newData = "Modified Data";
+        encryptedData = encrypt(newData);
+    }
+
+    private String encrypt(String data) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            byte[] key = (SECRET_KEY).getBytes("UTF-8");
+            SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            byte[] encrypted = cipher.doFinal(data.getBytes("UTF-8"));
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception e) {
+            throw new RuntimeException("Error encrypting data", e);
+        }
+    }
+
+    private String decrypt(String encryptedData) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            byte[] key = (SECRET_KEY).getBytes("UTF-8");
+            SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+            return new String(decrypted, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException("Error decrypting data", e);
+        }
+    }
+}
+```
+Case #317
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #318
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #320
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #319
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #321
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #322
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #316
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #324
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #323
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #325
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #326
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #328
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #332
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #327
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #329
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #333
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #330
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.security.SecureRandom;
+
+public class SecureDeserialization implements Serializable {
+    private static final long serialVersionUID = generateSecureSerialVersionUID();
+    private final String command;
+
+    public SecureDeserialization(String command) {
+        this.command = command;
+    }
+
+    // Secure deserialization by not performing dangerous operations
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+    }
+
+    // Optional: Add a method to safely execute commands if needed
+    public void executeCommand() throws IOException {
+        if (command == null || command.isEmpty()) {
+            throw new IllegalArgumentException("Command cannot be null or empty");
+        }
+        // Consider using ProcessBuilder with validation in real applications
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            // Handle process output and errors properly in production code
+        } catch (IOException e) {
+            throw new IOException("Command execution failed: " + e.getMessage(), e);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            SecureDeserialization ides = new SecureDeserialization("calc");
+            oos.writeObject(ides);
+            oos.flush();
+
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+            ides = (SecureDeserialization) ois.readObject();
+            ois.close();
+
+            // If command execution is needed, do it explicitly and safely
+            // ides.executeCommand();
+        } catch (Exception ex) {
+            System.out.println("Exception occurred during deserialization: " + ex.toString());
+        }
+    }
+
+    // Generate a secure random serial version UID
+    private static long generateSecureSerialVersionUID() {
+        byte[] randomBytes = new byte[8];
+        new SecureRandom().nextBytes(randomBytes);
+        long l = 0;
+        for (int i = 0; i < 8; i++) {
+            l <<= 8;
+            l |= (randomBytes[i] & 0xff);
+        }
+        return l;
+    }
+}
+```
+Case #334
+- Before: 1
+- After:  1
+- Status: SAME
+Case #335
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #341
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #337
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #339
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #336
+- Before: 1
+- After:  1
+- Status: SAME
+Case #338
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #342
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #343
+- Before: 5
+- After:  6
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    // In production, the key should be loaded from a secure key management system
+    private static final String SECRET_KEY_BASE64 = "NotUsedInThisExample"; 
+
+    public static void main(String[] args) throws Exception {
+        // Generate a secure random key (128-bit for AES-128)
+        byte[] keyBytes = new byte[16];
+        new SecureRandom().nextBytes(keyBytes);
+        Key key = new SecretKeySpec(keyBytes, "AES");
+        
+        // Use AES/GCM/NoPadding which provides authenticated encryption
+        GCMParameterSpec spec = new GCMParameterSpec(128, new byte[12]); // 12-byte IV
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        
+        // Initialize with random IV
+        cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+        
+        // Encrypt using proper encoding
+        byte[] encryptedText = cipher.doFinal("Hello World".getBytes(StandardCharsets.UTF_8));
+        
+        // Properly encode binary data for output
+        System.out.println(Base64.getEncoder().encodeToString(encryptedText));
+    }
+}
+```
+Case #340
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #345
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #346
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter input (type 'exit' to quit):");
+            while (scanner.hasNextLine()) {
+                String input = scanner.nextLine().trim();
+                if ("exit".equalsIgnoreCase(input)) {
+                    break;
+                }
+                // Basic validation to prevent excessively long inputs
+                if (input.length() > 1000) {
+                    System.err.println("Input too long. Please enter something shorter.");
+                    continue;
+                }
+                System.out.println("You entered: " + input);
+            }
+        } catch (Exception e) {
+            System.err.println("An error occurred during input processing: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #344
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #347
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #348
+- Before: 2
+- After:  2
+- Status: SAME
+Case #350
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #351
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #352
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #353
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #354
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #357
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #355
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #356
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #358
+- Before: 2
+- After:  2
+- Status: SAME
+Case #359
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+import java.util.Base64;
+
+public class SecureDeserialization {
+    public static void main(String[] args) {
+        try {
+            // Example of safe serialization
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject("test");
+            oos.flush();
+            oos.close();
+
+            // Simulate receiving base64 encoded data (for demonstration purposes)
+            String encodedData = Base64.getEncoder().encodeToString(bos.toByteArray());
+            
+            // Decode before deserialization
+            byte[] decodedBytes = Base64.getDecoder().decode(encodedData);
+            
+            // Use a custom ObjectInputStream with validation
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decodedBytes)) {
+                @Override
+                protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                    if (!desc.getName().equals("java.lang.String")) {
+                        throw new InvalidClassException("Unauthorized deserialization attempt", desc.getName());
+                    }
+                    return super.resolveClass(desc);
+                }
+            };
+            
+            Object result = ois.readObject();
+            System.out.println(result);
+            ois.close();
+        } catch (Exception e) {
+            System.err.println("Security exception during deserialization: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #360
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #361
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #362
+- Before: 5
+- After:  1
+- Status: IMPROVED
+Case #363
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #364
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #365
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #366
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter your age:");
+            
+            if (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+                return;
+            }
+            
+            int age = scanner.nextInt();
+            
+            if (age < 0) {
+                System.out.println("Age cannot be negative.");
+                return;
+            }
+            
+            if (age < 18) {
+                System.out.println("You are too young!");
+            } else {
+                System.out.println("Welcome!");
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #367
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #368
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #369
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #370
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #331
+- Before: 4
+- After:  8
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.util.Properties;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class SecureClass {
+    // In production, credentials should be stored in a secure vault or configuration system
+    // and not hardcoded in source code
+    private static final String DB_URL = "jdbc:mysql://localhost/testDB";
+    private static final String ENCRYPTED_USER = "base64:encoded:encrypted:username";
+    private static final String ENCRYPTED_PASS = "base64:encoded:encrypted:password";
+    private static final String ENCRYPTION_KEY = "1234567890123456"; // 16-byte key for AES
+
+    public void secureMethod(String userInput) {
+        if (userInput == null || userInput.isBlank()) {
+            System.err.println("Invalid input");
+            return;
+        }
+        
+        Properties props = new Properties();
+        try {
+            // Decrypt credentials
+            props.setProperty("user", decrypt(ENCRYPTED_USER, ENCRYPTION_KEY));
+            props.setProperty("password", decrypt(ENCRYPTED_PASS, ENCRYPTION_KEY));
+            
+            try (Connection conn = DriverManager.getConnection(DB_URL, props);
+                 PreparedStatement stmt = conn.prepareStatement("SELECT username, password_hash FROM Users WHERE username = ?")) {
+                
+                stmt.setString(1, userInput);
+                ResultSet rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    // Never print passwords in production code
+                    System.out.println("User found: " + rs.getString("username"));
+                    // In real application, you would verify password hash using proper password verification
+                } else {
+                    System.out.println("User not found");
+                }
+            }
+        } catch (Exception e) {
+            // Log error securely without exposing stack trace to users
+            System.err.println("Database error occurred");
+            // In production, use a proper logging framework
+            e.printStackTrace();
+        }
+    }
+    
+    private String decrypt(String encryptedData, String encryptionKey) throws Exception {
+        String data = encryptedData.split(":")[1]; // Extract base64 data
+        byte[] key = encryptionKey.getBytes("UTF-8");
+        byte[] decrypted = Base64.getDecoder().decode(data);
+        
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"));
+        return new String(cipher.doFinal(decrypted));
+    }
+}
+```
+Case #373
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #371
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    // These should be stored securely in a configuration file or environment variables
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydatabase";
+    private static final String DB_USERNAME = "dbusername";
+    private static final String DB_PASSWORD = "dbpassword";
+
+    public static void main(String[] args) {
+        String inputUsername = "username";
+        String inputPassword = "password";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            String sql = "SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?";
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                // Use parameterized queries to prevent SQL injection
+                pstmt.setString(1, inputUsername);
+                
+                // Hash the password before comparing
+                String hashedPassword = hashPassword(inputPassword);
+                pstmt.setString(2, hashedPassword);
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.println("User found: " + rs.getString("Username"));
+                    } else {
+                        System.out.println("User not found");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error occurred: " + e.getMessage());
+            // In production, you would log this properly and not expose details to users
+        }
+    }
+
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hashBytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+}
+```
+Case #372
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #375
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #374
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #376
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #377
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #378
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #379
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #381
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #380
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #382
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #384
+- Before: 2
+- After:  2
+- Status: SAME
+Case #383
+- Before: 2
+- After:  4
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    // Never store secrets in code in production environments
+    // These would typically come from secure secret management systems
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydatabase";
+    private static final String DB_USERNAME = "root";
+    private static final String DB_PASSWORD = "password"; // Should be retrieved securely
+    
+    public static void main(String[] args) {
+        String username = "testUser";
+        String password = "testPassword";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            String sql = "SELECT * FROM Users WHERE Username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, username);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String storedHash = rs.getString("PasswordHash");
+                        String inputHash = hashPassword(password);
+                        
+                        if (storedHash != null && storedHash.equals(inputHash)) {
+                            System.out.println("Authentication successful for user: " + username);
+                        } else {
+                            System.out.println("Authentication failed: Invalid credentials");
+                        }
+                    } else {
+                        System.out.println("Authentication failed: User not found");
+                    }
+                }
+            }
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            System.err.println("Database error occurred");
+            // In production, you would log this securely rather than printing
+            e.printStackTrace();
+        }
+    }
+    
+    private static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        
+        return hexString.toString();
+    }
+}
+```
+Case #385
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #386
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #387
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #388
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #390
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #389
+- Before: 1
+- After:  2
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+
+public class Main {
+    // These should be read from secure configuration in production
+    private static final String DB_URL = "jdbc:mysql://localhost/testdb";
+    private static final String DB_USER = "username";
+    private static final String DB_PASSWORD = "password";
+
+    public static void main(String[] args) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT id, first, last, age FROM Employees")) {
+
+            // Process results
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String first = rs.getString("first");
+                String last = rs.getString("last");
+                int age = rs.getInt("age");
+
+                System.out.println("ID: " + id);
+                System.out.println("First: " + first);
+                System.out.println("Last: " + last);
+                System.out.println("Age: " + age);
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error occurred");
+            // In production, you would log this properly with a secure logging framework
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unexpected error occurred");
+            e.printStackTrace();
+        }
+    }
+
+    static {
+        try {
+            // Use the modern driver class name
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("MySQL JDBC Driver not found");
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+}
+```
+Case #391
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #392
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #393
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #394
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #395
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #396
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #398
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #399
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #400
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #401
+- Before: 2
+- After:  2
+- Status: SAME
+Case #404
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #402
+- Before: 1
+- After:  1
+- Status: SAME
+Case #403
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #405
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #406
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.err.println("Please provide a filename as an argument");
+            return;
+        }
+        
+        String filename = args[0];
+        
+        try (RandomAccessFile raf = new RandomAccessFile(filename, "rw")) {
+            // Validate the file path to prevent path traversal attacks
+            File file = new File(filename);
+            if (!file.getCanonicalPath().startsWith(System.getProperty("user.dir"))) {
+                System.err.println("Security violation: Attempt to access file outside application directory");
+                return;
+            }
+            
+            raf.writeUTF("Hello, World!");
+            
+        } catch (FileNotFoundException e) {
+            System.err.println("Error: File not found - " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Case #409
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #408
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #407
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+import java.sql.*;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class SecureCode {
+    // These should be moved to a secure configuration file or environment variables
+    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";  
+    private static final String DB_URL = "jdbc:mysql://localhost/test?useSSL=true&requireSSL=true";
+    private static final String DB_USER = "secure_user"; // Should not be root
+    private static final String DB_PASSWORD = "secure_password"; // Should be stored securely
+    
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.err.println("Usage: java SecureCode <username> <password>");
+            return;
+        }
+        
+        String username = args[0];
+        String password = args[1];
+        
+        // Validate inputs
+        if (!isValidInput(username) || !isValidInput(password)) {
+            System.err.println("Invalid input");
+            return;
+        }
+        
+        String hashedPassword = hashPassword(password);
+        
+        try (Connection conn = getSecureConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT id, username FROM Users WHERE Username = ? AND PasswordHash = ?")) {
+            
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("Authentication successful for user: " + rs.getString("username"));
+                    // Don't print sensitive information
+                } else {
+                    System.out.println("Authentication failed");
+                }
+            }
+        } catch (SQLException se) {
+            System.err.println("Database error occurred");
+            se.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred");
+            e.printStackTrace();
+        }
+    }
+    
+    private static boolean isValidInput(String input) {
+        if (input == null || input.isBlank()) {
+            return false;
+        }
+        // Add more validation as needed for your application
+        return input.length() <= 100; // Prevent overly long inputs
+    }
+    
+    private static Connection getSecureConnection() throws SQLException {
+        Properties props = new Properties();
+        props.setProperty("user", DB_USER);
+        props.setProperty("password", DB_PASSWORD);
+        props.setProperty("useSSL", "true");
+        props.setProperty("requireSSL", "true");
+        return DriverManager.getConnection(DB_URL, props);
+    }
+    
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] salt = generateSalt();
+            
+            // First hash: password + salt
+            md.update(salt);
+            byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            
+            // Second hash: hashBytes + salt (PBKDF2-like approach)
+            md.reset();
+            md.update(salt);
+            byte[] finalHash = md.digest(hashBytes);
+            
+            // Combine salt and hash for storage
+            byte[] saltHash = new byte[salt.length + finalHash.length];
+            System.arraycopy(salt, 0, saltHash, 0, salt.length);
+            System.arraycopy(finalHash, 0, saltHash, salt.length, finalHash.length);
+            
+            return Base64.getEncoder().encodeToString(saltHash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+    
+    private static byte[] generateSalt() {
+        byte[] salt = new byte[16]; // 128-bit salt
+        try {
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(salt);
+            return salt;
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating salt", e);
+        }
+    }
+}
+```
+Case #412
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #411
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #413
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #410
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #414
+- Before: 2
+- After:  2
+- Status: SAME
+Case #415
+- Before: 3
+- After:  1
+- Status: IMPROVED
+Case #416
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #417
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #418
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #419
+- Before: 3
+- After:  2
+- Status: IMPROVED
+Case #421
+- Before: 2
+- After:  2
+- Status: SAME
+Case #422
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #424
+- Before: 2
+- After:  1
+- Status: IMPROVED
+Case #423
+- Before: 1
+- After:  1
+- Status: SAME
+Case #420
+- Before: 0
+- After:  1
+- Status: WORSE
+
+Patched code (still vulnerable):
+```java
+public class Main {
+    public static void main(String[] args) {
+        try {
+            int result = divideNumbers(10, 0);
+            System.out.println("Result: " + result);
+        } catch (ArithmeticException e) {
+            // Log the exception with context for debugging
+            System.err.println("Arithmetic error occurred: " + e.getMessage());
+            System.err.println("Division by zero is not allowed!");
+        } catch (Exception e) {
+            // Catch any other unexpected exceptions
+            System.err.println("Unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static int divideNumbers(int dividend, int divisor) {
+        if (divisor == 0) {
+            throw new ArithmeticException("Division by zero is not allowed");
+        }
+        return dividend / divisor;
+    }
+}
+```
+Case #397
+- Before: 2
+- After:  1
+- Status: IMPROVED
+

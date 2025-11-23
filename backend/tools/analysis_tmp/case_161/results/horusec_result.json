@@ -1,0 +1,18 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:17:16.387594",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 47,
+      "line_end": 47,
+      "code_snippet": "oString(randomBytes).replace('=', 'a'); // Replace padding",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    }
+  ]
+}

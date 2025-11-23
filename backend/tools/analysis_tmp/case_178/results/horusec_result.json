@@ -1,0 +1,29 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:17:18.837617",
+  "total_issues": 2,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 71,
+      "line_end": 71,
+      "code_snippet": "mac.init(new SecretKeySpec(keyBytes, \"HmacSHA256\"));",
+      "description": "(1/1) * Possible vulnerability detected: Potential Hard-coded credential\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 73,
+      "line_end": 73,
+      "code_snippet": "String actualSignature = Base64.getEncoder().encodeToString(calculatedSig);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    }
+  ]
+}

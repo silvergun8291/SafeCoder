@@ -1,0 +1,17 @@
+{
+  "scanner": "codeql",
+  "scan_time": "2025-11-16T10:05:33.167359",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "codeql",
+      "rule_id": "java/sensitive-log",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 146,
+      "line_end": 146,
+      "code_snippet": "",
+      "description": "This [potentially sensitive information](1) is written to a log file."
+    }
+  ]
+}

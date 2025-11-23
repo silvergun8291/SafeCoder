@@ -582,6 +582,8 @@ class ScannerService:
                 - Validate and allowlist all external inputs (commands, paths, parameters). Reject on mismatch.
                 - Follow OWASP/CWE and strictly comply with retrieved guidelines. Priority: KISA > OWASP > Code Examples.
                 - Preserve functionality; use secure defaults; add robust error handling; avoid logging sensitive data.
+                - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
+                - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
 
                 **Verification Checklist (must be satisfied in the final answer)**:
                 - [ ] No hard-coded secrets introduced
@@ -635,6 +637,8 @@ class ScannerService:
                 - Validate and allowlist all external inputs.
                 - Follow OWASP/CWE and retrieved guidance with priority KISA > OWASP > Code Examples.
                 - Preserve functionality; secure defaults; robust error handling.
+                - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
+                - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets
@@ -686,6 +690,8 @@ class ScannerService:
                 - Validate and allowlist all external inputs.
                 - Follow OWASP/CWE and retrieved guidance (KISA > OWASP > Code Examples).
                 - Preserve functionality; secure defaults; robust error handling.
+                - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
+                - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets
@@ -739,6 +745,8 @@ class ScannerService:
                 - Validate and allowlist all external inputs.
                 - Follow OWASP/CWE and retrieved guidance (KISA > OWASP > Code Examples).
                 - Preserve functionality; secure defaults; robust error handling.
+                - Do NOT log exception names or stack traces in production logs; log only an opaque errorId. Send details to a secure error collector.
+                - Allow stack traces only in debug/development mode. Never include sensitive data in logs (tokens, keys, credentials, PII, headers, bodies).
 
                 **Verification Checklist**:
                 - [ ] No hard-coded secrets

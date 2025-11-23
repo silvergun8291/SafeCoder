@@ -1,0 +1,84 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:18:07.469846",
+  "total_issues": 7,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "String password = \"testPassword\";",
+      "description": "(1/1) * Possible vulnerability detected: Hard-coded password\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 98,
+      "line_end": 98,
+      "code_snippet": "javax.crypto.SecretKeyFactory factory = javax.crypto.SecretKeyFactory",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 98,
+      "line_end": 98,
+      "code_snippet": "javax.crypto.SecretKeyFactory factory = javax.crypto.SecretKeyFactory",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 100,
+      "line_end": 100,
+      "code_snippet": "javax.crypto.spec.PBEKeySpec spec = new javax.crypto.spec.PBEKeySpec(",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "high",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 100,
+      "line_end": 100,
+      "code_snippet": "javax.crypto.spec.PBEKeySpec spec = new javax.crypto.spec.PBEKeySpec(",
+      "description": "(1/1) * Possible vulnerability detected:  Crypto import\n Crypto import"
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 105,
+      "line_end": 105,
+      "code_snippet": "return Base64.getEncoder().encodeToString(salt) + \":\" + Base64.getEncoder().encodeToString(hash);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 105,
+      "line_end": 105,
+      "code_snippet": "return Base64.getEncoder().encodeToString(salt) + \":\" + Base64.getEncoder().encodeToString(hash);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    }
+  ]
+}

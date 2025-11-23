@@ -1,0 +1,18 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:16:49.215917",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "String apiKey = getSecureSecret(\"API_KEY\");",
+      "description": "(1/1) * Possible vulnerability detected: Potential Hard-coded credential\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    }
+  ]
+}

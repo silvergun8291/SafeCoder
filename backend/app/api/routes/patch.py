@@ -138,12 +138,45 @@ async def secure_patch(
         use_rag = bool(getattr(getattr(request, "options", None), "use_rag", False))
         result = await service.run_patch(request=request, use_rag=use_rag)
 
-        # 비동기 후처리: Diff/Rule 생성/검증/저장 (응답 반환 후 진행)
-        asyncio.create_task(_postprocess_rule_generation(request, result))
-
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"패치 처리 실패: {e}")
+
+
+@router.post(
+    "/secure-coding/generate",
+    summary="초기 스캔 후 시큐어 코딩 결과만 반환",
+    description="룰 생성/적용 및 재스캔/디프 없이, 초기 스캔 정보를 바탕으로 LLM 시큐어 코딩 결과만 반환합니다.",
+)
+async def secure_generate(
+    request: ScanRequest,
+    scanner_service: ScannerService = Depends(get_scanner_service),
+):
+    try:
+        initial_scan = await scanner_service.scan_code(request)
+        prompt = scanner_service.generate_secure_code_prompt(
+            aggregated_vulnerabilities=getattr(initial_scan, "aggregated_vulnerabilities", []) or [],
+            source_code=request.source_code,
+            language=getattr(request, "language", None),
+        )
+
+        llm = LLMService()
+        answer = await llm.ask_async(prompt.system_prompt, prompt.user_prompt)
+        try:
+            lang_enum = Language(request.language)
+        except Exception:
+            lang_enum = Language(str(request.language))
+        fixed_code = PatchService._extract_first_code_block(answer or "", lang_enum) or request.source_code
+
+        return {
+            "job_id": getattr(initial_scan, "job_id", None),
+            "language": str(request.language),
+            "secure_code": fixed_code,
+            "initial_vulnerabilities": int(getattr(initial_scan, "total_vulnerabilities", 0) or 0),
+            "severity_summary": getattr(initial_scan, "severity_summary", None),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"시큐어 코딩 생성 실패: {e}")
 
 
 async def _postprocess_rule_generation(request: ScanRequest, result: dict) -> None:

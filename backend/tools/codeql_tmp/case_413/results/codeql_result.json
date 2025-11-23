@@ -1,0 +1,17 @@
+{
+  "scanner": "codeql",
+  "scan_time": "2025-11-16T11:34:18.308913",
+  "total_issues": 1,
+  "vulnerabilities": [
+    {
+      "scanner": "codeql",
+      "rule_id": "java/command-line-injection",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "",
+      "description": "This command line depends on a [user-provided value](1)."
+    }
+  ]
+}

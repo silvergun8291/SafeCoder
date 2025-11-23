@@ -1,0 +1,27 @@
+{
+  "scanner": "codeql",
+  "scan_time": "2025-11-16T09:34:35.343245",
+  "total_issues": 2,
+  "vulnerabilities": [
+    {
+      "scanner": "codeql",
+      "rule_id": "java/relative-path-command",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 42,
+      "line_end": 42,
+      "code_snippet": "",
+      "description": "Command with a relative path 'chmod' is executed."
+    },
+    {
+      "scanner": "codeql",
+      "rule_id": "java/relative-path-command",
+      "severity": "medium",
+      "cwe": "",
+      "line_start": 70,
+      "line_end": 70,
+      "code_snippet": "",
+      "description": "Command with a relative path 'chmod' is executed."
+    }
+  ]
+}

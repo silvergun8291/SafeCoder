@@ -1,0 +1,62 @@
+{
+  "scanner": "horusec",
+  "scan_time": "2025-11-22T08:17:32.768716",
+  "total_issues": 5,
+  "vulnerabilities": [
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 21,
+      "line_end": 21,
+      "code_snippet": "users.put(\"admin\", hashPassword(\"password\", SALTS.get(\"admin\")));",
+      "description": "(1/1) * Possible vulnerability detected: Hard-coded password\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 22,
+      "line_end": 22,
+      "code_snippet": "users.put(\"user1\", hashPassword(\"password1\", SALTS.get(\"user1\")));",
+      "description": "(1/1) * Possible vulnerability detected: Hard-coded password\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "users.put(\"user2\", hashPassword(\"password2\", SALTS.get(\"user2\")));",
+      "description": "(1/1) * Possible vulnerability detected: Hard-coded password\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "file_path": "Main.java",
+      "line_start": 31,
+      "line_end": 31,
+      "code_snippet": "String password = \"password\";",
+      "description": "(1/1) * Possible vulnerability detected: Hard-coded password\nThe software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory."
+    },
+    {
+      "scanner": "horusec",
+      "rule_id": "HorusecEngine",
+      "severity": "medium",
+      "cwe": "",
+      "file_path": "Main.java",
+      "line_start": 70,
+      "line_end": 70,
+      "code_snippet": "return Base64.getEncoder().encodeToString(hashedBytes);",
+      "description": "(1/1) * Possible vulnerability detected: Base64 Encode\nBasic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used."
+    }
+  ]
+}
