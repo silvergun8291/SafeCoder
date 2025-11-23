@@ -1,0 +1,17 @@
+docker_py==1.10.6
+fastapi==0.121.3
+javalang==0.13.0
+langchain_core==1.1.0
+langchain_upstage==0.7.5
+polyglot_piranha==0.4.7
+pydantic==2.12.4
+pydantic_settings==2.12.0
+pytest==8.4.2
+python-dotenv==1.2.1
+PyYAML==6.0.3
+qdrant_client==1.16.0
+sentence_transformers==5.1.2
+SQLAlchemy==2.0.44
+starlette==0.50.0
+tqdm==4.67.1
+whatthepatch==1.0.7
