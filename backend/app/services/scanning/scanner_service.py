@@ -219,8 +219,6 @@ class ScannerService:
                     },
                     detach=True,
                     remove=False,  # 로그 확인을 위해 수동 삭제
-                    nano_cpus=nano_cpus,
-                    mem_limit=mem_limit,
                 )
                 try:
                     result = container.wait(timeout=scanner_timeout)
