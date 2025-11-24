@@ -1,0 +1,1025 @@
+Base64 usage analysis
+====================
+
+Case #7
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #3
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L77-77, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L77-77, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #9
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L115-115, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L115-115, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L140-140, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L140-140, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L140-140, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L92-92, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L92-92, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L92-92, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+
+Case #10
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L114-114, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L114-114, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L114-114, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L114-114, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #4
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L165-165, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L165-165, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #26
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L48-48, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L48-48, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=spotbugs, lines=L8-48, reason=CRLF_INJECTION_LOGS
+  - 
+  - 
+
+Case #23
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #17
+- Original contained Base64: False
+- Necessity (heuristic): unknown
+- Occurrences:
+  - scanner=horusec, lines=L75-75, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L75-75, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #27
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #33
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L32-32, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L32-32, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L40-40, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L40-40, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L40-40, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L38-38, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L38-38, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L38-38, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L38-38, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #48
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L71-71, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L71-71, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #54
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L111-111, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L111-111, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L111-111, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #58
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L98-98, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L98-98, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #55
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #61
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #60
+- Original contained Base64: False
+- Necessity (heuristic): unknown
+- Occurrences:
+  - scanner=horusec, lines=L19-19, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L19-19, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L22-22, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+
+Case #70
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #79
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #87
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #78
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #92
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L110-110, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L110-110, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #95
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L51-51, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L51-51, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #100
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #101
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #124
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #134
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #140
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L35-35, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L35-35, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L107-107, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L107-107, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L107-107, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L118-118, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L118-118, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L118-118, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #141
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #153
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #147
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L54-54, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L54-54, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #154
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L112-112, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L112-112, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L112-112, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #165
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L62-62, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #158
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L103-103, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L103-103, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L103-103, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #178
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #180
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L74-74, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L74-74, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L119-119, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L119-119, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L119-119, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #184
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #192
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #189
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L68-68, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L68-68, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+  - 
+
+Case #200
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #202
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L159-159, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L159-159, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L159-159, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #207
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #213
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #214
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #224
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L63-63, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L69-69, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L69-69, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L69-69, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #225
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L169-169, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L169-169, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L169-169, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L169-169, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #232
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #233
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=semgrep, lines=L71-71, reason=Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  - scanner=horusec, lines=L93-93, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L93-93, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #239
+- Original contained Base64: False
+- Necessity (heuristic): likely_needed_for_transport
+- Occurrences:
+  - scanner=horusec, lines=L56-56, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L56-56, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - 
+  - 
+
+Case #236
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #238
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L74-74, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L74-74, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #243
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #254
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L52-52, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L52-52, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L77-77, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L77-77, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L77-77, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #257
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #263
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L80-80, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L105-105, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L105-105, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L105-105, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #264
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #280
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #287
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L164-164, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L164-164, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #284
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L130-130, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L130-130, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L130-130, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #290
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L101-101, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #291
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #292
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L85-85, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L85-85, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L116-116, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L116-116, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L116-116, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L61-61, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L61-61, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L61-61, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+
+Case #295
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L73-73, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #304
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #313
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #320
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L31-31, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L31-31, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #326
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #321
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L50-50, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L50-50, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #319
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L91-91, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L106-106, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #332
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L82-82, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L97-97, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L59-59, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #341
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #343
+- Original contained Base64: False
+- Necessity (heuristic): likely_needed_for_transport
+- Occurrences:
+  - scanner=horusec, lines=L60-60, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L60-60, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L62-62, reason=(1/2) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L43-43, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #345
+- Original contained Base64: False
+- Necessity (heuristic): maybe_unnecessary_for_hash_display
+- Occurrences:
+  - scanner=horusec, lines=L158-158, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L158-158, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L174-174, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L174-174, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L174-174, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+
+Case #352
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L122-122, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L122-122, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L122-122, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L122-122, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #354
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L86-86, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L102-102, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #358
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L45-45, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L45-45, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #361
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L78-78, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L78-78, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L160-160, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L160-160, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L160-160, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #372
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L110-110, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L110-110, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L110-110, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L57-57, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L57-57, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L57-57, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+
+Case #374
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L79-79, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L79-79, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L56-56, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L56-56, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L56-56, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #376
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #379
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L109-109, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L109-109, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L109-109, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #386
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L87-87, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L87-87, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #380
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L76-76, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L100-100, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L100-100, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L100-100, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #393
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L57-57, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L57-57, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #392
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L83-83, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L83-83, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L98-98, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L98-98, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L98-98, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #397
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L64-64, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L64-64, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #403
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L94-94, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L113-113, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L113-113, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L113-113, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #404
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L84-84, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L99-99, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 
+
+Case #418
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L81-81, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L96-96, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - scanner=horusec, lines=L58-58, reason=(1/1) * Possible vulnerability detected: Base64 Decode
+  - 
+  - 
+
+Case #420
+- Original contained Base64: False
+- Necessity (heuristic): acceptable_for_id_text
+- Occurrences:
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L88-88, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - scanner=horusec, lines=L104-104, reason=(1/1) * Possible vulnerability detected: Base64 Encode
+  - 

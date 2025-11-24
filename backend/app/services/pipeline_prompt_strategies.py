@@ -18,6 +18,7 @@ HARD_RULES = (
     "- Allow stack traces only in debug/development mode.\n"
     "- Never include sensitive data in logs (tokens, keys, credentials, PII, headers, request/response bodies).\n"
     "- Do NOT rely on Base64 encoding to protect sensitive data; use hashing (e.g., SHA-256) or encryption (e.g., AES).\n"
+    "- Use Base64 only to transport binary data over text-only channels (JSON, env, headers); avoid when not necessary (prefer raw binary or hex).\n"
     "- Logging policy: do not print e.getMessage() or stack traces to users; return a generic message like 'An error occurred' and log only an opaque errorId. Stack traces only in debug mode.\n"
     "- Regular Expressions: enforce strict validation rules.\n"
     "  - Always anchor with ^...$ to match the entire input.\n"

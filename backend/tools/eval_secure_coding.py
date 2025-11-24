@@ -57,6 +57,25 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                 fps.append(f"generic FP: potential hard-coded credential rule={rule_id}")
                 continue
 
+            # Rule 4: Horusec CWE-0 Base64 Encode/Decode — acceptable patterns
+            #  - errorId 생성: Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes)
+            #  - 암호문 전송: encodeToString(combined/output) 또는 (encrypted/cipher + iv/nonce) 컨텍스트
+            if scanner == "horusec" and cwe == 0 and ("base64 encode" in text_all or "base64 decode" in text_all):
+                is_error_id = (
+                    "geturlencoder" in text_all and "withoutpadding" in text_all and (
+                        "randombytes" in text_all or "securerandom" in text_all
+                    )
+                )
+                is_ciphertext_transport = (
+                    ("encodetostring" in text_all and ("combined" in text_all or "output" in text_all))
+                    or ( ("encrypted" in text_all or "cipher" in text_all) and ("iv" in text_all or "nonce" in text_all) )
+                )
+                # True positive guard: decoding keys/secrets should NOT be ignored
+                decodes_secret = ("getdecoder" in text_all and any(w in text_all for w in ["encryption_key", "secret", "key"]))
+                if (is_error_id or is_ciphertext_transport) and not decodes_secret:
+                    fps.append(f"horusec CWE-0 base64 acceptable pattern rule={rule_id}")
+                    continue
+
             kept.append(v)
         except Exception:
             kept.append(v)
