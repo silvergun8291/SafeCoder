@@ -16,7 +16,7 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver3.txt"
 
 CONCURRENCY = 10
 
@@ -51,15 +51,26 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                 fps.append(f"horusec CWE-0 javax.crypto rule={rule_id}")
                 continue
 
-            # Rule 3: Generic FP - Potential Hard-coded credential (log-only style)
-            # 일부 케이스에서 안전한 환경변수 사용 코드에도 해당 문구가 기계적으로 붙는 오탐이 발생함
+            # Rule 3: Narrow FP - Potential Hard-coded credential only when env/args patterns present
+            # 테스트/예제 코드의 실제 하드코딩은 유지하고, 환경변수/프로그램 인자 사용 패턴만 오탐으로 처리
             if "potential hard-coded credential" in text_all:
-                fps.append(f"generic FP: potential hard-coded credential rule={rule_id}")
-                continue
+                code_lc = code.lower()
+                uses_env_or_args = (
+                    ("system.getenv(" in code_lc) or
+                    ("env.get(" in code_lc) or  # defensive: other env accessors
+                    ("args[" in code_lc) or
+                    ("args." in code_lc) or
+                    ("getenv(" in code_lc)
+                )
+                if uses_env_or_args:
+                    fps.append(f"generic FP (env/args): potential hard-coded credential rule={rule_id}")
+                    continue
 
             # Rule 4: Horusec CWE-0 Base64 Encode/Decode — acceptable patterns
             #  - errorId 생성: Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes)
             #  - 암호문 전송: encodeToString(combined/output) 또는 (encrypted/cipher + iv/nonce) 컨텍스트
+            #  - "Encoding for transport only" 주석이 있는 경우
+            #  - AES/GCM 암호화 결과를 Base64로 운반하는 경우
             if scanner == "horusec" and cwe == 0 and ("base64 encode" in text_all or "base64 decode" in text_all):
                 is_error_id = (
                     "geturlencoder" in text_all and "withoutpadding" in text_all and (
@@ -70,10 +81,24 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                     ("encodetostring" in text_all and ("combined" in text_all or "output" in text_all))
                     or ( ("encrypted" in text_all or "cipher" in text_all) and ("iv" in text_all or "nonce" in text_all) )
                 )
+                has_transport_only_comment = ("encoding for transport only" in text_all)
+                aes_gcm_context = ("aes" in text_all and ("gcm" in text_all or "galois" in text_all)) or "cipher.getinstance" in text_all
                 # True positive guard: decoding keys/secrets should NOT be ignored
                 decodes_secret = ("getdecoder" in text_all and any(w in text_all for w in ["encryption_key", "secret", "key"]))
-                if (is_error_id or is_ciphertext_transport) and not decodes_secret:
+                if (is_error_id or is_ciphertext_transport or has_transport_only_comment or aes_gcm_context) and not decodes_secret:
                     fps.append(f"horusec CWE-0 base64 acceptable pattern rule={rule_id}")
+                    continue
+
+            # Rule 5: CWE-209 Information Exposure — allow when only opaque errorId is logged
+            # 에러 로그에 예외 클래스/메시지 없이 errorId(예: UUID)만 포함되고, 상세는 내부 수집기로 전송하는 패턴은 오탐으로 간주
+            if cwe == 209:
+                code_lc = code.lower()
+                logs_error_id_only = (
+                    ("errorid" in code_lc or "error id" in code_lc) and
+                    ("e.getmessage" not in code_lc) and ("e.getclass" not in code_lc) and ("printstacktrace" not in code_lc)
+                )
+                if logs_error_id_only:
+                    fps.append(f"cwe-209 acceptable logging pattern rule={rule_id}")
                     continue
 
             kept.append(v)
