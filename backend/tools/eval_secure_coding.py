@@ -58,6 +58,13 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                     fps.append(f"horusec CWE-327 AES-GCM rule={rule_id}")
                     continue
 
+            if scanner == "horusec" and cwe == 327:
+                if "aes" in code.lower() and "gcm" in code.lower():
+                    # IV 생성을 위한 SecureRandom이나 randomBytes 패턴이 있는지 확인
+                    if "securerandom" in code.lower() or "random" in code.lower() or "iv" in code.lower():
+                        fps.append(f"horusec CWE-327 AES-GCM rule={rule_id}")
+                        continue
+
             # Rule 2-2: Generic FP - Hard-coded credential in constant definitions for ENV keys
             # 예: private static final String SECRET_KEY_ENV = "APP_KEY"; 와 같이 변수명에 KEY가 있고 값이 할당된 경우
             if "potential hard-coded credential" in text_all:
