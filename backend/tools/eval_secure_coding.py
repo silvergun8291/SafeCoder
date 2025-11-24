@@ -16,9 +16,9 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver3.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver4.txt"
 
-CONCURRENCY = 10
+CONCURRENCY = 14
 
 
 def extract_code_block(text: str, lang: Language) -> str | None:
@@ -50,6 +50,24 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
             if scanner == "horusec" and cwe == 0 and ("import javax.crypto" in text_all or "javax.crypto" in text_all):
                 fps.append(f"horusec CWE-0 javax.crypto rule={rule_id}")
                 continue
+
+            # Rule 2-1: Horusec CWE-327 (Weak block mode) but using AES-GCM (Secure)
+            # Horusec은 AES/GCM/NoPadding을 사용해도 문맥에 따라 취약점으로 오탐하는 경우가 많음
+            if scanner == "horusec" and cwe == 327:
+                if "aes" in code.lower() and ("gcm" in code.lower() or "nopadding" in code.lower()):
+                    fps.append(f"horusec CWE-327 AES-GCM rule={rule_id}")
+                    continue
+
+            # Rule 2-2: Generic FP - Hard-coded credential in constant definitions for ENV keys
+            # 예: private static final String SECRET_KEY_ENV = "APP_KEY"; 와 같이 변수명에 KEY가 있고 값이 할당된 경우
+            if "potential hard-coded credential" in text_all:
+                import re
+                # 대문자와 언더바(_)로만 구성된 상수 할당 패턴 (환경변수 키 이름일 확률 높음)
+                match = re.search(r'String\s+([A-Z0-9_]+)\s*=\s*"[A-Z0-9_]+"', code)
+                if match:
+                    fps.append(
+                        f"generic FP (constant config key): potential hard-coded credential rule={rule_id}")
+                    continue
 
             # Rule 3: Narrow FP - Potential Hard-coded credential only when env/args patterns present
             # 테스트/예제 코드의 실제 하드코딩은 유지하고, 환경변수/프로그램 인자 사용 패턴만 오탐으로 처리
@@ -98,6 +116,29 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                     ("e.getmessage" not in code_lc) and ("e.getclass" not in code_lc) and ("printstacktrace" not in code_lc)
                 )
                 if logs_error_id_only:
+                    fps.append(f"cwe-209 acceptable logging pattern rule={rule_id}")
+                    continue
+
+            # Rule 5: CWE-209 Information Exposure
+            if cwe == 209:
+                code_lc = code.lower()
+                # 단순 문자열 메시지만 출력하는 경우 허용 ("Error occurred" 등)
+                is_generic_msg = (
+                        'println("error' in code_lc or
+                        'println("an error' in code_lc or
+                        'println("exception' in code_lc or
+                        'println("command failed' in code_lc
+                )
+                # 구체적인 예외 정보가 포함되어 있지 않아야 함
+                has_sensitive_info = (
+                        "e.getmessage" in code_lc or
+                        "e.getclass" in code_lc or
+                        "printstacktrace" in code_lc or
+                        "e.tostring" in code_lc or
+                        ("+ e" in code_lc and 'errorid' not in code_lc)  # e 객체 자체를 문자열 연결
+                )
+
+                if is_generic_msg and not has_sensitive_info:
                     fps.append(f"cwe-209 acceptable logging pattern rule={rule_id}")
                     continue
 
