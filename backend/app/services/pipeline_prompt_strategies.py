@@ -4,118 +4,51 @@ from app.models.schemas import Language, PromptTechnique, SecureCodePrompt
 from app.services.rag_service import RAGService
 from app.services.scanning.scanner_service import ScannerService
 
-HARD_RULES = (
-    "[SECURITY HARD RULES]\n"
-    "- Never use shell invocation for command execution (no /bin/sh, cmd.exe, or single-string exec).\n"
-    "- Use API-based execution with argument array (e.g., Java ProcessBuilder(\"cmd\", arg) or Python subprocess.run([...], shell=False)).\n"
-    "- Do NOT concatenate user input into commands. No string + variable to build commands.\n"
-    "- Enforce strict allowlist validation for all external inputs (regex or explicit set). Reject invalid inputs.\n"
-    "- Disallow relative paths (./, ../). Use only allowlisted absolute commands/paths.\n"
-    "- Principle of least privilege: do not escalate privileges; do not add dangerous flags.\n"
-    "- Preserve original functionality while applying the fixes.\n"
-    "- Do NOT log exception names, stack traces, or raw error messages in production logs.\n"
-    "- Log only an opaque errorId for correlation; send full details to a secure error collector (e.g., APM/Sentry).\n"
-    "- Allow stack traces only in debug/development mode.\n"
-    "- Never include sensitive data in logs (tokens, keys, credentials, PII, headers, request/response bodies).\n"
-    "- STRICT BAN ON BASE64 FOR SECURITY: Do NOT use Base64 encoding to 'protect' passwords or keys. It is NOT encryption. Use AES-256-GCM or SHA-256.\n"
-    "- If Base64 is needed for transport (e.g. returning byte[]), ALWAYS add a comment: '// Encoding for transport only' to avoid false positives.\n"
-    "- HEX CONVERSION: Do NOT use Integer.toHexString(b & 0xff). It drops leading zeros. Use java.util.HexFormat (Java 17+) or String.format(\"%02x\", b).\n"
-    "- TEST CODE/MAIN: Never assign hardcoded strings to variables like 'password', 'key', 'secret' even in example code. Use System.getenv(\"KEY_NAME\") or args[0].\n"
-    "- Logging policy: do not print e.getMessage(), e.getClass(), or stack traces to users/console. Print ONLY a fixed string 'An error occurred' and a UUID/ErrorID.\n"
-    "- Regular Expressions: enforce strict validation rules.\n"
-    "  - Always anchor with ^...$ to match the entire input.\n"
-    "  - Specify explicit length limits (e.g., {1,64}).\n"
-    "  - Use a minimal, purpose-specific allowlist character set (e.g., [A-Za-z0-9._-]).\n"
-    "  - Forbid leading '-' (CLI option injection) and leading '.' (hidden/relative).\n"
-    "  - Forbid '..' and any path separators ('/' or '\\').\n"
-    "  - Prefer fixed allowlists (Set/Enum) over regex when feasible.\n"
-)
 
-
-# Dynamic Rule Injection: common and CWE-specific rule sets
+# Prompt diet: concise core rules and CWE-specific adds
 COMMON_RULES: List[str] = [
-    "Preserve original functionality while applying the fixes.",
-    "Logging policy: Do NOT log exception names(e.getClass), stack traces, or raw error messages in production. Log ONLY an opaque errorId.",
-    "Allow stack traces only in debug/development mode.",
-    "Never include sensitive data in logs (tokens, keys, credentials, PII, headers).",
-    "STRICT BAN ON BASE64 FOR SECURITY: Do NOT use Base64 to 'protect' secrets. It is NOT encryption.",
-    "If Base64 is needed for transport, ALWAYS add a comment: '// Encoding for transport only'.",
-    "HEX CONVERSION: Do NOT use Integer.toHexString(). Use String.format(\"%02x\", b) or HexFormat.",
-    "TEST CODE/MAIN: Never assign hardcoded strings to variables like 'password', 'key' even in examples. Use System.getenv() or args[0].",
+    "Preserve functionality. Fix security issues without breaking the code.",
+    "LOGGING: Do NOT log exception details (message/stack trace) to console/users. Log ONLY a UUID errorId.",
+    "SECRETS: NEVER hardcode secrets/keys/tokens. Use System.getenv() even in main/test methods.",
+    "CRYPTO: Use 'AES/GCM/NoPadding' for encryption. Use SHA-256 for hashing.",
+    "BASE64: Base64 is NOT encryption. Do not use it to hide secrets.",
+    "INPUT: Validate all external inputs against a strict allowlist (regex).",
+    "EXEC: Use ProcessBuilder with argument arrays. Never use string concatenation for commands.",
+    "HEX: Use String.format(\"%02x\", b) for hex conversion. Avoid Integer.toHexString.",
 ]
 
 CWE_SPECIFIC_RULES: Dict[int, List[str]] = {
-    # OS Command Injection
-    78: [
-        "Never use shell invocation (no /bin/sh, cmd.exe, or single-string exec).",
-        "Use API-based execution with argument array (e.g., Java ProcessBuilder(\"cmd\", arg)).",
-        "Do NOT concatenate user input into commands.",
-    ],
-    # SQL Injection
-    89: [
-        "Use parameterized queries (PreparedStatements) strictly.",
-        "Do NOT concatenate user input into SQL strings.",
-    ],
-    # Path Traversal
-    22: [
-        "Disallow relative paths (./, ../).",
-        "Validate paths against a strict allowlist of absolute paths.",
-        "Do not rely solely on sanitization; reject invalid inputs.",
-    ],
-    # Hard-coded Credentials
-    798: [
-        "NEVER introduce hard-coded credentials, tokens, keys, or endpoints.",
-        "Use environment variables or a secret manager retrieval call.",
-    ],
-    # Cryptographic Issues (Weak Crypto / Base64 misuse)
-    327: [
-        "Use AES-256-GCM for encryption.",
-        "Do NOT use weak algorithms like DES, MD5, SHA-1, or ECB mode.",
-        "Ensure IVs are randomly generated and unique.",
-    ],
-    # Improper Input Validation (Generic)
-    20: [
-        "Enforce strict allowlist validation for all external inputs (regex or explicit set).",
-        "Reject invalid inputs instead of attempting to sanitize.",
-    ],
+    78: ["Use API-based execution (ProcessBuilder) with arrays. NO shell redirection."],
+    89: ["Use PreparedStatement with bind variables ONLY."],
+    22: ["Validate paths against an allowlist. Reject '..' or '/' in filenames."],
+    798: ["Replace hardcoded secrets with System.getenv(\"KEY_NAME\")."],
+    327: ["Use AES-GCM. Ensure IV is random (SecureRandom) and unique."],
+    20: ["Reject invalid input immediately. Do not attempt to sanitize malicious input."],
 }
 
 
 def _build_dynamic_rules(group_vulns: List[Any]) -> str:
-    """
-    공통 규칙과 탐지된 CWE에 해당하는 특화 규칙을 조합하여 프롬프트를 생성합니다.
-    """
+    """필요한 규칙만 골라서 주입 (토큰 절약)"""
     selected_rules: List[str] = list(COMMON_RULES)
 
     cwe_ids: set[int] = set()
     for v in (group_vulns or []):
         cwe = getattr(v, "cwe", None)
-        if cwe is None:
-            continue
-        try:
-            cwe_ids.add(int(cwe))
-        except Exception:
-            continue
+        if cwe:
+            try:
+                cwe_ids.add(int(cwe))
+            except Exception:
+                pass
 
-    # CWE-0(기타) 관측 시, Base64/암호화 오탐 회피를 위해 327 규칙을 함께 주입
     if 0 in cwe_ids:
         cwe_ids.add(327)
 
     for cwe in cwe_ids:
-        rules = CWE_SPECIFIC_RULES.get(cwe)
-        if rules:
-            selected_rules.extend(rules)
+        if cwe in CWE_SPECIFIC_RULES:
+            selected_rules.extend(CWE_SPECIFIC_RULES[cwe])
 
-    # 중복 제거(원래 순서 유지)
-    unique_rules: List[str] = []
-    seen = set()
-    for r in selected_rules:
-        if r not in seen:
-            unique_rules.append(r)
-            seen.add(r)
-
-    rules_text = "\n".join(f"- {rule}" for rule in unique_rules)
-    return f"[SECURITY HARD RULES]\n{rules_text}"
+    unique_rules = sorted(list(set(selected_rules)), key=selected_rules.index)
+    return "### SECURITY RULES (STRICT COMPLIANCE REQUIRED)\n" + "\n".join(f"- {r}" for r in unique_rules)
 
 
 def _build_base_prompt(

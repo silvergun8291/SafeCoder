@@ -16,7 +16,7 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver4.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver5.txt"
 
 CONCURRENCY = 14
 
