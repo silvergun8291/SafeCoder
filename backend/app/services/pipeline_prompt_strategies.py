@@ -32,6 +32,92 @@ HARD_RULES = (
 )
 
 
+# Dynamic Rule Injection: common and CWE-specific rule sets
+COMMON_RULES: List[str] = [
+    "Preserve original functionality while applying the fixes.",
+    "Logging policy: Do NOT log exception names(e.getClass), stack traces, or raw error messages in production. Log ONLY an opaque errorId.",
+    "Allow stack traces only in debug/development mode.",
+    "Never include sensitive data in logs (tokens, keys, credentials, PII, headers).",
+    "STRICT BAN ON BASE64 FOR SECURITY: Do NOT use Base64 to 'protect' secrets. It is NOT encryption.",
+    "If Base64 is needed for transport, ALWAYS add a comment: '// Encoding for transport only'.",
+    "HEX CONVERSION: Do NOT use Integer.toHexString(). Use String.format(\"%02x\", b) or HexFormat.",
+    "TEST CODE/MAIN: Never assign hardcoded strings to variables like 'password', 'key' even in examples. Use System.getenv() or args[0].",
+]
+
+CWE_SPECIFIC_RULES: Dict[int, List[str]] = {
+    # OS Command Injection
+    78: [
+        "Never use shell invocation (no /bin/sh, cmd.exe, or single-string exec).",
+        "Use API-based execution with argument array (e.g., Java ProcessBuilder(\"cmd\", arg)).",
+        "Do NOT concatenate user input into commands.",
+    ],
+    # SQL Injection
+    89: [
+        "Use parameterized queries (PreparedStatements) strictly.",
+        "Do NOT concatenate user input into SQL strings.",
+    ],
+    # Path Traversal
+    22: [
+        "Disallow relative paths (./, ../).",
+        "Validate paths against a strict allowlist of absolute paths.",
+        "Do not rely solely on sanitization; reject invalid inputs.",
+    ],
+    # Hard-coded Credentials
+    798: [
+        "NEVER introduce hard-coded credentials, tokens, keys, or endpoints.",
+        "Use environment variables or a secret manager retrieval call.",
+    ],
+    # Cryptographic Issues (Weak Crypto / Base64 misuse)
+    327: [
+        "Use AES-256-GCM for encryption.",
+        "Do NOT use weak algorithms like DES, MD5, SHA-1, or ECB mode.",
+        "Ensure IVs are randomly generated and unique.",
+    ],
+    # Improper Input Validation (Generic)
+    20: [
+        "Enforce strict allowlist validation for all external inputs (regex or explicit set).",
+        "Reject invalid inputs instead of attempting to sanitize.",
+    ],
+}
+
+
+def _build_dynamic_rules(group_vulns: List[Any]) -> str:
+    """
+    공통 규칙과 탐지된 CWE에 해당하는 특화 규칙을 조합하여 프롬프트를 생성합니다.
+    """
+    selected_rules: List[str] = list(COMMON_RULES)
+
+    cwe_ids: set[int] = set()
+    for v in (group_vulns or []):
+        cwe = getattr(v, "cwe", None)
+        if cwe is None:
+            continue
+        try:
+            cwe_ids.add(int(cwe))
+        except Exception:
+            continue
+
+    # CWE-0(기타) 관측 시, Base64/암호화 오탐 회피를 위해 327 규칙을 함께 주입
+    if 0 in cwe_ids:
+        cwe_ids.add(327)
+
+    for cwe in cwe_ids:
+        rules = CWE_SPECIFIC_RULES.get(cwe)
+        if rules:
+            selected_rules.extend(rules)
+
+    # 중복 제거(원래 순서 유지)
+    unique_rules: List[str] = []
+    seen = set()
+    for r in selected_rules:
+        if r not in seen:
+            unique_rules.append(r)
+            seen.add(r)
+
+    rules_text = "\n".join(f"- {rule}" for rule in unique_rules)
+    return f"[SECURITY HARD RULES]\n{rules_text}"
+
+
 def _build_base_prompt(
     scanner_service: ScannerService,
     request_source: str,
@@ -100,7 +186,8 @@ def _compose_prompts(
     rag_section = ""
     if use_rag and rag_service is not None:
         rag_section = _augment_with_rag(rag_service, language, group_vulns)
-    system_prompt = f"{base.system_prompt or ''}\n\n{HARD_RULES}" + (rag_section or "")
+    dynamic_rules = _build_dynamic_rules(group_vulns)
+    system_prompt = f"{base.system_prompt or ''}\n\n{dynamic_rules}" + (rag_section or "")
 
     # user prompt
     cwe_list = ", ".join(f"CWE-{c}" for c in meta.get("cwes", [])) or "N/A"
