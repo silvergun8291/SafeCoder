@@ -16,9 +16,11 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver5.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver6.txt"
 
 CONCURRENCY = 14
+# RAG 사용 여부(전역 상수). 슬라이싱은 PatchService에서 기본 활성화됨.
+USE_RAG = True
 
 
 def extract_code_block(text: str, lang: Language) -> str | None:
@@ -205,7 +207,7 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
         request=initial_req,
         max_iterations=3,
         min_severity="low",
-        use_rag=False,
+        use_rag=USE_RAG,
     )
     if case_bar is not None:
         case_bar.close()

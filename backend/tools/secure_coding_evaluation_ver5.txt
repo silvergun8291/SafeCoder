@@ -1,0 +1,4186 @@
+Secure Coding Evaluation
+Timestamp: 2025-11-24T20:10:18.735811+00:00
+Scanners: horusec, semgrep, spotbugs (java)
+Case #5
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #13
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #1
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #10
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #16
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #12
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #4
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #19
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #20
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #6
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #8
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #14
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L71-71
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     68:                 logger.fine("Exception details: " + e.getClass().getName() + ": " + e.getMessage());
+     69:                 e.printStackTrace();
+     70:             }
+     71:         } catch (Exception e) {
+     72:             String errorId = "ERR-209-" + System.currentTimeMillis();
+     73:             logger.severe("Unexpected exception occurred: " + errorId);
+     74:             if (Boolean.getBoolean("debug")) {
+  ```
+Case #7
+- Before: 2
+- After:  2
+- Status: SAME
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L22-22
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     19:     public static void main(String[] args) {
+     20:         // Simulated user input (in real app, read from secure input source)
+     21:         String username = "testUser";
+     22:         String password = "secureP@ss123";
+     23:
+     24:         // Validate inputs before use
+     25:         if (!isValidUsername(username) || !isValidPassword(password)) {
+  ```
+- [2] Scanner=horusec, CWE-327, Lines=L84-84
+  Reason: (1/1) * Possible vulnerability detected: No Default  Hash
+This App uses  Hash Code. It"s a weak hash function and should never be used in Secure Crypto Implementation. For more information checkout the CWE-327 (https://cwe.mitre.org/data/definitions/327.html) advisory.
+  Code snippet:
+  ```
+     81:      */
+     82:     private static String hashPassword(String password) {
+     83:         // TODO: Replace with proper password hashing (e.g., BCrypt)
+     84:         return String.format("%040x", password.hashCode()); // Simplified for example
+     85:     }
+     86: }
+  ```
+Case #11
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L176-176
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+    173:             // Example usage - should be replaced with actual use case
+    174:             String result = executor.executeCommand("ping", new String[]{"-c", "4", "example.com"});
+    175:             System.out.println("Command output: " + result);
+    176:         } catch (Exception e) {
+    177:             // In production, log errorId and send details to secure error collector
+    178:             System.err.println("Error occurred");
+    179:         }
+  ```
+Case #2
+- Before: 0
+- After:  1
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L173-173
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+    170:             SecureProcessExecutor executor = new SecureProcessExecutor();
+    171:             String result = executor.executeCommand("ping", new String[]{"8.8.8.8", "-c", "4"});
+    172:             System.out.println("Command output:\n" + result);
+    173:         } catch (Exception e) {
+    174:             System.err.println("Error: An error occurred");
+    175:             // Error details are logged internally with errorId
+    176:         }
+  ```
+Case #15
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #18
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #3
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #21
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #9
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #25
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #17
+- Before: 1
+- After:  4
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L57-57
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     54:                 }
+     55:                 clientSocket.close();
+     56:             }
+     57:         } catch (Exception e) {
+     58:             String errorId = generateErrorId();
+     59:             logError(errorId, e);
+     60:             System.err.println("An error occurred");
+  ```
+- [2] Scanner=semgrep, CWE-704, Lines=L74-93
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     71:         System.err.println("Error: " + errorId + " - " + message);
+     72:     }
+     73:
+     74:     private static void logError(String errorId, Exception e) {
+     75:         if (Boolean.getBoolean("debug")) {
+     76:             e.printStackTrace();
+     77:         } else {
+     78:             try {
+     79:                 byte[] errorBytes = e.getMessage().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+     80:                 MessageDigest md = MessageDigest.getInstance("SHA-256");
+     81:                 byte[] errorHash = md.digest(errorBytes);
+     82:                 StringBuilder hexString = new StringBuilder();
+     83:                 for (byte b : errorHash) {
+     84:                     String hex = Integer.toHexString(0xff & b);
+     85:                     if (hex.length() == 1) hexString.append('0');
+     86:                     hexString.append(hex);
+     87:                 }
+     88:                 logError(errorId, "An error occurred: " + hexString.toString());
+     89:             } catch (NoSuchAlgorithmException ex) {
+     90:                 logError(errorId, "An error occurred: HASHING_FAILED");
+     91:             }
+     92:         }
+     93:     }
+     94:
+     95:     private static String hashString(String input) {
+     96:         try {
+  ```
+- [3] Scanner=semgrep, CWE-704, Lines=L95-109
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     92:         }
+     93:     }
+     94:
+     95:     private static String hashString(String input) {
+     96:         try {
+     97:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     98:             byte[] hashBytes = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     99:             StringBuilder hexString = new StringBuilder();
+    100:             for (byte b : hashBytes) {
+    101:                 String hex = Integer.toHexString(0xff & b);
+    102:                 if (hex.length() == 1) hexString.append('0');
+    103:                 hexString.append(hex);
+    104:             }
+    105:             return hexString.toString();
+    106:         } catch (NoSuchAlgorithmException e) {
+    107:             throw new RuntimeException("SHA-256 algorithm not found", e);
+    108:         }
+    109:     }
+    110:
+    111:     private static String generateErrorId() {
+    112:         try {
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L115-115
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+    112:         try {
+    113:             byte[] randomBytes = new byte[16];
+    114:             new SecureRandom().nextBytes(randomBytes);
+    115:             return Base64.getEncoder().encodeToString(randomBytes).replace('+', '-').replace('/', '_').replace('=', '');
+    116:         } catch (Exception e) {
+    117:             return "FALLBACK_ERROR_ID";
+    118:         }
+  ```
+Case #30
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #26
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- horusec CWE-0 base64 acceptable pattern rule=HorusecEngine
+Case #29
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #34
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #23
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 base64 acceptable pattern rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L72-72
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     69:         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     70:         digest.update(key.getBytes());
+     71:         byte[] hash = digest.digest(data);
+     72:         return Base64.getEncoder().encodeToString(hash);
+     73:     }
+     74:
+     75:     // Verifies data signature (CWE-502 mitigation)
+  ```
+Case #24
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #27
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #37
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #38
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #31
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #28
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L17-17
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     14:     public static void main(String[] args) {
+     15:         // Simulated user input (in production, use secure input handling)
+     16:         String username = "test' OR '1'='1"; // Vulnerable input (will be rejected)
+     17:         String password = "password";        // Weak password (will be rejected)
+     18:
+     19:         // Retrieve DB credentials securely (never hard-coded)
+     20:         String dbUrl = System.getenv("DB_URL");
+  ```
+Case #44
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #35
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #40
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #33
+- Before: 1
+- After:  5
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L120-120
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+    117:             System.out.println("Password hash: " + deserializedData.passwordHash);
+    118:
+    119:             // Example password verification
+    120:             boolean isValid = deserializedData.verifyPassword("password123");
+    121:             System.out.println("Password verification: " + (isValid ? "SUCCESS" : "FAILED"));
+    122:
+    123:         } catch (IOException | ClassNotFoundException e) {
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L83-83
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     80:     // Alternative deserialization method that avoids full object deserialization
+     81:     public static UserInfo fromSecureBytes(byte[] data) throws IOException, ClassNotFoundException {
+     82:         try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+     83:              ObjectInputStream ois = new ObjectInputStream(bis)) {
+     84:             String username = ois.readUTF();
+     85:             String passwordHash = ois.readUTF();
+     86:             String salt = ois.readUTF();
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     29:     private String generateSecureSalt() {
+     30:         byte[] saltBytes = new byte[16];
+     31:         new SecureRandom().nextBytes(saltBytes);
+     32:         return Base64.getEncoder().encodeToString(saltBytes);
+     33:     }
+     34:
+     35:     private String hashPassword(String password, String salt) {
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L40-40
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     37:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     38:             md.update(Base64.getDecoder().decode(salt));
+     39:             byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     40:             return Base64.getEncoder().encodeToString(hashedBytes);
+     41:         } catch (NoSuchAlgorithmException e) {
+     42:             throw new RuntimeException("Critical security failure: SHA-256 not available", e);
+     43:         }
+  ```
+- [5] Scanner=horusec, CWE-0, Lines=L38-38
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     35:     private String hashPassword(String password, String salt) {
+     36:         try {
+     37:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     38:             md.update(Base64.getDecoder().decode(salt));
+     39:             byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     40:             return Base64.getEncoder().encodeToString(hashedBytes);
+     41:         } catch (NoSuchAlgorithmException e) {
+  ```
+Case #39
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L42-42
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     39:                 logger.fine("Exception details: " + e.getMessage());
+     40:                 e.printStackTrace();
+     41:             }
+     42:         } catch (Exception e) {
+     43:             logger.severe("An error occurred: " + ERROR_ID);
+     44:             if (Boolean.getBoolean("debug")) {
+     45:                 logger.fine("Exception details: " + e.getMessage());
+  ```
+Case #32
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #36
+- Before: 3
+- After:  3
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L51-51
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     48:             String errorId = generateErrorId();
+     49:             System.err.println("Deserialization error: " + errorId);
+     50:             ErrorCollector.logError(errorId, e);
+     51:         } catch (Exception e) {
+     52:             String errorId = generateErrorId();
+     53:             System.err.println("Unexpected error: " + errorId);
+     54:             ErrorCollector.logError(errorId, e);
+  ```
+- [2] Scanner=horusec, CWE-704, Lines=L62-62
+  Reason: (1/1) * Possible vulnerability detected: Bad hexadecimal concatenation
+When converting a byte array containing a hash signature to a human readable string, a conversion mistake can be made if the array is read byte by byte. The following sample illustrates the use of the method Integer.toHexString() which will trim any leading zeroes from each byte of the computed hash value. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory.
+  Code snippet:
+  ```
+     59:         if (data == null || data.length < 2) return false;
+     60:
+     61:         // Check for Java serialized stream magic number
+     62:         String header = String.format("%02X %02X", data[0] & 0xFF, data[1] & 0xFF);
+     63:         if (!JAVA_SERIALIZED_STREAM_MAGIC.equals(header)) {
+     64:             return false;
+     65:         }
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L85-85
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     82:             random.nextBytes(errorId);
+     83:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     84:             byte[] hashedId = digest.digest(errorId);
+     85:             return Base64.getEncoder().encodeToString(hashedId);
+     86:         } catch (NoSuchAlgorithmException e) {
+     87:             // This should never happen as SHA-256 is a standard algorithm
+     88:             throw new RuntimeException("SHA-256 algorithm not found", e);
+  ```
+Case #41
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L39-39
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     36:
+     37:             // Deserialize object with HMAC validation
+     38:             FileInputStream fileIn = new FileInputStream("secure.ser");
+     39:             ObjectInputStream in = new ObjectInputStream(fileIn);
+     40:             SecureClass deserializedObject = (SecureClass) in.readObject();
+     41:             String storedHmac = (String) in.readObject();
+     42:             in.close();
+  ```
+Case #50
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #52
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #42
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #45
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-532, Lines=L32-32
+  Reason: (1/2) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+
+(2/2) * Possible vulnerability detected: No Log Sensitive Information
+The App logs information. Sensitive information should never be logged. For more information checkout the CWE-532 (https://cwe.mitre.org/data/definitions/532.html) advisory.
+  Code snippet:
+  ```
+     29:
+     30:     public void printUserCredentials() {
+     31:         System.out.println("Username: " + username);
+     32:         System.out.println("Password hash: " + Base64.getEncoder().encodeToString(passwordHash));
+     33:     }
+     34:
+     35:     private byte[] hashPassword(String password) throws NoSuchAlgorithmException {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L109-109
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+    106:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+    107:         md.reset();
+    108:         byte[] hashBytes = md.digest(data);
+    109:         byte[] encodedHash = Base64.getEncoder().encode(hashBytes);
+    110:         return new String(encodedHash, StandardCharsets.US_ASCII);
+    111:     }
+    112:
+  ```
+Case #54
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #43
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #22
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #47
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #48
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L82-82
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     79:         // In production, use a proper HMAC implementation (e.g., HmacSHA256)
+     80:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     81:         md.update(key.getBytes());
+     82:         return Base64.getEncoder().encodeToString(md.digest(data));
+     83:     }
+     84:
+     85:     /**
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L94-94
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     91:         try {
+     92:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     93:             byte[] hash = md.digest(e.getMessage().getBytes());
+     94:             return Base64.getEncoder().encodeToString(hash);
+     95:         } catch (NoSuchAlgorithmException ex) {
+     96:             return "ERROR_ID_GENERATION_FAILED";
+     97:         }
+  ```
+Case #53
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #56
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #46
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #49
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #63
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #51
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #66
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #61
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #55
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #58
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     20:     public static void main(String[] args) {
+     21:         // Simulated user input (should be validated and sanitized in real app)
+     22:         String username = "testUser";  // In real app, this would come from validated user input
+     23:         String password = "testPassword";  // In real app, this would come from validated user input
+     24:
+     25:         // Validate inputs
+     26:         String errorId = "ERR-" + System.currentTimeMillis();
+  ```
+Case #60
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #69
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #59
+- Before: 2
+- After:  2
+- Status: SAME
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L71-71
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     68:             return false;
+     69:         }
+     70:
+     71:         byte[] saltBytes = Base64.getDecoder().decode(salt);
+     72:         PBEKeySpec spec = new PBEKeySpec(rawPassword, saltBytes, 65536, 256);
+     73:         SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
+     74:         byte[] hashBytes = skf.generateSecret(spec).getEncoded();
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L77-77
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     74:         byte[] hashBytes = skf.generateSecret(spec).getEncoded();
+     75:
+     76:         // Use constant-time comparison to prevent timing attacks
+     77:         byte[] storedHashBytes = Base64.getDecoder().decode(storedHash);
+     78:         if (hashBytes.length != storedHashBytes.length) {
+     79:             return false;
+     80:         }
+  ```
+Case #64
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #57
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #62
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #65
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #67
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #81
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #71
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L38-38
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+     35:
+     36:         try {
+     37:             // Use Class.forName with context class loader for better security
+     38:             Class<?> clazz = Class.forName(className, true, SecureApplication.class.getClassLoader());
+     39:
+     40:             // Use constructor with no arguments (CWE-209 mitigation)
+     41:             java.lang.reflect.Constructor<?> constructor = clazz.getConstructor();
+  ```
+Case #72
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #80
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #83
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #74
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #68
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #75
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #79
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #73
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L52-52
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     49:
+     50:                 new Thread(() -> handleClient(socket)).start();
+     51:             }
+     52:         } catch (Exception e) {
+     53:             String errorId = "ERR-" + System.currentTimeMillis();
+     54:             System.err.println("Server error: " + errorId);
+     55:             // In production, send errorId to secure error collector
+  ```
+- [2] Scanner=semgrep, CWE-326, Lines=L25-25
+  Reason: An insecure SSL context was detected. TLS versions 1.0, 1.1, and all SSL versions are considered weak encryption and are deprecated. Use SSLContext.getInstance("TLSv1.2") for the best security.
+  Code snippet:
+  ```
+     22:     public static void main(String[] args) {
+     23:         try {
+     24:             // Initialize SSL context with trusted keystore
+     25:             SSLContext sslContext = SSLContext.getInstance("TLS");
+     26:             KeyManagerFactory kmf = KeyManagerFactory
+     27:                 .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+     28:             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+  ```
+Case #70
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #86
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #77
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #85
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #84
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #78
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #90
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #92
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #82
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #76
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #96
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #98
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #97
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #91
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #87
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #89
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #93
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     15:     public static void main(String[] args) {
+     16:         // Simulated user input (in real app, this would come from a secure form)
+     17:         String username = "test";
+     18:         String password = "test' OR '1'='1"; // Vulnerable input (will be sanitized)
+     19:
+     20:         // Validate inputs (allowlist: alphanumeric + common special chars)
+     21:         if (!isValidInput(username) || !isValidInput(password)) {
+  ```
+Case #107
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #101
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #95
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L14-14
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     11:         String dbUsername = System.getenv("DB_USERNAME");
+     12:         String dbPassword = System.getenv("DB_PASSWORD");
+     13:         String inputUsername = "test"; // In real app, this would come from validated user input
+     14:         String inputPassword = "test"; // In real app, this would come from validated user input
+     15:
+     16:         // Validate inputs (simplified example; use allowlists/validation rules in production)
+     17:         if (!isValidUsername(inputUsername) || !isValidPassword(inputPassword)) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L51-51
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     48:     // Simulate secure password hashing (use BCrypt or similar in production)
+     49:     private static String hashPassword(String password) {
+     50:         // In production, use a strong hashing algorithm like BCrypt, Argon2, or PBKDF2
+     51:         return java.util.Base64.getEncoder().encodeToString(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     52:     }
+     53:
+     54:     // Validate username (example allowlist; adjust per requirements)
+  ```
+Case #104
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #88
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #94
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #102
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #111
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #100
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L47-47
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     44:             int exitCode = process.waitFor();
+     45:             System.out.println("Command exited with code: " + exitCode);
+     46:
+     47:         } catch (Exception e) {
+     48:             // 6. Secure error handling (CWE-209)
+     49:             String errorId = generateOpaqueErrorId(e);
+     50:             if (DEBUG_MODE) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L108-108
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+    105:         try {
+    106:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    107:             byte[] hash = digest.digest(e.getMessage().getBytes());
+    108:             return Base64.getEncoder().encodeToString(hash);
+    109:         } catch (Exception ex) {
+    110:             return "ERROR_ID_GENERATION_FAILED";
+    111:         }
+  ```
+Case #99
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #115
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #108
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L89-89
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     86:      */
+     87:     private static String hashPassword(String password) {
+     88:         try {
+     89:             return java.util.Base64.getEncoder().encodeToString(
+     90:                 java.security.MessageDigest.getInstance("SHA-256")
+     91:                     .digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8))
+     92:             );
+  ```
+Case #110
+- Before: 2
+- After:  4
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L44-44
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     41:                 System.err.println("Deserialization failed: " + errorId);
+     42:                 sendErrorToCollector(errorId, new SecurityException("Invalid serialized data format"));
+     43:             }
+     44:         } catch (Exception e) {
+     45:             String errorId = generateErrorId();
+     46:             System.err.println("Deserialization failed: " + errorId);
+     47:             sendErrorToCollector(errorId, e);
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L30-30
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     27:             byte[] serializedData = bos.toByteArray();
+     28:             if (isValidSerializedData(serializedData)) {
+     29:                 ByteArrayInputStream bin = new ByteArrayInputStream(serializedData);
+     30:                 try (ObjectInputStream ois = new ObjectInputStream(bin)) {
+     31:                     Class<?> targetClass = String.class;
+     32:                     Object obj = ois.readObject();
+     33:                     if (!targetClass.isInstance(obj)) {
+  ```
+- [3] Scanner=semgrep, CWE-502, Lines=L65-65
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     62:
+     63:             // Additional checks
+     64:             ByteArrayInputStream bin = new ByteArrayInputStream(data);
+     65:             try (ObjectInputStream ois = new ObjectInputStream(bin)) {
+     66:                 ObjectStreamClass desc = ois.readClassDescriptor();
+     67:                 if (!ALLOWED_CLASS.equals(desc.getName())) {
+     68:                     return false;
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L10-10
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+      7:
+      8: public class SecureDeserialization {
+      9:     private static final String SHA256_ALGORITHM = "SHA-256";
+     10:     private static final byte[] TRUSTED_HASH = Base64.getDecoder().decode("expectedHashValue"); // Precomputed hash of trusted serialized data
+     11:     private static final String ALLOWED_CLASS = "java.lang.String";
+     12:     private static final int MAX_SERIALIZED_SIZE = 1024 * 1024; // 1MB
+     13:     private static final boolean DEBUG_MODE = Boolean.getBoolean("debug.mode");
+  ```
+Case #120
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #112
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #106
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L25-25
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     22:             }
+     23:
+     24:             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+     25:             try (ObjectInputStream ois = new ObjectInputStream(bais)) {
+     26:                 // Validate the deserialized object type
+     27:                 Object obj = ois.readObject();
+     28:                 if (!ALLOWED_CLASS.equals(obj.getClass().getName())) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L56-56
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     53:             new SecureRandom().nextBytes(randomBytes);
+     54:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     55:             byte[] hash = digest.digest(randomBytes);
+     56:             byte[] encodedHash = Base64.getUrlEncoder().withoutPadding().encode(hash);
+     57:             return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+     58:         } catch (NoSuchAlgorithmException e) {
+     59:             // This should never happen with SHA-256
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L57-57
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     54:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     55:             byte[] hash = digest.digest(randomBytes);
+     56:             byte[] encodedHash = Base64.getUrlEncoder().withoutPadding().encode(hash);
+     57:             return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+     58:         } catch (NoSuchAlgorithmException e) {
+     59:             // This should never happen with SHA-256
+     60:             return "FATAL-ERROR";
+  ```
+Case #109
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #116
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #117
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #113
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-704, Lines=L61-91
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     58:         }
+     59:     }
+     60:
+     61:     private static String calculateFileHash(String filePath) throws IOException {
+     62:         try {
+     63:             File file = new File(filePath);
+     64:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     65:
+     66:             try (FileInputStream fis = new FileInputStream(file)) {
+     67:                 byte[] byteArray = new byte[8192];
+     68:                 int bytesCount;
+     69:                 while ((bytesCount = fis.read(byteArray)) != -1) {
+     70:                     digest.update(byteArray, 0, bytesCount);
+     71:                 }
+     72:             }
+     73:             byte[] hashBytes = digest.digest();
+     74:             StringBuilder hexString = new StringBuilder();
+     75:             for (byte b : hashBytes) {
+     76:                 String hex = Integer.toHexString(0xff & b);
+     77:                 if (hex.length() == 1) {
+     78:                     hexString.append('0');
+     79:                 }
+     80:                 hexString.append(hex);
+     81:             }
+     82:             return hexString.toString();
+     83:         } catch (NoSuchAlgorithmException e) {
+     84:             // In production, log only an error ID and send details to secure error collector
+     85:             System.err.println("Hashing error: HASHING_ERROR_001");
+     86:             if (Boolean.getBoolean("debug")) {
+     87:                 e.printStackTrace(); // Only in development
+     88:             }
+     89:             throw new IOException("Hashing algorithm not available", e);
+     90:         }
+     91:     }
+     92:
+     93:     private static boolean isValidHash(String fileHash) {
+     94:         // In production, compare against stored valid hash values
+  ```
+Case #105
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L18-18
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     15:     public static void main(String[] args) {
+     16:         // Simulated user input (in real app, these would come from a secure form)
+     17:         String username = "test";
+     18:         String password = "test'; DROP TABLE users; --";
+     19:
+     20:         // Validate inputs (allowlist: alphanumeric + common special chars)
+     21:         if (!isValidInput(username) || !isValidInput(password)) {
+  ```
+Case #119
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #123
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #114
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #118
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #125
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #124
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #129
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #127
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #122
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+Case #121
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #133
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #138
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #103
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #139
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #126
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #143
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #142
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #144
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #132
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L56-56
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     53:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     54:         md.update(key.getBytes(StandardCharsets.UTF_8));
+     55:         byte[] digest = md.digest(data.getBytes(StandardCharsets.UTF_8));
+     56:         return Base64.getEncoder().encodeToString(digest);
+     57:     }
+     58: }
+  ```
+Case #136
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #137
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #128
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L121-121
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+    118:             if (debugMode) {
+    119:                 e.printStackTrace();
+    120:             }
+    121:         } catch (Exception e) {
+    122:             String errorId = UUID.randomUUID().toString();
+    123:             logError(errorId, e);
+    124:             System.err.println("Error occurred: " + errorId);
+  ```
+Case #134
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L25-25
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     22:         }
+     23:
+     24:         try (ByteArrayInputStream bin = new ByteArrayInputStream(data);
+     25:              ObjectInputStream ois = new ObjectInputStream(bin)) {
+     26:
+     27:             // Optional: Add class whitelisting
+     28:             ois.setObjectInputFilter((desc, depth) -> {
+  ```
+Case #131
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #141
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L19-19
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     16:             oos.writeObject("maliciousCode");
+     17:             oos.flush();
+     18:
+     19:             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))) {
+     20:                 Object obj = ois.readObject();
+     21:                 if (!(obj instanceof String) || !ALLOWED_CLASS.equals(obj.getClass().getName())) {
+     22:                     String errorId = generateErrorId();
+  ```
+Case #155
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #145
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #156
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #130
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L40-40
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     37:             // a whitelist-based deserialization filter (Java 9+):
+     38:             // ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data), ObjectInputFilter.Config.createFilter("!.*"));
+     39:             // For Java 8 compatibility, we use manual validation instead.
+     40:             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
+     41:                 // Skip first object (non-critical)
+     42:                 ois.readObject();
+     43:
+  ```
+Case #157
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #153
+- Before: 1
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L45-45
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     42:             SecretData data = (SecretData) obj;
+     43:             System.out.println("Secret Data: " + data.getData());
+     44:         }
+     45:     } catch (Exception e) {
+     46:         String errorId = "ERR-" + UUID.randomUUID().toString();
+     47:         logError(errorId, e);
+     48:         System.err.println("An error occurred: " + errorId);
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L32-32
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     29:             throw new SecurityException("Invalid file hash");
+     30:         }
+     31:
+     32:         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(fileBytes))) {
+     33:             Object obj = ois.readObject();
+     34:
+     35:             // Type check to prevent class substitution attacks
+  ```
+- [3] Scanner=semgrep, CWE-704, Lines=L57-69
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     54:     }
+     55: }
+     56:
+     57: private String sha256Hash(byte[] data) throws NoSuchAlgorithmException {
+     58:     MessageDigest md = MessageDigest.getInstance("SHA-256");
+     59:     byte[] hashBytes = md.digest(data);
+     60:     StringBuilder hexString = new StringBuilder();
+     61:
+     62:     for (byte b : hashBytes) {
+     63:         String hex = Integer.toHexString(0xff & b);
+     64:         if (hex.length() == 1) hexString.append('0');
+     65:         hexString.append(hex);
+     66:     }
+     67:
+     68:     return hexString.toString();
+     69: }
+     70:
+     71: private void logError(String errorId, Exception e) {
+     72:     // Implementation would send error details to a secure error collector
+  ```
+Case #148
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #152
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #149
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #147
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L39-39
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     36:
+     37:             System.out.println("Deserialization successful: " + ((MyClass) obj).getMessage());
+     38:
+     39:         } catch (Exception e) {
+     40:             // Security Note: Never expose stack traces to users
+     41:             System.err.println("An error occurred during deserialization (Error ID: " + generateErrorId() + ")");
+     42:             // In production, send e.toString() to a secure error collector
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L29-29
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     26:             }
+     27:
+     28:             // Security Note: Only deserialize if input is fully controlled and validated
+     29:             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+     30:             Object obj = ois.readObject();
+     31:             ois.close();
+     32:
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L51-51
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     48:     private static String generateHmac(byte[] data) throws NoSuchAlgorithmException {
+     49:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     50:         byte[] digest = md.digest(data);
+     51:         return Base64.getEncoder().encodeToString(digest);
+     52:     }
+     53:
+     54:     private static String generateErrorId() {
+  ```
+Case #135
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     20:     public static void main(String[] args) {
+     21:         // Simulated user input (in real application, this would come from a secure input source)
+     22:         String username = "testUser";
+     23:         String password = "secureP@ssw0rd";
+     24:
+     25:         // Validate inputs before use
+     26:         if (!isValidUsername(username) || !isValidPassword(password)) {
+  ```
+Case #158
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #151
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #150
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #154
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #166
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #164
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #161
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #170
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #140
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L65-65
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     62:             logger.severe("Error occurred: " + errorId);
+     63:             ErrorCollector.logError(errorId, e);
+     64:             System.err.println("An error occurred");
+     65:         } catch (Exception e) {
+     66:             String errorId = "ERR-DESERIALIZATION-003";
+     67:             logger.severe("Error occurred: " + errorId);
+     68:             ErrorCollector.logError(errorId, e);
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L42-42
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     39:                 }
+     40:             });
+     41:
+     42:             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))) {
+     43:                 ois.setObjectInputFilter((desc, depth) -> {
+     44:                     for (Class<?> allowedClass : ALLOWLISTED_CLASSES) {
+     45:                         if (desc.getType().equals(allowedClass)) {
+  ```
+Case #160
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #167
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #173
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #163
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #146
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #162
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #169
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #168
+- Before: 3
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #175
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #181
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #159
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L79-79
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     76:     private static String hashStackTrace(Exception e) throws NoSuchAlgorithmException {
+     77:         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     78:         byte[] hashBytes = digest.digest(e.getStackTraceToString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     79:         return Base64.getEncoder().encodeToString(hashBytes);
+     80:     }
+     81: }
+     82:
+  ```
+Case #171
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L86-86
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     83:     private static String generateErrorId(String prefix) throws NoSuchAlgorithmException {
+     84:         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     85:         byte[] hash = digest.digest((prefix + System.currentTimeMillis()).getBytes());
+     86:         return Base64.getEncoder().encodeToString(hash);
+     87:     }
+     88: }
+  ```
+Case #174
+- Before: 1
+- After:  2
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L5-72
+  Reason: COMMAND_INJECTION
+  Code snippet:
+  ```
+      2: import java.util.*;
+      3: import java.util.regex.Pattern;
+      4:
+      5: public class Test {
+      6:     // Allowlist of permitted commands (secure default: empty)
+      7:     private static final Set<String> ALLOWLISTED_COMMANDS = Set.of(
+      8:         "echo", "date", "whoami"  // Example safe commands
+      9:     );
+     10:
+     11:     // Absolute path to shell (never use PATH lookup)
+     12:     private static final String ABSOLUTE_SHELL_PATH = "/usr/bin/env";
+     13:
+     14:     // Pattern to detect dangerous command injection patterns
+     15:     private static final Pattern SAFE_COMMAND_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-./]+$");
+     16:
+     17:     public static void main(String[] args) {
+     18:         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+     19:             System.out.println("Enter your command (only basic commands like 'echo', 'date', or 'whoami' are allowed):");
+     20:             String input = reader.readLine().trim();
+     21:
+     22:             // Input validation: reject empty or null
+     23:             if (input == null || input.isEmpty()) {
+     24:                 System.err.println("Error: Command cannot be empty.");
+     25:                 return;
+     26:             }
+     27:
+     28:             // Input sanitization: reject dangerous characters
+     29:             if (!SAFE_COMMAND_PATTERN.matcher(input).matches()) {
+     30:                 System.err.println("Error: Command contains invalid characters.");
+     31:                 return;
+     32:             }
+     33:
+     34:             // Input allowlisting: only permit predefined safe commands
+     35:             if (!ALLOWLISTED_COMMANDS.contains(input.split("\\s+")[0])) {
+     36:                 System.err.println("Error: Command not allowed.");
+     37:                 return;
+     38:             }
+     39:
+     40:             // Use ProcessBuilder with absolute path and argument array
+     41:             ProcessBuilder processBuilder = new ProcessBuilder(
+     42:                 ABSOLUTE_SHELL_PATH, "sh", "-c", input
+     43:             );
+     44:
+     45:             // Secure defaults: no inheritance of environment variables
+     46:             processBuilder.environment().clear();
+     47:
+     48:             // Optional: set working directory to a safe location
+     49:             // processBuilder.directory(new File("/safe/working/dir"));
+     50:
+     51:             Process process = processBuilder.start();
+     52:
+     53:             // Read error stream to prevent deadlocks
+     54:             try (BufferedReader errorReader = new BufferedReader(
+     55:                     new InputStreamReader(process.getErrorStream()))) {
+     56:                 String line;
+     57:                 while ((line = errorReader.readLine()) != null) {
+     58:                     System.err.println("Command error: " + line);
+     59:                 }
+     60:             }
+     61:
+     62:             int exitCode = process.waitFor();
+     63:             System.out.println("Command exited with code: " + exitCode);
+     64:
+     65:         } catch (IOException | InterruptedException e) {
+     66:             // Log error securely (never expose stack traces to users)
+     67:             String errorId = UUID.randomUUID().toString();
+     68:             System.err.println("An error occurred. Error ID: " + errorId);
+     69:             // In production, send errorId + stack trace to secure error collector
+     70:             e.printStackTrace();  // Only in debug mode
+     71:         }
+     72:     }
+     73: }
+  ```
+- [2] Scanner=spotbugs, CWE-0, Lines=L5-72
+  Reason: INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE
+  Code snippet:
+  ```
+      2: import java.util.*;
+      3: import java.util.regex.Pattern;
+      4:
+      5: public class Test {
+      6:     // Allowlist of permitted commands (secure default: empty)
+      7:     private static final Set<String> ALLOWLISTED_COMMANDS = Set.of(
+      8:         "echo", "date", "whoami"  // Example safe commands
+      9:     );
+     10:
+     11:     // Absolute path to shell (never use PATH lookup)
+     12:     private static final String ABSOLUTE_SHELL_PATH = "/usr/bin/env";
+     13:
+     14:     // Pattern to detect dangerous command injection patterns
+     15:     private static final Pattern SAFE_COMMAND_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-./]+$");
+     16:
+     17:     public static void main(String[] args) {
+     18:         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+     19:             System.out.println("Enter your command (only basic commands like 'echo', 'date', or 'whoami' are allowed):");
+     20:             String input = reader.readLine().trim();
+     21:
+     22:             // Input validation: reject empty or null
+     23:             if (input == null || input.isEmpty()) {
+     24:                 System.err.println("Error: Command cannot be empty.");
+     25:                 return;
+     26:             }
+     27:
+     28:             // Input sanitization: reject dangerous characters
+     29:             if (!SAFE_COMMAND_PATTERN.matcher(input).matches()) {
+     30:                 System.err.println("Error: Command contains invalid characters.");
+     31:                 return;
+     32:             }
+     33:
+     34:             // Input allowlisting: only permit predefined safe commands
+     35:             if (!ALLOWLISTED_COMMANDS.contains(input.split("\\s+")[0])) {
+     36:                 System.err.println("Error: Command not allowed.");
+     37:                 return;
+     38:             }
+     39:
+     40:             // Use ProcessBuilder with absolute path and argument array
+     41:             ProcessBuilder processBuilder = new ProcessBuilder(
+     42:                 ABSOLUTE_SHELL_PATH, "sh", "-c", input
+     43:             );
+     44:
+     45:             // Secure defaults: no inheritance of environment variables
+     46:             processBuilder.environment().clear();
+     47:
+     48:             // Optional: set working directory to a safe location
+     49:             // processBuilder.directory(new File("/safe/working/dir"));
+     50:
+     51:             Process process = processBuilder.start();
+     52:
+     53:             // Read error stream to prevent deadlocks
+     54:             try (BufferedReader errorReader = new BufferedReader(
+     55:                     new InputStreamReader(process.getErrorStream()))) {
+     56:                 String line;
+     57:                 while ((line = errorReader.readLine()) != null) {
+     58:                     System.err.println("Command error: " + line);
+     59:                 }
+     60:             }
+     61:
+     62:             int exitCode = process.waitFor();
+     63:             System.out.println("Command exited with code: " + exitCode);
+     64:
+     65:         } catch (IOException | InterruptedException e) {
+     66:             // Log error securely (never expose stack traces to users)
+     67:             String errorId = UUID.randomUUID().toString();
+     68:             System.err.println("An error occurred. Error ID: " + errorId);
+     69:             // In production, send errorId + stack trace to secure error collector
+     70:             e.printStackTrace();  // Only in debug mode
+     71:         }
+     72:     }
+     73: }
+  ```
+Case #182
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #184
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #165
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-704, Lines=L105-105
+  Reason: (1/1) * Possible vulnerability detected: Unsafe hash equals
+An attacker might be able to detect the value of the secret hash due to the exposure of comparison timing. When the functions Arrays.equals() or String.equals() are called, they will exit earlier if fewer bytes are matched. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory.
+  Code snippet:
+  ```
+    102:
+    103:             // Verify HMAC before deserialization
+    104:             String actualHash = generateHMAC(streamData, hmacKey);
+    105:             if (!actualHash.equals(expectedHash)) {
+    106:                 throw new IOException("Data integrity check failed: HMAC mismatch");
+    107:             }
+    108:
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L57-57
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     54:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     55:             md.update(key.getBytes());
+     56:             byte[] digest = md.digest(data);
+     57:             return Base64.getEncoder().encodeToString(digest);
+     58:         } catch (Exception ex) {
+     59:             throw new NoSuchAlgorithmException("Failed to generate HMAC", ex);
+     60:         }
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L72-72
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     69:         try {
+     70:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+     71:             md.update(e.getMessage().getBytes());
+     72:             return Base64.getEncoder().encodeToString(md.digest());
+     73:         } catch (NoSuchAlgorithmException ex) {
+     74:             return "ERROR_ID_GENERATION_FAILED";
+     75:         }
+  ```
+Case #179
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #180
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #178
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-327, Lines=L94-94
+  Reason: (1/1) * Possible vulnerability detected: No Default  Hash
+This App uses  Hash Code. It"s a weak hash function and should never be used in Secure Crypto Implementation. For more information checkout the CWE-327 (https://cwe.mitre.org/data/definitions/327.html) advisory.
+  Code snippet:
+  ```
+     91:             return Base64.getEncoder().encodeToString(hash);
+     92:         } catch (NoSuchAlgorithmException e) {
+     93:             // Fallback if SHA-256 is unavailable (should never happen in Java 8+)
+     94:             return Integer.toHexString(input.hashCode());
+     95:         }
+     96:     }
+     97: }
+  ```
+- [2] Scanner=semgrep, CWE-704, Lines=L87-96
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     84:      * Generates a SHA-256 hash of the input to create an opaque error ID.
+     85:      * Never logs or exposes raw exception messages in production.
+     86:      */
+     87:     private static String generateErrorId(String input) {
+     88:         try {
+     89:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     90:             byte[] hash = digest.digest(input.getBytes());
+     91:             return Base64.getEncoder().encodeToString(hash);
+     92:         } catch (NoSuchAlgorithmException e) {
+     93:             // Fallback if SHA-256 is unavailable (should never happen in Java 8+)
+     94:             return Integer.toHexString(input.hashCode());
+     95:         }
+     96:     }
+     97: }
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L91-91
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     88:         try {
+     89:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     90:             byte[] hash = digest.digest(input.getBytes());
+     91:             return Base64.getEncoder().encodeToString(hash);
+     92:         } catch (NoSuchAlgorithmException e) {
+     93:             // Fallback if SHA-256 is unavailable (should never happen in Java 8+)
+     94:             return Integer.toHexString(input.hashCode());
+  ```
+Case #177
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #185
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #176
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #191
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #192
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #172
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #186
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #183
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L23-23
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     20:     public static void main(String[] args) {
+     21:         // Simulated user input (in real application, this would come from a secure source)
+     22:         String username = "testUser";
+     23:         String password = "secureP@ssw0rd";
+     24:
+     25:         // Validate inputs against allowlists
+     26:         if (!isValidUsername(username) || !isValidPassword(password)) {
+  ```
+Case #193
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #189
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #196
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #204
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #201
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #188
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #190
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #195
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #205
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #187
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-330, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Insecure Random Number Generator
+The App uses an insecure Random Number Generator. For more information checkout the CWE-330 (https://cwe.mitre.org/data/definitions/330.html) advisory.
+  Code snippet:
+  ```
+      3:
+      4: /**
+      5:  * SecureRandomExample demonstrates the use of a cryptographically strong random number generator.
+      6:  * This replaces the insecure java.util.Random with java.security.SecureRandom to mitigate CWE-330.
+      7:  *
+      8:  * Security Improvements:
+      9:  * 1. Uses SecureRandom (cryptographically strong PRNG) instead of Random (pseudo-random)
+  ```
+Case #202
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #198
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-704, Lines=L111-111
+  Reason: (1/1) * Possible vulnerability detected: Bad hexadecimal concatenation
+When converting a byte array containing a hash signature to a human readable string, a conversion mistake can be made if the array is read byte by byte. The following sample illustrates the use of the method Integer.toHexString() which will trim any leading zeroes from each byte of the computed hash value. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory.
+  Code snippet:
+  ```
+    108:     private static int bytesToInt(byte[] bytes, int offset, int length) {
+    109:         int value = 0;
+    110:         for (int i = 0; i < length; i++) {
+    111:             value |= (bytes[offset + i] & 0xFF) << (8 * (length - 1 - i));
+    112:         }
+    113:         return value;
+    114:     }
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L61-61
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     58:         // In production, use a proper HMAC implementation (e.g., HmacSHA256)
+     59:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     60:         md.update(key.getBytes());
+     61:         return Base64.getEncoder().encodeToString(md.digest(data));
+     62:     }
+     63:
+     64:     private static boolean verifyHMAC(byte[] data, byte[] signature, String key) throws NoSuchAlgorithmException {
+  ```
+Case #209
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #199
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L58-58
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     55:             }
+     56:
+     57:             ErrorCollector.logError(errorId, e);
+     58:         } catch (Exception e) {
+     59:             String errorId = UUID.randomUUID().toString();
+     60:             System.err.println("Error occurred: " + errorId);
+     61:
+  ```
+Case #203
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #208
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #197
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #213
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #206
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #219
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #220
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #218
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #211
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #194
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #207
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #215
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #200
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L38-38
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     35:             String errorId = generateErrorId();
+     36:             logError(errorId, e);
+     37:             System.err.println("Error occurred: " + errorId);
+     38:         } catch (Exception e) {
+     39:             String errorId = generateErrorId();
+     40:             logError(errorId, e);
+     41:             System.err.println("Error occurred: " + errorId);
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L55-55
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     52:             random.nextBytes(randomBytes);
+     53:             MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+     54:             byte[] hash = digest.digest(randomBytes);
+     55:             return ERROR_LOG_PREFIX + Base64.getEncoder().encodeToString(hash);
+     56:         } catch (NoSuchAlgorithmException e) {
+     57:             // This should never happen as SHA-256 is a standard algorithm
+     58:             return ERROR_LOG_PREFIX + UUID.randomUUID().toString();
+  ```
+Case #210
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #214
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #225
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #217
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L46-46
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     43:             } else {
+     44:                 System.err.println("An error occurred");
+     45:             }
+     46:         } catch (Exception e) {
+     47:             String errorId = "ERR-" + UUID.nameUUIDFromBytes(RANDOM.generateSeed(16));
+     48:             logger.log(Level.SEVERE, "Unexpected error: {0}", errorId);
+     49:             sendToErrorCollector(errorId, e);
+  ```
+Case #223
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #226
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #222
+- Before: 3
+- After:  6
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L54-54
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     51:                     return;
+     52:                 }
+     53:             }
+     54:         } catch (Exception e) {
+     55:             String errorId = generateSecureErrorId();
+     56:             System.err.println("An error occurred: " + errorId);
+     57:
+  ```
+- [2] Scanner=horusec, CWE-704, Lines=L126-126
+  Reason: (1/1) * Possible vulnerability detected: Bad hexadecimal concatenation
+When converting a byte array containing a hash signature to a human readable string, a conversion mistake can be made if the array is read byte by byte. The following sample illustrates the use of the method Integer.toHexString() which will trim any leading zeroes from each byte of the computed hash value. For more information checkout the CWE-704 (https://cwe.mitre.org/data/definitions/704.html) advisory.
+  Code snippet:
+  ```
+    123:                 return -1;
+    124:             }
+    125:         }
+    126:         return buffer[bufferPos++] & 0xFF;
+    127:     }
+    128:
+    129:     @Override
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L31-31
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     28:             }
+     29:
+     30:             // Use Base64 encoding to safely handle binary data
+     31:             String base64Data = Base64.getEncoder().encodeToString(serializedData);
+     32:
+     33:             // Validate Base64 format
+     34:             if (!Base64.getDecoder().decode(base64Data).equals(serializedData)) {
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L34-34
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     31:             String base64Data = Base64.getEncoder().encodeToString(serializedData);
+     32:
+     33:             // Validate Base64 format
+     34:             if (!Base64.getDecoder().decode(base64Data).equals(serializedData)) {
+     35:                 String errorId = generateSecureErrorId();
+     36:                 System.err.println("An error occurred: " + errorId);
+     37:                 return;
+  ```
+- [5] Scanner=horusec, CWE-0, Lines=L45-45
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     42:             // deserialization proxy or similar mechanism
+     43:             try (ObjectInputStream ois = new ObjectInputStream(
+     44:                 new Base64InputStream(new ByteArrayInputStream(
+     45:                     Base64.getDecoder().decode(base64Data)), Base64.getDecoder())) {
+     46:                 Object result = ois.readObject();
+     47:
+     48:                 if (!(result instanceof SecureClass)) {
+  ```
+- [6] Scanner=horusec, CWE-0, Lines=L111-111
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+    108:             reachedEnd = true;
+    109:             return;
+    110:         }
+    111:         bufferEnd = decoder.decode(buffer, 0, bytesRead, buffer);
+    112:         bufferPos = 0;
+    113:     }
+    114:
+  ```
+Case #233
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #224
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L63-63
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     60:                     }
+     61:                 } catch (IOException | InterruptedException e) {
+     62:                     logger.severe("Error handling client: " + e.getMessage());
+     63:                     String errorId = Base64.getEncoder().encodeToString(e.getStackTrace()[0].toString().getBytes());
+     64:                     logger.fine("Stack trace: " + errorId);
+     65:                 }
+     66:             }
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L69-69
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     66:             }
+     67:         } catch (IOException e) {
+     68:             logger.severe("Failed to start secure server: " + e.getMessage());
+     69:             String errorId = Base64.getEncoder().encodeToString(e.getStackTrace()[0].toString().getBytes());
+     70:             logger.fine("Stack trace: " + errorId);
+     71:         }
+     72:     }
+  ```
+Case #228
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L43-43
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     40:             String errorId = "ERR-" + System.currentTimeMillis();
+     41:             secureLogger.log(errorId, "Deserialization error", e);
+     42:             System.err.println("An error occurred: " + errorId);
+     43:         } catch (Exception e) {
+     44:             String errorId = "ERR-" + System.currentTimeMillis();
+     45:             secureLogger.log(errorId, "Unexpected error during deserialization", e);
+     46:             System.err.println("An error occurred: " + errorId);
+  ```
+Case #221
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #230
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #216
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #229
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #232
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #212
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #237
+- Before: 1
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L15-15
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     12:             User user = new User("admin", "123456"); // Note: In production, credentials should never be hard-coded
+     13:             // Simulate a successful operation (no exception should be thrown here)
+     14:             System.out.println("User created successfully: " + user.getUsername());
+     15:         } catch (Exception e) {
+     16:             // OWASP Recommendation: Never expose stack traces to users
+     17:             // CWE-209 Mitigation: Avoid leaking sensitive information in error messages
+     18:             String errorId = UUID.randomUUID().toString();
+  ```
+- [2] Scanner=horusec, CWE-327, Lines=L49-49
+  Reason: (1/1) * Possible vulnerability detected: No Default  Hash
+This App uses  Hash Code. It"s a weak hash function and should never be used in Secure Crypto Implementation. For more information checkout the CWE-327 (https://cwe.mitre.org/data/definitions/327.html) advisory.
+  Code snippet:
+  ```
+     46:     // Simulated secure password hashing (in production, use a strong algorithm like bcrypt)
+     47:     private static String hashPassword(String password) {
+     48:         // In real applications, use a secure hashing library like BCrypt or Argon2
+     49:         return Integer.toHexString((password + "salt").hashCode()); // Simplified for example
+     50:     }
+     51: }
+  ```
+- [3] Scanner=spotbugs, CWE-0, Lines=L5-25
+  Reason: CRLF_INJECTION_LOGS
+  Code snippet:
+  ```
+      2: import java.util.UUID;
+      3:
+      4: // Security-focused class for user management
+      5: public class Test {
+      6:     // Use a secure logging framework instead of printStackTrace()
+      7:     private static final Logger logger = Logger.getLogger(Test.class.getName());
+      8:
+      9:     public static void main(String[] args) {
+     10:         try {
+     11:             // Simulate user creation (in real code, credentials should be passed securely)
+     12:             User user = new User("admin", "123456"); // Note: In production, credentials should never be hard-coded
+     13:             // Simulate a successful operation (no exception should be thrown here)
+     14:             System.out.println("User created successfully: " + user.getUsername());
+     15:         } catch (Exception e) {
+     16:             // OWASP Recommendation: Never expose stack traces to users
+     17:             // CWE-209 Mitigation: Avoid leaking sensitive information in error messages
+     18:             String errorId = UUID.randomUUID().toString();
+     19:             logger.severe("Error occurred: " + errorId); // Log only an opaque error ID
+     20:             logger.throwing(Test.class.getName(), "main", e); // Log exception details securely (only in production logs if configured)
+     21:
+     22:             // Return a generic error message to the user
+     23:             System.err.println("An error occurred. Please try again later. (Error ID: " + errorId + ")");
+     24:         }
+     25:     }
+     26: }
+     27:
+     28: // Secure User class with encapsulated fields
+  ```
+Case #234
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #238
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #231
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L27-27
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     24:             oos.flush();
+     25:             oos.close();
+     26:             byte[] byteArray = bos.toByteArray();
+     27:             byte[] encodedData = Base64.getEncoder().encodeToString(byteArray).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+     28:             byte[] receivedData = Base64.getDecoder().decode(new String(encodedData, java.nio.charset.StandardCharsets.UTF_8));
+     29:             ByteArrayInputStream bin = new ByteArrayInputStream(receivedData);
+     30:             ObjectInputStream ois = new ObjectInputStream(bin) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L28-28
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     25:             oos.close();
+     26:             byte[] byteArray = bos.toByteArray();
+     27:             byte[] encodedData = Base64.getEncoder().encodeToString(byteArray).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+     28:             byte[] receivedData = Base64.getDecoder().decode(new String(encodedData, java.nio.charset.StandardCharsets.UTF_8));
+     29:             ByteArrayInputStream bin = new ByteArrayInputStream(receivedData);
+     30:             ObjectInputStream ois = new ObjectInputStream(bin) {
+     31:                 @Override
+  ```
+Case #240
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #246
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #248
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #235
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #247
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #242
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #252
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #243
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #227
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #250
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #245
+- Before: 2
+- After:  3
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L20-20
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     17:     public static void main(String[] args) {
+     18:         // Simulated user input - in real application these would come from secure input handling
+     19:         String username = "admin";
+     20:         String password = "password";
+     21:
+     22:         // Validate inputs against allowlist (simplified example)
+     23:         if (username == null || password == null ||
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L104-104
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+    101:             new SecureRandom().nextBytes(salt);
+    102:
+    103:             // Create a PBKDF2 key
+    104:             SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+    105:             PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+    106:             SecretKey key = skf.generateSecret(spec);
+    107:             byte[] hash = key.getEncoded();
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L115-115
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+    112:             System.arraycopy(hash, 0, saltedHash, salt.length, hash.length);
+    113:
+    114:             // Return Base64 encoded string (not for security, just for storage)
+    115:             return Base64.getEncoder().encodeToString(saltedHash);
+    116:         } catch (Exception e) {
+    117:             return null;
+    118:         }
+  ```
+Case #239
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-532, Lines=L56-56
+  Reason: (1/2) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+
+(2/2) * Possible vulnerability detected: No Log Sensitive Information
+The App logs information. Sensitive information should never be logged. For more information checkout the CWE-532 (https://cwe.mitre.org/data/definitions/532.html) advisory.
+  Code snippet:
+  ```
+     53:             System.arraycopy(authTag, 0, encryptedData, iv.length + ciphertext.length, authTag.length);
+     54:
+     55:             // Output Base64-encoded encrypted data (for demonstration only)
+     56:             System.out.println(Base64.getEncoder().encodeToString(encryptedData));
+     57:
+     58:         } catch (Exception e) {
+     59:             // Log error securely (no stack traces in production)
+  ```
+Case #236
+- Before: 1
+- After:  7
+- Status: WORSE
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L19-19
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     16:         // Simulated secure password hashing (in production, use a secrets manager or secure database)
+     17:         try {
+     18:             // Example: Store hashed credentials securely
+     19:             HASHED_CREDENTIALS.put("admin", hashPassword("secureAdminPassword123!"));
+     20:             HASHED_CREDENTIALS.put("user1", hashPassword("user1SecurePass456!"));
+     21:             HASHED_CREDENTIALS.put("user2", hashPassword("user2StrongPass789!"));
+     22:         } catch (Exception e) {
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L20-20
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     17:         try {
+     18:             // Example: Store hashed credentials securely
+     19:             HASHED_CREDENTIALS.put("admin", hashPassword("secureAdminPassword123!"));
+     20:             HASHED_CREDENTIALS.put("user1", hashPassword("user1SecurePass456!"));
+     21:             HASHED_CREDENTIALS.put("user2", hashPassword("user2StrongPass789!"));
+     22:         } catch (Exception e) {
+     23:             System.err.println("Error initializing credentials: " + e.getMessage());
+  ```
+- [3] Scanner=horusec, CWE-798, Lines=L21-21
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     18:             // Example: Store hashed credentials securely
+     19:             HASHED_CREDENTIALS.put("admin", hashPassword("secureAdminPassword123!"));
+     20:             HASHED_CREDENTIALS.put("user1", hashPassword("user1SecurePass456!"));
+     21:             HASHED_CREDENTIALS.put("user2", hashPassword("user2StrongPass789!"));
+     22:         } catch (Exception e) {
+     23:             System.err.println("Error initializing credentials: " + e.getMessage());
+     24:             System.exit(1);
+  ```
+- [4] Scanner=horusec, CWE-798, Lines=L67-67
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     64:         byte[] salt = generateSalt();
+     65:
+     66:         PBEKeySpec spec = new PBEKeySpec(chars, salt, 65536, 128);
+     67:         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+     68:         byte[] hash = skf.generateSecret(spec).getEncoded();
+     69:
+     70:         // Combine salt + hash for storage
+  ```
+- [5] Scanner=horusec, CWE-798, Lines=L97-97
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     94:         System.arraycopy(storedHashBytes, salt.length, storedHashOnly, 0, hashLength);
+     95:
+     96:         PBEKeySpec spec = new PBEKeySpec(chars, salt, 65536, 128);
+     97:         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+     98:         byte[] testHash = skf.generateSecret(spec).getEncoded();
+     99:
+    100:         // Use constant-time comparison to prevent timing attacks
+  ```
+- [6] Scanner=horusec, CWE-0, Lines=L75-75
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     72:         System.arraycopy(salt, 0, saltedHash, 0, salt.length);
+     73:         System.arraycopy(hash, 0, saltedHash, salt.length, hash.length);
+     74:
+     75:         return Base64.getEncoder().encodeToString(saltedHash);
+     76:     }
+     77:
+     78:     /**
+  ```
+- [7] Scanner=horusec, CWE-0, Lines=L87-87
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     84:      */
+     85:     private static boolean verifyPassword(String password, String storedHash) throws Exception {
+     86:         char[] chars = password.toCharArray();
+     87:         byte[] storedHashBytes = Base64.getDecoder().decode(storedHash);
+     88:
+     89:         // Extract salt (first 16 bytes) and hash (remaining bytes)
+     90:         byte[] salt = new byte[16];
+  ```
+Case #241
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L37-37
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     34:             Object result = AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+     35:                 try {
+     36:                     return ois.readObject();
+     37:                 } catch (Exception e) {
+     38:                     String errorId = generateSecureErrorId();
+     39:                     logger.severe("Deserialization error: " + errorId);
+     40:                     if (DEBUG_MODE) {
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L64-64
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     61:             byte[] randomBytes = new byte[16];
+     62:             SecureRandom random = new SecureRandom();
+     63:             random.nextBytes(randomBytes);
+     64:             return Base64.getEncoder().encodeToString(randomBytes);
+     65:         } catch (Exception e) {
+     66:             String errorId = java.util.UUID.randomUUID().toString().replace("-", "");
+     67:             sendToSecureCollector(e, errorId);
+  ```
+Case #244
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #253
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #255
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #259
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #256
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L85-85
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     82:                     }
+     83:                 }).start();
+     84:             }
+     85:         } catch (Exception e) {
+     86:             String errorId = "INIT_ERR-" + System.currentTimeMillis();
+     87:             System.err.println("Server initialization failed: " + errorId);
+     88:             if (Boolean.getBoolean("debug")) {
+  ```
+Case #262
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #257
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #266
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #264
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #251
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #249
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #268
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #258
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #263
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #261
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #265
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #273
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #274
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #276
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #254
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L52-52
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     49:             System.out.println("Deserialized object: " + obj);
+     50:         } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
+     51:             // Log only an opaque error ID in production
+     52:             String errorId = "ERR-" + Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-256").digest(e.getMessage().getBytes()));
+     53:             System.err.println("An error occurred: " + errorId);
+     54:             // In production, send e to a secure error collector
+     55:         }
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L74-74
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     71:         // In production, use a proper HMAC implementation (e.g., HmacSHA256)
+     72:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     73:         md.update(key.getBytes());
+     74:         return Base64.getEncoder().encodeToString(md.digest(data));
+     75:     }
+     76:
+     77:     // HMAC verification
+  ```
+Case #278
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #270
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #269
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+      3: public class Main {
+      4:     public static void main(String[] args) {
+      5:         String username = "test'; DROP TABLE users; --"; // Vulnerable input
+      6:         String password = "password";
+      7:
+      8:         try {
+      9:             Class.forName("com.mysql.jdbc.Driver");
+  ```
+- [2] Scanner=horusec, CWE-89, Lines=L13-13
+  Reason: (1/1) * Possible vulnerability detected: SQL Injection
+The input values included in SQL queries need to be passed in safely. Bind variables in prepared statements can be used to easily mitigate the risk of SQL injection. Alternatively to prepare statements, each parameter can be escaped manually. For more information checkout the CWE-89 (https://cwe.mitre.org/data/definitions/89.html) advisory.
+  Code snippet:
+  ```
+     10:             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mydb", "root", "password");
+     11:             Statement stmt = con.createStatement();
+     12:
+     13:             String query = "SELECT * FROM users WHERE username='" + username + "' AND password='" + password + "'";
+     14:             ResultSet rs = stmt.executeQuery(query);
+     15:
+     16:             while (rs.next()) {
+  ```
+Case #272
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #283
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #275
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #282
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #277
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #267
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #279
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #260
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-89, Lines=L84-84
+  Reason: (1/1) * Possible vulnerability detected: SQL Injection
+The input values included in SQL queries need to be passed in safely. Bind variables in prepared statements can be used to easily mitigate the risk of SQL injection. Alternatively to prepare statements, each parameter can be escaped manually. For more information checkout the CWE-89 (https://cwe.mitre.org/data/definitions/89.html) advisory.
+  Code snippet:
+  ```
+     81:         // In production, use a proper HMAC implementation (e.g., javax.crypto.Mac)
+     82:         // This is a placeholder for demonstration purposes
+     83:         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     84:         digest.update(key);
+     85:         return digest.digest(data);
+     86:     }
+     87:
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L90-90
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     87:
+     88:     private static String generateOpaqueErrorId() {
+     89:         // In production, use a secure random generator
+     90:         return Base64.getEncoder().encodeToString(java.util.UUID.randomUUID().toString().getBytes());
+     91:     }
+     92: }
+     93:
+  ```
+Case #286
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #293
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #287
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #284
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #289
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #271
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-327, Lines=L70-70
+  Reason: (1/1) * Possible vulnerability detected: No Default  Hash
+This App uses  Hash Code. It"s a weak hash function and should never be used in Secure Crypto Implementation. For more information checkout the CWE-327 (https://cwe.mitre.org/data/definitions/327.html) advisory.
+  Code snippet:
+  ```
+     67:     }
+     68:
+     69:     @Override
+     70:     public int hashCode() {
+     71:         return Objects.hash(firstName, lastName);
+     72:     }
+     73: }
+  ```
+Case #285
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #281
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #292
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #280
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #290
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #300
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #291
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #288
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #302
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #299
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #297
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #296
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-326, Lines=L18-18
+  Reason: An insecure SSL context was detected. TLS versions 1.0, 1.1, and all SSL versions are considered weak encryption and are deprecated. Use SSLContext.getInstance("TLSv1.2") for the best security.
+  Code snippet:
+  ```
+     15:     public static void main(String[] args) {
+     16:         try {
+     17:             // Initialize SSL Context with proper keystore
+     18:             SSLContext sslContext = SSLContext.getInstance("TLS");
+     19:             KeyManagerFactory kmf = KeyManagerFactory
+     20:                 .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+     21:             KeyStore ks = KeyStore.getInstance("JKS");
+  ```
+Case #303
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #298
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #294
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L78-78
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     75:             }
+     76:
+     77:             try (FileInputStream fileIn = new FileInputStream(path.toFile());
+     78:                  ObjectInputStream in = new ObjectInputStream(fileIn)) {
+     79:
+     80:                 in.setObjectInputFilter((desc, depth) -> {
+     81:                     if (desc.getClassType() == ObjectInputStream.GetField.class) {
+  ```
+Case #309
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #295
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #310
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #307
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #306
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #311
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #301
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #313
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #305
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #314
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #318
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #304
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #319
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #308
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #312
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #316
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #320
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #317
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #324
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #323
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #315
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #331
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #327
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L26-26
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     23:                 throw new SecurityException("Command not in allowlist: " + command);
+     24:             }
+     25:             pb.start();
+     26:         } catch (Exception e) {
+     27:             String errorId = "ERR-READOBJECT-001";
+     28:             logError(errorId, e);
+     29:             throw new Exception("Command execution failed: " + errorId);
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L60-61
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     57:
+     58:             byte[] serializedData = bos.toByteArray();
+     59:
+     60:             try (ObjectInputStream ois = new ObjectInputStream(
+     61:                     new ByteArrayInputStream(serializedData))) {
+     62:                 ois.setObjectInputFilter((desc, depth) -> {
+     63:                     for (Class<?> allowedClass : ALLOWED_CLASSES) {
+     64:                         if (desc.getType() == allowedClass) {
+  ```
+Case #328
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #321
+- Before: 2
+- After:  4
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-326, Lines=L70-70
+  Reason: (1/1) * Possible vulnerability detected: Classes should not be loaded dynamically
+Dynamically loaded classes could contain malicious code executed by a static class initializer. I.E. you wouldn't even have to instantiate or explicitly invoke methods on such classes to be vulnerable to an attack. For more information checkout the CWE-326 (https://cwe.mitre.org/data/definitions/326.html) advisory
+  Code snippet:
+  ```
+     67:         // In production, send error details to a secure error collector
+     68:         // This is a placeholder for actual secure error reporting implementation
+     69:         System.err.println("Error details sent to collector with ID: " + errorId);
+     70:         if (Objects.equals(System.getProperty("debug.mode", "false"), "true")) {
+     71:             e.printStackTrace();
+     72:         }
+     73:     }
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L24-24
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     21:             byte[] bytes = byteOut.toByteArray();
+     22:
+     23:             // Safe deserialization with validation
+     24:             try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+     25:                 Class<?> expectedClass = null;
+     26:                 try {
+     27:                     ObjectStreamClass desc = in.readClassDescriptor();
+  ```
+- [3] Scanner=semgrep, CWE-470, Lines=L32-32
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+     29:                     if (!ALLOWED_CLASS_NAMES.contains(className)) {
+     30:                         throw new InvalidClassException(className, "Class not allowed for deserialization");
+     31:                     }
+     32:                     expectedClass = Class.forName(className, false, SecureDeserialization.class.getClassLoader());
+     33:                 } catch (ClassNotFoundException | IOException e) {
+     34:                     throw new InvalidClassException("unknown", "Failed to validate class during deserialization", e);
+     35:                 }
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L59-59
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     56:             random.nextBytes(errorIdBytes);
+     57:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     58:             byte[] hashedBytes = digest.digest(errorIdBytes);
+     59:             return Base64.getEncoder().encodeToString(hashedBytes);
+     60:         } catch (NoSuchAlgorithmException e) {
+     61:             // This should never happen with SHA-256
+     62:             throw new RuntimeException("SHA-256 algorithm not found", e);
+  ```
+Case #322
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L59-59
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     56:     private static String calculateHmac(byte[] data) throws NoSuchAlgorithmException {
+     57:         // In production, use a proper HMAC implementation (e.g., HmacSHA256)
+     58:         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     59:         return Base64.getEncoder().encodeToString(digest.digest((HMAC_SECRET + new String(data)).getBytes()));
+     60:     }
+     61:
+     62:     // Secure secret retrieval (placeholder for secret manager integration)
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L98-98
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     95:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     96:             byte[] randomBytes = new byte[16];
+     97:             new java.security.SecureRandom().nextBytes(randomBytes);
+     98:             return Base64.getEncoder().encodeToString(digest.digest(randomBytes));
+     99:         } catch (NoSuchAlgorithmException e) {
+    100:             return "ERR-UNKNOWN";
+    101:         }
+  ```
+Case #325
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-470, Lines=L75-75
+  Reason: If an attacker can supply values that the application then uses to determine which class to instantiate or which method to invoke, the potential exists for the attacker to create control flow paths through the application that were not intended by the application developers. This attack vector may allow the attacker to bypass authentication or access control checks or otherwise cause the application to behave in an unexpected manner.
+  Code snippet:
+  ```
+     72:
+     73:             Class<?> resolvedClass = null;
+     74:             try {
+     75:                 resolvedClass = Class.forName(className, false, getClass().getClassLoader());
+     76:             } catch (ClassNotFoundException e) {
+     77:                 String errorId = "ERR-RESOLVECLASS-001";
+     78:                 secureLogger.log(errorId, "Class not found during deserialization");
+  ```
+Case #337
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #336
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #326
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #332
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #338
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #340
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #334
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #333
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #329
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-502, Lines=L8-8
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+      5: import java.security.NoSuchAlgorithmException;
+      6: import java.util.Base64;
+      7:
+      8: public class Main {
+      9:     private static final SecureLogger secureLogger = SecureLogger.getInstance();
+     10:     private static final String ALLOWED_CLASS = "SafeClass";
+     11:
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L92-92
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     89:         try {
+     90:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     91:             byte[] hash = digest.digest(e.getClass().getName().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+     92:             String sanitizedMessage = Base64.getEncoder().encodeToString(hash);
+     93:             // In production, send to secure collector with proper authentication and encryption
+     94:             System.err.println("Error Type: " + errorType + ", Sanitized Error: " + sanitizedMessage);
+     95:         } catch (NoSuchAlgorithmException ex) {
+  ```
+Case #330
+- Before: 2
+- After:  4
+- Status: WORSE
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L74-74
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     71:             // If command execution is truly needed, use ProcessBuilder with absolute path
+     72:             // executeCommandSafely(ides.getCommand());
+     73:
+     74:         } catch (Exception ex) {
+     75:             // Log only an opaque error ID in production
+     76:             String errorId = generateErrorId(ex);
+     77:             System.err.println("An error occurred: " + errorId);
+  ```
+- [2] Scanner=semgrep, CWE-502, Lines=L67-67
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     64:             }
+     65:
+     66:             // Safe deserialization using custom readObject
+     67:             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+     68:             ides = (InsecureDeserialization) ois.readObject();
+     69:             ois.close();
+     70:
+  ```
+- [3] Scanner=horusec, CWE-0, Lines=L89-89
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     86:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     87:         md.update(key.getBytes());
+     88:         byte[] digest = md.digest(data);
+     89:         return Base64.getEncoder().encodeToString(digest);
+     90:     }
+     91:
+     92:     // Retrieve HMAC key from secure source (e.g., environment variable or secret manager)
+  ```
+- [4] Scanner=horusec, CWE-0, Lines=L105-105
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+    102:             MessageDigest md = MessageDigest.getInstance("SHA-256");
+    103:             md.update(ex.getClass().getName().getBytes());
+    104:             md.update(ex.getMessage().getBytes());
+    105:             return Base64.getEncoder().encodeToString(md.digest());
+    106:         } catch (NoSuchAlgorithmException e) {
+    107:             return "ERR-UNKNOWN";
+    108:         }
+  ```
+Case #335
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #341
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #345
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #339
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #350
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #352
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #343
+- Before: 3
+- After:  2
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 base64 acceptable pattern rule=HorusecEngine
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L40-40
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     37:             }
+     38:
+     39:             // 2. Decode and validate key size
+     40:             byte[] decodedKey = Base64.getDecoder().decode(secretKeyBase64);
+     41:             if (decodedKey.length != KEY_SIZE_BYTES) {
+     42:                 logger.severe("Invalid key size. Expected " + KEY_SIZE_BYTES + " bytes");
+     43:                 System.err.println("An error occurred");
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L83-83
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     80:      */
+     81:     private static boolean isValidBase64(String base64) {
+     82:         try {
+     83:             Base64.getDecoder().decode(base64);
+     84:             return true;
+     85:         } catch (IllegalArgumentException e) {
+     86:             return false;
+  ```
+Case #356
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #347
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #349
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #353
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #360
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #344
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #354
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #361
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #355
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L59-59
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     56:             if (Boolean.getBoolean("debug")) {
+     57:                 e.printStackTrace();
+     58:             }
+     59:         } catch (Exception e) {
+     60:             String errorId = UUID.randomUUID().toString();
+     61:             System.err.println("Deserialization failed: " + errorId);
+     62:             sendToErrorCollector(errorId, "Unexpected error during deserialization");
+  ```
+Case #364
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #351
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #346
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #359
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L46-46
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     43:                     }
+     44:                 }
+     45:             }
+     46:         } catch (Exception e) {
+     47:             String errorId = "ERR-" + System.currentTimeMillis();
+     48:             // Log securely (no stack trace in production)
+     49:             System.err.println("Deserialization failed: " + errorId);
+  ```
+- [2] Scanner=horusec, CWE-502, Lines=L8-8
+  Reason: (1/1) * Possible vulnerability detected: Object deserialization is used
+Object deserialization of untrusted data can lead to remote code execution, if there is a class in classpath that allows the trigger of malicious operation. For more information checkout the CWE-502 (https://cwe.mitre.org/data/definitions/502.html) advisory.
+  Code snippet:
+  ```
+      5: import java.util.HashSet;
+      6: import java.util.Collections;
+      7:
+      8: public class SecureDeserialization {
+      9:     // Allowlist of safe classes for deserialization
+     10:     private static final Set<Class<?>> ALLOWLISTED_CLASSES = Collections.unmodifiableSet(new HashSet<>(Set.of(
+     11:         String.class
+  ```
+Case #342
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #357
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #368
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #358
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L84-84
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     81:         MessageDigest md = MessageDigest.getInstance("SHA-256");
+     82:         md.update(key.getBytes());
+     83:         byte[] digest = md.digest(data);
+     84:         return Base64.getEncoder().encodeToString(digest);
+     85:     }
+     86:
+     87:     /**
+  ```
+Case #362
+- Before: 5
+- After:  0
+- Status: CLEAN
+Case #373
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #365
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #369
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #374
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #372
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #363
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #377
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #370
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #378
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #375
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #348
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #371
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #366
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #383
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #384
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #386
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #376
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-704, Lines=L74-101
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     71:         }
+     72:     }
+     73:
+     74:     private static String generateSecureErrorId() {
+     75:         try {
+     76:             byte[] randomBytes = new byte[16];
+     77:             new SecureRandom().nextBytes(randomBytes);
+     78:             // Use SHA-256 hashing for security
+     79:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     80:             byte[] hashedBytes = digest.digest(randomBytes);
+     81:             // Return hex string representation of the hash
+     82:             StringBuilder hexString = new StringBuilder(2 * hashedBytes.length);
+     83:             for (byte b : hashedBytes) {
+     84:                 String hex = Integer.toHexString(0xff & b);
+     85:                 if (hex.length() == 1) hexString.append('0');
+     86:                 hexString.append(hex);
+     87:             }
+     88:             return hexString.toString();
+     89:         } catch (NoSuchAlgorithmException e) {
+     90:             // Fallback to hex encoding of random bytes if SHA-256 is not available
+     91:             byte[] randomBytes = new byte[16];
+     92:             new SecureRandom().nextBytes(randomBytes);
+     93:             StringBuilder hexString = new StringBuilder(2 * randomBytes.length);
+     94:             for (byte b : randomBytes) {
+     95:                 String hex = Integer.toHexString(0xff & b);
+     96:                 if (hex.length() == 1) hexString.append('0');
+     97:                 hexString.append(hex);
+     98:             }
+     99:             return hexString.toString();
+    100:         }
+    101:     }
+    102: }
+  ```
+Case #387
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #390
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #389
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #381
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #382
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #367
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #393
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #385
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #380
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #379
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #391
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L6-6
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+      3: public class Main {
+      4:     public static void main(String[] args) {
+      5:         String username = "test' OR '1'='1"; // This line is vulnerable to SQL Injection
+      6:         String password = "password";
+      7:
+      8:         try {
+      9:             Class.forName("com.mysql.jdbc.Driver");
+  ```
+- [2] Scanner=horusec, CWE-89, Lines=L12-12
+  Reason: (1/1) * Possible vulnerability detected: SQL Injection
+The input values included in SQL queries need to be passed in safely. Bind variables in prepared statements can be used to easily mitigate the risk of SQL injection. Alternatively to prepare statements, each parameter can be escaped manually. For more information checkout the CWE-89 (https://cwe.mitre.org/data/definitions/89.html) advisory.
+  Code snippet:
+  ```
+      9:             Class.forName("com.mysql.jdbc.Driver");
+     10:             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/testDB", "root", "password");
+     11:
+     12:             String query = "SELECT * FROM users WHERE username='" + username + "' AND password='" + password + "'";
+     13:             Statement stmt = con.createStatement();
+     14:             ResultSet rs = stmt.executeQuery(query);
+     15:
+  ```
+Case #388
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-78, Lines=L8-8
+  Reason: (1/1) * Possible vulnerability detected: Execute OS Command
+Execute OS Command. For more information checkout the CWE-78 (https://cwe.mitre.org/data/definitions/78.html) advisory.
+  Code snippet:
+  ```
+      5:     public static void main(String[] args) throws Exception {
+      6:         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+      7:         String command = reader.readLine();
+      8:         Runtime.getRuntime().exec(command);
+      9:     }
+     10: }
+  ```
+Case #394
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #396
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #404
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #403
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #397
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L95-96
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     92:         }
+     93:
+     94:         byte[] serializedData = bos.toByteArray();
+     95:         try (ObjectInputStream ois = new ObjectInputStream(
+     96:                 new ByteArrayInputStream(serializedData))) {
+     97:             ois.setObjectInputFilter((Class<?>[] filter) -> {
+     98:                 for (Class<?> clazz : filter) {
+     99:                     if (isAllowedClass(clazz)) {
+  ```
+Case #398
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #395
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #402
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #392
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #407
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #405
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #400
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- generic FP (env/args): potential hard-coded credential rule=HorusecEngine
+Case #408
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #411
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #414
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #410
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #399
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #401
+- Before: 2
+- After:  2
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-0, Lines=L95-95
+  Reason: (1/1) * Possible vulnerability detected: Base64 Encode
+Basic authentication's only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the thinnest veil of protection to your users, and should not be used.
+  Code snippet:
+  ```
+     92:         // In production, use a secure random generator with proper entropy
+     93:         byte[] randomBytes = new byte[32]; // Use 256 bits for better security
+     94:         new SecureRandom().nextBytes(randomBytes);
+     95:         return Base64.getEncoder().encodeToString(randomBytes).replace('+', '-').replace('/', '_').replace('=', ''); // URL-safe encoding
+     96:     }
+     97: }
+  ```
+- [2] Scanner=horusec, CWE-0, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Base64 Decode
+Base64 Decode
+  Code snippet:
+  ```
+     29:             }
+     30:
+     31:             byte[] dataHash = hashInput(encodedData);
+     32:             byte[] data = Base64.getDecoder().decode(encodedData);
+     33:
+     34:             // Validate input hash against allowlist
+     35:             if (!isHashAllowlisted(dataHash)) {
+  ```
+Case #421
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #420
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #417
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #409
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #419
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #412
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #416
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #415
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #413
+- Before: 2
+- After:  5
+- Status: WORSE
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-209, Lines=L99-99
+  Reason: (1/1) * Possible vulnerability detected: Information Exposure Through An Error Message
+The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more deadly attacks. For more information checkout the CWE-209 (https://cwe.mitre.org/data/definitions/209.html) advisory.
+  Code snippet:
+  ```
+     96:                     if (Boolean.getBoolean("debug")) e.printStackTrace();
+     97:                 }
+     98:             }
+     99:         } catch (Exception e) {
+    100:             String errorId = "INIT_ERR-" + System.currentTimeMillis();
+    101:             System.err.println("Server initialization failed: " + errorId);
+    102:             if (Boolean.getBoolean("debug")) e.printStackTrace();
+  ```
+- [2] Scanner=semgrep, CWE-0, Lines=L33-37
+  Reason: Checks for redefinitions of the checkServerTrusted function in the X509TrustManager class that disables TLS/SSL certificate verification. This should only be used for debugging purposes because it leads to vulnerability to MTM attacks.
+  Code snippet:
+  ```
+     30:
+     31:         // Use TLSv1.2+ as secure default
+     32:         SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+     33:         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+     34:             public X509Certificate[] getAcceptedIssuers() { return null; }
+     35:             public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+     36:             public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+     37:         }}, null);
+     38:
+     39:         return sslContext.getSocketFactory();
+     40:     }
+  ```
+- [3] Scanner=semgrep, CWE-295, Lines=L34-34
+  Reason: Detected empty trust manager implementations. This is dangerous because it accepts any certificate, enabling man-in-the-middle attacks. Consider using a KeyStore and TrustManagerFactory instead. See https://stackoverflow.com/questions/2642777/trusting-all-certificates-using-httpclient-over-https for more information.
+  Code snippet:
+  ```
+     31:         // Use TLSv1.2+ as secure default
+     32:         SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+     33:         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+     34:             public X509Certificate[] getAcceptedIssuers() { return null; }
+     35:             public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+     36:             public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+     37:         }}, null);
+  ```
+- [4] Scanner=semgrep, CWE-295, Lines=L35-35
+  Reason: Detected empty trust manager implementations. This is dangerous because it accepts any certificate, enabling man-in-the-middle attacks. Consider using a KeyStore and TrustManagerFactory instead. See https://stackoverflow.com/questions/2642777/trusting-all-certificates-using-httpclient-over-https for more information.
+  Code snippet:
+  ```
+     32:         SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+     33:         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+     34:             public X509Certificate[] getAcceptedIssuers() { return null; }
+     35:             public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+     36:             public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+     37:         }}, null);
+     38:
+  ```
+- [5] Scanner=semgrep, CWE-295, Lines=L36-36
+  Reason: Detected empty trust manager implementations. This is dangerous because it accepts any certificate, enabling man-in-the-middle attacks. Consider using a KeyStore and TrustManagerFactory instead. See https://stackoverflow.com/questions/2642777/trusting-all-certificates-using-httpclient-over-https for more information.
+  Code snippet:
+  ```
+     33:         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+     34:             public X509Certificate[] getAcceptedIssuers() { return null; }
+     35:             public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+     36:             public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+     37:         }}, null);
+     38:
+     39:         return sslContext.getSocketFactory();
+  ```
+Case #418
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #406
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #423
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-79, Lines=L32-32
+  Reason: (1/1) * Possible vulnerability detected: Potential XSS in Servlet
+A potential XSS was found. It could be used to execute unwanted Script in a client's browser. For more information checkout the CWE-79 (https://cwe.mitre.org/data/definitions/79.html) advisory
+  Code snippet:
+  ```
+     29:     @Override
+     30:     protected void doPost(HttpServletRequest request, HttpServletResponse response)
+     31:             throws ServletException, IOException {
+     32:         String userInput = request.getParameter("userInput");
+     33:         String errorId = "ERR-" + System.currentTimeMillis();
+     34:
+     35:         if (userInput == null || !ALLOWLIST_PATTERN.matcher(userInput.trim()).matches()) {
+  ```
+Case #422
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #424
+- Before: 2
+- After:  2
+- Status: SAME
+
+False Positives:
+- horusec CWE-0 javax.crypto rule=HorusecEngine
+
+Remaining vulnerabilities:
+- [1] Scanner=horusec, CWE-798, Lines=L22-22
+  Reason: (1/1) * Possible vulnerability detected: Hard-coded password
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     19:     public static void main(String[] args) {
+     20:         // Simulated user input - in real application would come from secure input handling
+     21:         String username = "testUser";
+     22:         String password = "testPassword'; DROP TABLE Users; --";
+     23:
+     24:         try (Connection con = DriverManager.getConnection(DB_URL, getDbCredentials())) {
+     25:             // Use prepared statements to prevent SQL injection
+  ```
+- [2] Scanner=horusec, CWE-798, Lines=L58-58
+  Reason: (1/1) * Possible vulnerability detected: Potential Hard-coded credential
+The software contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data. For more information checkout the CWE-798 (https://cwe.mitre.org/data/definitions/798.html) advisory.
+  Code snippet:
+  ```
+     55:     private static boolean verifyPassword(String storedHash, String storedSalt, String providedPassword) {
+     56:         try {
+     57:             // Use PBKDF2 for password verification
+     58:             SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+     59:             PBEKeySpec spec = new PBEKeySpec(providedPassword.toCharArray(), decodeHex(storedSalt), ITERATIONS, KEY_LENGTH);
+     60:             byte[] hash = skf.generateSecret(spec).getEncoded();
+     61:             return MessageDigest.isEqual(hash, decodeHex(storedHash));
+  ```
+Summary
+=====
+Total:    424
+Clean:    345
+Improved: 40
+Same:     21
+Worse:    18
