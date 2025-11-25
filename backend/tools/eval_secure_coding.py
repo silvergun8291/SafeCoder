@@ -8,6 +8,7 @@ from app.models.schemas import ScanRequest, Language
 from app.services.scanning.scanner_service import ScannerService
 from app.services.llm_service import LLMService
 from app.services.patch_service import PatchService
+from app.services.rag_service import RAGService
 try:
     from tqdm import tqdm  # type: ignore
 except Exception:
@@ -21,6 +22,8 @@ OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver6.txt"
 CONCURRENCY = 14
 # RAG 사용 여부(전역 상수). 슬라이싱은 PatchService에서 기본 활성화됨.
 USE_RAG = True
+# RAG 미가용 시 평가를 즉시 종료할지 여부
+FAIL_IF_RAG_UNAVAILABLE = True
 
 
 def extract_code_block(text: str, lang: Language) -> str | None:
@@ -325,6 +328,52 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
 async def main() -> None:
     scanner = ScannerService()
     llm = LLMService()
+
+    # RAG 필수 모드인 경우, 임베딩/벡터DB(Qdrant) 프리플라이트 체크
+    if USE_RAG and FAIL_IF_RAG_UNAVAILABLE:
+        try:
+            rag = RAGService(scanner)
+            # 임베딩 및 클라이언트 초기화 (모델 로드 실패 시 예외 발생 가능)
+            rag._ensure_rag_clients()
+            # Qdrant 장애 여부 확인 (실제 API 호출 필요)
+            try:
+                # 간단한 헬스/메타 호출: 컬렉션 조회로 접속 확인
+                col_resp = rag._qdrant.get_collections()
+            except Exception as e:
+                raise RuntimeError(f"Qdrant connectivity check failed: {e}")
+
+            # 필수 컬렉션 존재 여부 확인
+            try:
+                existing: set[str] = set()
+                items = getattr(col_resp, "collections", None)
+                if items is None and isinstance(col_resp, dict):
+                    items = col_resp.get("collections")
+                for it in (items or []):
+                    name = getattr(it, "name", None)
+                    if not name and isinstance(it, dict):
+                        name = it.get("name")
+                    if name:
+                        existing.add(str(name))
+
+                settings = rag._settings
+                code_col = getattr(settings, "CODE_COLLECTION_NAME", None) or "secure_coding_knowledge_qdrant"
+                kisa_col = getattr(settings, "KISA_TEXT_COLLECTION", None) or "kisa_text_db"
+                owasp_col = getattr(settings, "OWASP_TEXT_COLLECTION", None) or "owasp_text_db"
+                required = {code_col, kisa_col, owasp_col}
+                missing = sorted([c for c in required if c not in existing])
+                if missing:
+                    raise SystemExit(
+                        "RAG required but collections are missing: "
+                        + ", ".join(missing)
+                        + ". Please create/import these Qdrant collections and retry."
+                    )
+            except SystemExit:
+                raise
+            except Exception as e:
+                raise SystemExit(f"RAG required but failed to verify collections. Details: {e}")
+        except Exception as e:
+            # 즉시 종료
+            raise SystemExit(f"RAG required but unavailable. Abort. Details: {e}")
 
     total = 0
     improved = 0
