@@ -79,7 +79,7 @@ class ScannerConfig:
                 "image": "custom/codeql:latest",
                 "build_path": str(SCANNER_DIR / "codeql"),
                 "output_file": "codeql_result.json",
-                "timeout": 300,
+                "timeout": 1200,
                 "command": ["/source", "/results/codeql_result.json", "java"]
             }
         ]

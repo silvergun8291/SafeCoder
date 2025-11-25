@@ -50,25 +50,10 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                 fps.append(f"semgrep CWE-78 rule={rule_id}")
                 continue
 
-            # Rule 2: Horusec CWE-0 and 'import javax.crypto' issue → ignore
+            # Common merged text for checks
             text_all = " ".join([desc, code, refs_text]).lower()
-            if scanner == "horusec" and cwe == 0 and ("import javax.crypto" in text_all or "javax.crypto" in text_all):
-                fps.append(f"horusec CWE-0 javax.crypto rule={rule_id}")
-                continue
 
-            # Rule 2-1: Horusec CWE-327 (Weak block mode) but using AES-GCM (Secure)
-            # Horusec은 AES/GCM/NoPadding을 사용해도 문맥에 따라 취약점으로 오탐하는 경우가 많음
-            if scanner == "horusec" and cwe == 327:
-                if "aes" in code.lower() and ("gcm" in code.lower() or "nopadding" in code.lower()):
-                    fps.append(f"horusec CWE-327 AES-GCM rule={rule_id}")
-                    continue
-
-            if scanner == "horusec" and cwe == 327:
-                if "aes" in code.lower() and "gcm" in code.lower():
-                    # IV 생성을 위한 SecureRandom이나 randomBytes 패턴이 있는지 확인
-                    if "securerandom" in code.lower() or "random" in code.lower() or "iv" in code.lower():
-                        fps.append(f"horusec CWE-327 AES-GCM rule={rule_id}")
-                        continue
+            # (Removed Horusec-specific FP rules)
 
             # Rule 2-2: Generic FP - Hard-coded credential in constant definitions for ENV keys
             # 예: private static final String SECRET_KEY_ENV = "APP_KEY"; 와 같이 변수명에 KEY가 있고 값이 할당된 경우
@@ -96,12 +81,12 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                     fps.append(f"generic FP (env/args): potential hard-coded credential rule={rule_id}")
                     continue
 
-            # Rule 4: Horusec CWE-0 Base64 Encode/Decode — acceptable patterns
+            # Rule 4: Base64 Encode/Decode — acceptable patterns
             #  - errorId 생성: Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes)
             #  - 암호문 전송: encodeToString(combined/output) 또는 (encrypted/cipher + iv/nonce) 컨텍스트
             #  - "Encoding for transport only" 주석이 있는 경우
             #  - AES/GCM 암호화 결과를 Base64로 운반하는 경우
-            if scanner == "horusec" and cwe == 0 and ("base64 encode" in text_all or "base64 decode" in text_all):
+            if ("base64 encode" in text_all or "base64 decode" in text_all):
                 is_error_id = (
                     "geturlencoder" in text_all and "withoutpadding" in text_all and (
                         "randombytes" in text_all or "securerandom" in text_all
@@ -116,7 +101,7 @@ def _filter_false_positives(vulns: List[Any]) -> Tuple[List[Any], List[str]]:
                 # True positive guard: decoding keys/secrets should NOT be ignored
                 decodes_secret = ("getdecoder" in text_all and any(w in text_all for w in ["encryption_key", "secret", "key"]))
                 if (is_error_id or is_ciphertext_transport or has_transport_only_comment or aes_gcm_context) and not decodes_secret:
-                    fps.append(f"horusec CWE-0 base64 acceptable pattern rule={rule_id}")
+                    fps.append(f"base64 acceptable pattern rule={rule_id}")
                     continue
 
             # Rule 5: CWE-209 Information Exposure — allow when only opaque errorId is logged
@@ -167,7 +152,8 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
 
     scan_opts = {
         "min_severity": "low",
-        "timeout": 300,
+        "timeout": 1200,  # CodeQL 대비 넉넉한 타임아웃
+        "use_codeql": True,  # CodeQL 포함
     }
 
     initial_req = ScanRequest(
@@ -389,7 +375,7 @@ async def main() -> None:
     header = [
         "Secure Coding Evaluation",
         f"Timestamp: {datetime.now(timezone.utc).isoformat()}",
-        "Scanners: horusec, semgrep, spotbugs (java)",
+        "Scanners: horusec, semgrep, codeql, spotbugs (java)",
         "",
     ]
     OUTPUT_PATH.write_text("\n".join(header), encoding="utf-8")
