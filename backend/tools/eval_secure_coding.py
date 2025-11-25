@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Tuple, List, Any
@@ -24,6 +25,10 @@ CONCURRENCY = 14
 USE_RAG = True
 # RAG 미가용 시 평가를 즉시 종료할지 여부
 FAIL_IF_RAG_UNAVAILABLE = True
+
+# 랜덤 샘플링 설정
+SAMPLE_SIZE = 100  # 0 또는 음수면 전체 실행
+RANDOM_SEED = 42
 
 
 def extract_code_block(text: str, lang: Language) -> str | None:
@@ -383,6 +388,11 @@ async def main() -> None:
     with TEST_SET_PATH.open("r", encoding="utf-8") as f:
         data = json.load(f) or []
         cases = [it for it in data if str(it.get("lang", "")).lower() == "java"]
+        # 랜덤 샘플링: SAMPLE_SIZE > 0 일 때만 활성화
+        if SAMPLE_SIZE and SAMPLE_SIZE > 0:
+            rng = random.Random(RANDOM_SEED)
+            rng.shuffle(cases)
+            cases = cases[:SAMPLE_SIZE]
         pbar = tqdm(total=len(cases), desc="Evaluating", unit="case") if tqdm else None
 
         # Writer task with queue to serialize file writes
