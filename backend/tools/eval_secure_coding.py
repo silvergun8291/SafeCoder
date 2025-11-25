@@ -155,17 +155,24 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
     rejected = item.get("rejected", "")
     code = extract_code_block(rejected, language) or rejected
 
-    scan_opts = {
+    # 초기 스캔: CodeQL 제외
+    initial_scan_opts = {
         "min_severity": "low",
-        "timeout": 1200,  # CodeQL 대비 넉넉한 타임아웃
-        "use_codeql": True,  # CodeQL 포함
+        "timeout": 1200,
+        "use_codeql": False,
+    }
+    # 수정 후 검증 스캔: CodeQL 포함
+    verify_scan_opts = {
+        "min_severity": "low",
+        "timeout": 1200,
+        "use_codeql": True,
     }
 
     initial_req = ScanRequest(
         language=language,
         source_code=code,
         filename=item.get("filename", "Test.java"),
-        options=scan_opts,
+        options=initial_scan_opts,
     )
     initial_scan = await scanner.scan_code(initial_req)
 
@@ -211,7 +218,7 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
         language=language,
         source_code=fixed_code,
         filename=item.get("filename", "Test.java"),
-        options=scan_opts,
+        options=verify_scan_opts,
     )
     fixed_scan = await scanner.scan_code(fixed_req)
 
@@ -235,7 +242,7 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
                     language=language,
                     source_code=minimally_patched,
                     filename=item.get("filename", "Test.java"),
-                    options=scan_opts,
+                    options=verify_scan_opts,
                 )
                 hybrid_scan = await scanner.scan_code(hybrid_req)
                 if int(getattr(hybrid_scan, "total_vulnerabilities", 0) or 0) <= int(getattr(fixed_scan, "total_vulnerabilities", 0) or 0):
