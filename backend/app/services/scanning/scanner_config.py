@@ -41,20 +41,25 @@ class ScannerConfig:
             {
                 "name": "codeql",
                 "image": "custom/codeql:latest",
+                "build_path": str(SCANNER_DIR / "codeql"),
                 "output_file": "codeql_result.json",
-                "timeout": 300
+                "timeout": 300,
+                "command": ["/source", "/results/codeql_result.json", "python"]
             }
         ],
         Language.JAVA: [
             {
                 "name": "horusec",
                 "image": "custom/horusec:latest",
+                "build_path": str(SCANNER_DIR / "horusec"),
                 "output_file": "horusec_result.json",
-                "timeout": 240
+                "timeout": 240,
+                "command": ["/source", "/results/horusec_result.json"]
             },
             {
                 "name": "semgrep",
                 "image": "custom/semgrep:latest",
+                "build_path": str(SCANNER_DIR / "semgrep"),
                 "output_file": "semgrep_result.json",
                 "timeout": 180,
                 "command": ["/scanner/scan_and_convert.sh", "/source", "/results/semgrep_result.json"]
@@ -62,14 +67,17 @@ class ScannerConfig:
             {
                 "name": "spotbugs",
                 "image": "custom/spotbugs:latest",
+                "build_path": str(SCANNER_DIR / "spotbugs"),
                 "output_file": "spotbugs_result.json",
                 "timeout": 180
             },
             {
                 "name": "codeql",
                 "image": "custom/codeql:latest",
+                "build_path": str(SCANNER_DIR / "codeql"),
                 "output_file": "codeql_result.json",
-                "timeout": 300
+                "timeout": 300,
+                "command": ["/source", "/results/codeql_result.json", "java"]
             }
         ]
     }

@@ -13,8 +13,8 @@ COMMON_RULES: List[str] = [
     "CRYPTO: Use 'AES/GCM/NoPadding' for encryption. Use SHA-256 for hashing.",
     "BASE64: Base64 is NOT encryption. Do not use it to hide secrets.",
     "INPUT: Validate all external inputs against a strict allowlist (regex).",
-    "EXEC: Use ProcessBuilder with argument arrays. Never use string concatenation for commands.",
-    "HEX: Use String.format(\"%02x\", b) for hex conversion. Avoid Integer.toHexString.",
+    # "EXEC: Use ProcessBuilder with argument arrays. Never use string concatenation for commands.",
+    # "HEX: Use String.format(\"%02x\", b) for hex conversion. Avoid Integer.toHexString.",
 ]
 
 CWE_SPECIFIC_RULES: Dict[int, List[str]] = {

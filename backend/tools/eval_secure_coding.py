@@ -18,7 +18,7 @@ except Exception:
 # Resolve paths relative to backend root regardless of CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_SET_PATH = BASE_DIR / "tests" / "test_data" / "test_set.json"
-OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver6.txt"
+OUTPUT_PATH = BASE_DIR / "tools" / "secure_coding_evaluation_ver7.txt"
 
 CONCURRENCY = 14
 # RAG 사용 여부(전역 상수). 슬라이싱은 PatchService에서 기본 활성화됨.
