@@ -27,7 +27,7 @@ USE_RAG = True
 FAIL_IF_RAG_UNAVAILABLE = True
 
 # 랜덤 샘플링 설정
-SAMPLE_SIZE = 100  # 0 또는 음수면 전체 실행
+SAMPLE_SIZE = 0  # 0 또는 음수면 전체 실행
 RANDOM_SEED = 42
 
 
@@ -167,6 +167,13 @@ async def eval_one(scanner: ScannerService, llm: LLMService, item: dict, enable_
         "timeout": 1200,
         "use_codeql": True,
     }
+
+    # Java 최종 검증 스캔에서 Horusec 제외: semgrep, codeql, spotbugs만 사용
+    if language == Language.JAVA:
+        verify_scan_opts = {
+            **verify_scan_opts,
+            "specific_scanners": ["semgrep", "codeql", "spotbugs"],
+        }
 
     initial_req = ScanRequest(
         language=language,

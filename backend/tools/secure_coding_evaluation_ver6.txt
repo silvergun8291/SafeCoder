@@ -1,0 +1,2284 @@
+Secure Coding Evaluation
+Timestamp: 2025-11-26T14:05:47.039995+00:00
+Scanners: horusec, semgrep, codeql, spotbugs (java)
+Case #2
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #6
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #1
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #8
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #13
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #7
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #11
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #9
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #12
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #15
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #16
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #5
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #20
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #19
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #4
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #3
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #10
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #17
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #21
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #18
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #14
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L65-65
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     62: 
+     63:             // Secure deserialization handling
+     64:             ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
+     65:             try (ObjectInputStream ois = new ObjectInputStream(bin)) {
+     66:                 // Read object header to check size without full deserialization
+     67:                 byte[] header = new byte[1024];
+     68:                 int bytesRead = bin.read(header, 0, header.length);
+  ```
+Case #24
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #23
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #25
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #29
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #22
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #28
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #31
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #30
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #32
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #27
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #35
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #26
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L8-48
+  Reason: CRLF_INJECTION_LOGS
+  Code snippet:
+  ```
+      5: 
+      6: // Externalized configuration (example)
+      7: // In production, use a secure secret manager or environment variables
+      8: public class Test {
+      9:     // Logger instance for secure logging
+     10:     private static final Logger logger = Logger.getLogger(Test.class.getName());
+     11:     
+     12:     // Simulated sensitive data (should be retrieved securely in real scenarios)
+     13:     private static final String sensitiveData = "PROTECTED_DATA_12345";
+     14: 
+     15:     public static void main(String[] args) {
+     16:         try {
+     17:             System.out.println("Accessing Sensitive Data");
+     18:             System.out.println(sensitiveData);
+     19:             
+     20:             // Simulate potential failure (e.g., data access error)
+     21:             if (args.length > 0 && "fail".equals(args[0])) {
+     22:                 throw new SecurityException("Simulated data access failure");
+     23:             }
+     24:         } catch (Exception e) {
+     25:             // OWASP Recommendation: Never expose stack traces to users
+     26:             // CWE-209 Mitigation: Log only an opaque error ID, not exception details
+     27:             String errorId = generateOpaqueErrorId();
+     28:             
+     29:             // Log detailed error securely (stack trace only in debug mode)
+     30:             if (logger.isLoggable(Level.FINE)) {
+     31:                 logger.log(Level.FINE, "Exception occurred", e);
+     32:             } else {
+     33:                 logger.log(Level.SEVERE, "Exception occurred with error ID: " + errorId);
+     34:             }
+     35:             
+     36:             // Return generic error message to user
+     37:             System.err.println("An error occurred. Please try again later.");
+     38:         }
+     39:     }
+     40: 
+     41:     /**
+     42:      * Generates a cryptographically secure opaque error ID
+     43:      * @return Base64-encoded random bytes
+     44:      */
+     45:     private static String generateOpaqueErrorId() {
+     46:         byte[] randomBytes = new byte[16];
+     47:         new SecureRandom().nextBytes(randomBytes);
+     48:         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+     49:     }
+     50: }
+  ```
+Case #38
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #37
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #33
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #39
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #43
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #42
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #34
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #45
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #36
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #44
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #40
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #46
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #48
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #41
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L79-79
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     76:         System.arraycopy(data, 0, storedHmac, 0, 32);
+     77: 
+     78:         ByteArrayInputStream bais = new ByteArrayInputStream(data, 32, data.length - 32);
+     79:         ObjectInputStream in = new ObjectInputStream(bais);
+     80:         Object obj = in.readObject();
+     81:         in.close();
+     82: 
+  ```
+Case #47
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #51
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #56
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #50
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #55
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #58
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #52
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #53
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #49
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #59
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #60
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #61
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #62
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #54
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #69
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #57
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #72
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #64
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #73
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #63
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #70
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #67
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #66
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #68
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #76
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #75
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #78
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #77
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #65
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #71
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #74
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #81
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #84
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #82
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #86
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #85
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #80
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #79
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #89
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #94
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #83
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #95
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #93
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #92
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #97
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #88
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #96
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #87
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #98
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #90
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #91
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #104
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #105
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #100
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #107
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #108
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #99
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #109
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #102
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #111
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #106
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #101
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #114
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #113
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #115
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #110
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #103
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #120
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #118
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #121
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #117
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #124
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #112
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #116
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #125
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #127
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #128
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #129
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #123
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #119
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #132
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #131
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #137
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #133
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #135
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #138
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #126
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #122
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L76-76
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     73: 
+     74:         // Step 5: Deserialize safely
+     75:         ByteArrayInputStream bin = new ByteArrayInputStream(serializedData);
+     76:         ObjectInputStream ois = new ObjectInputStream(bin);
+     77:         T obj = (T) ois.readObject();
+     78:         ois.close();
+     79:         return obj;
+  ```
+Case #139
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #136
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #143
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #144
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #142
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #130
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #146
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #145
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #148
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #149
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #134
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L25-25
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     22:         }
+     23: 
+     24:         try (ByteArrayInputStream bin = new ByteArrayInputStream(data);
+     25:              ObjectInputStream ois = new ObjectInputStream(bin)) {
+     26:             
+     27:             // Optional: Add class whitelisting
+     28:             ois.setObjectInputFilter((desc, depth) -> {
+  ```
+Case #147
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #151
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #140
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L57-57
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     54:             byte[] serializedData = bos.toByteArray();
+     55:             
+     56:             // In production, use a secure deserialization library or framework
+     57:             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedData));
+     58:             
+     59:             // Validate class type before casting
+     60:             Object deserialized = ois.readObject();
+  ```
+Case #154
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #155
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #157
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #153
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #141
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L39-41
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     36:             }
+     37: 
+     38:             // Use ObjectInputStream with filter (Java 9+ feature for CWE-502)
+     39:             try (ObjectInputStream ois = new ObjectInputStream(
+     40:                     new ByteArrayInputStream(data),
+     41:                     ObjectInputFilter.Config.createFilter("!.*"))) {
+     42:                 Object obj = ois.readObject();
+     43:                 System.out.println("Deserialized object: " + obj);
+     44:             }
+  ```
+Case #152
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #163
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #164
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #150
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #160
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #161
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #162
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #156
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #168
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #167
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #158
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #166
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #170
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #159
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L37-37
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     34:                 return;
+     35:             }
+     36: 
+     37:             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(receivedData))) {
+     38:                 // CWE-78 Fix: Remove unsafe command execution from deserialization
+     39:                 ois.readObject(); // Skip first object
+     40:                 Object obj = ois.readObject();
+  ```
+Case #169
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #175
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #171
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #177
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #165
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-704, Lines=L70-79
+  Reason: 'Integer.toHexString()' strips leading zeroes from each byte if read byte-by-byte. This mistake weakens the hash value computed since it introduces more collisions. Use 'String.format("%02X", ...)' instead.
+  Code snippet:
+  ```
+     67:     /**
+     68:      * Generates a SHA-256 hash of the input to use as an opaque error ID
+     69:      */
+     70:     private static String generateErrorId(String input) {
+     71:         try {
+     72:             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+     73:             byte[] hash = digest.digest(input.getBytes());
+     74:             return Base64.getEncoder().encodeToString(hash);
+     75:         } catch (NoSuchAlgorithmException e) {
+     76:             // Fallback if SHA-256 is unavailable (should never happen in Java 8+)
+     77:             return Integer.toHexString(input.hashCode());
+     78:         }
+     79:     }
+     80: }
+  ```
+Case #172
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #181
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #183
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #179
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #184
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #182
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #187
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #185
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #174
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L5-76
+  Reason: COMMAND_INJECTION
+  Code snippet:
+  ```
+      2: import java.util.*;
+      3: import java.util.regex.Pattern;
+      4: 
+      5: public class Test {
+      6:     // Allowlist of permitted commands (secure default: empty)
+      7:     private static final Set<String> ALLOWLISTED_COMMANDS = Set.of(
+      8:         "echo", "date", "whoami"  // Example safe commands
+      9:     );
+     10: 
+     11:     // Absolute path to shell (never use PATH lookup)
+     12:     private static final String ABSOLUTE_SHELL_PATH = "/usr/bin/env";
+     13: 
+     14:     // Pattern to detect dangerous command injection patterns
+     15:     private static final Pattern SAFE_COMMAND_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-./]+$");
+     16: 
+     17:     public static void main(String[] args) {
+     18:         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+     19:             System.out.println("Enter your command (only basic commands like 'echo', 'date', or 'whoami' are allowed):");
+     20:             String input = reader.readLine().trim();
+     21: 
+     22:             // Input validation: reject empty or null
+     23:             if (input == null || input.isEmpty()) {
+     24:                 System.err.println("Error: Command cannot be empty.");
+     25:                 return;
+     26:             }
+     27: 
+     28:             // Input sanitization: reject dangerous characters
+     29:             if (!SAFE_COMMAND_PATTERN.matcher(input).matches()) {
+     30:                 System.err.println("Error: Invalid command format.");
+     31:                 return;
+     32:             }
+     33: 
+     34:             // Command allowlisting: only permit predefined safe commands
+     35:             String[] parts = input.split("\\s+", 2);
+     36:             String command = parts[0];
+     37:             String arguments = parts.length > 1 ? parts[1] : "";
+     38: 
+     39:             if (!ALLOWLISTED_COMMANDS.contains(command)) {
+     40:                 System.err.println("Error: Command not allowed.");
+     41:                 return;
+     42:             }
+     43: 
+     44:             // Safe execution using absolute path and argument array
+     45:             ProcessBuilder processBuilder = new ProcessBuilder(
+     46:                 ABSOLUTE_SHELL_PATH, "sh", "-c", command + (arguments.isEmpty() ? "" : " " + arguments)
+     47:             );
+     48:             
+     49:             // Disable shell inheritance (security hardening)
+     50:             processBuilder.environment().clear();  // Isolate from parent environment
+     51:             processBuilder.redirectErrorStream(true);  // Merge stderr into stdout
+     52:             
+     53:             Process process = processBuilder.start();
+     54:             
+     55:             // Read output with timeout (defense-in-depth)
+     56:             try (BufferedReader outputReader = new BufferedReader(
+     57:                     new InputStreamReader(process.getInputStream()))) {
+     58:                 String line;
+     59:                 while ((line = outputReader.readLine()) != null) {
+     60:                     System.out.println(line);
+     61:                 }
+     62:             }
+     63:             
+     64:             int exitCode = process.waitFor();
+     65:             if (exitCode != 0) {
+     66:                 System.err.println("Command failed with exit code: " + exitCode);
+     67:             }
+     68: 
+     69:         } catch (IOException | InterruptedException e) {
+     70:             // Obfuscated error logging (never expose stack traces)
+     71:             String errorId = UUID.randomUUID().toString();
+     72:             System.err.println("An error occurred. Reference ID: " + errorId);
+     73:             // In production, send errorId + e.toString() to secure error collector
+     74:             Thread.currentThread().interrupt();  // Restore interrupt status
+     75:         }
+     76:     }
+     77: }
+  ```
+Case #188
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #173
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L32-32
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     29:                 byte[] bytes = baos.toByteArray();
+     30:                 
+     31:                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+     32:                 try (ObjectInputStream ois = new ObjectInputStream(bais)) {
+     33:                     // Enable validation during deserialization
+     34:                     ois.setObjectInputFilter(createStrictFilter());
+     35:                     
+  ```
+Case #178
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #190
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #176
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #180
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #189
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #193
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #196
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #191
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #192
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #186
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #198
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #201
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #195
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #197
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #194
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #203
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #204
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #207
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #209
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #200
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #202
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #199
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #211
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #208
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #206
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #210
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #216
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #212
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #218
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #219
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #213
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #215
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #220
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #214
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #221
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #222
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #205
+- Before: 1
+- After:  1
+- Status: SAME
+
+Remaining vulnerabilities:
+- [1] Scanner=spotbugs, CWE-0, Lines=L6-34
+  Reason: CRLF_INJECTION_LOGS
+  Code snippet:
+  ```
+      3: import java.io.IOException;
+      4: import java.util.logging.Logger;
+      5: 
+      6: public class Test {
+      7:     // Secure logging configuration (production-ready)
+      8:     private static final Logger logger = Logger.getLogger(Test.class.getName());
+      9: 
+     10:     public static void main(String[] args) {
+     11:         // Simulate reading a file with secure error handling
+     12:         try (FileReader file = new FileReader("test.txt");
+     13:              BufferedReader fileInput = new BufferedReader(file)) {
+     14: 
+     15:             for (int counter = 0; counter < 3; counter++) {
+     16:                 String line = fileInput.readLine();
+     17:                 if (line == null) {
+     18:                     break; // Handle unexpected EOF gracefully
+     19:                 }
+     20:                 System.out.println(line);
+     21:             }
+     22:         } catch (IOException ex) {
+     23:             // Generate an opaque error ID for logging
+     24:             String errorId = java.util.UUID.randomUUID().toString();
+     25:             // Log detailed error securely (stack trace only in debug mode)
+     26:             if (logger.isLoggable(java.util.logging.Level.FINE)) {
+     27:                 logger.log(java.util.logging.Level.FINE, "IOException occurred", ex);
+     28:             } else {
+     29:                 logger.severe("IOException occurred (Error ID: " + errorId + ")");
+     30:             }
+     31:             // Return a generic error message to the user
+     32:             System.err.println("An error occurred while reading the file.");
+     33:         }
+     34:     }
+     35: }
+  ```
+Case #223
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #225
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #224
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #227
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #229
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #217
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #228
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #231
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #230
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #236
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #237
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #235
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #239
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #226
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #234
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #233
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #240
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #232
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #238
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #243
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #242
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #248
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #241
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #247
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #250
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #252
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #244
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #245
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #246
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #253
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #254
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #251
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #255
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #257
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #258
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #259
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #261
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #249
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #262
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #256
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #266
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #268
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #269
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #270
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #264
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #271
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #272
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #267
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #273
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #260
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #263
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #276
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #265
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #277
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #279
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #282
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #283
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #275
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #278
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #287
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #280
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #274
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #290
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #281
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #285
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #293
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #286
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #288
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #284
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #289
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #291
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #292
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #298
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #294
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #299
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #296
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #300
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #302
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #295
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #301
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #297
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #306
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #305
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #307
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #311
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #304
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #312
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #315
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #303
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #318
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #310
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #308
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #317
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #309
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #320
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #323
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #324
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #319
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #313
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #316
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #321
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #314
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #325
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #327
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #331
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #330
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #328
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #336
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #335
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #322
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #326
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #338
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #333
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #332
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #337
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #341
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #340
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #329
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #334
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #343
+- Before: 5
+- After:  0
+- Status: CLEAN
+Case #345
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #346
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #339
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #342
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #344
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #349
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #350
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #347
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #361
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #362
+- Before: 5
+- After:  0
+- Status: CLEAN
+Case #358
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #351
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #348
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #352
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #357
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #356
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #360
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #354
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #355
+- Before: 3
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L63-65
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     60:                 oos.flush();
+     61:                 
+     62:                 // Read back using secure deserialization
+     63:                 try (ObjectInputStream ois = new ObjectInputStream(
+     64:                         Files.newInputStream(tempFile,
+     65:                                 StandardOpenOption.READ))) {
+     66:                     
+     67:                     // Security improvement: Use allowlist for allowed classes
+     68:                     ois.setObjectInputFilter(createAllowlistFilter());
+  ```
+Case #353
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #359
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #363
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #364
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #368
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #373
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #366
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #371
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #367
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #370
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #365
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #379
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #378
+- Before: 4
+- After:  0
+- Status: CLEAN
+Case #369
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #377
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #383
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #376
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #374
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #372
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #384
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #381
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #385
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #375
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #387
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #380
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #389
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #386
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #382
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #391
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #392
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #390
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #396
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #398
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #394
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #399
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #400
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #393
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #401
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #388
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #405
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #403
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #404
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #395
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #397
+- Before: 2
+- After:  1
+- Status: IMPROVED
+
+Remaining vulnerabilities:
+- [1] Scanner=semgrep, CWE-502, Lines=L71-71
+  Reason: Found object deserialization using ObjectInputStream. Deserializing entire Java objects is dangerous because malicious actors can create Java object streams with unintended consequences. Ensure that the objects being deserialized are not user-controlled. If this must be done, consider using HMACs to sign the data stream to make sure it is not tampered with, or consider only transmitting object fields and populating a new object.
+  Code snippet:
+  ```
+     68:         }
+     69: 
+     70:         // Deserialize safely
+     71:         ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(content));
+     72:         T result = (T) ois.readObject();
+     73:         ois.close();
+     74:         return result;
+  ```
+Case #407
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #409
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #410
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #408
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #411
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #415
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #402
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #414
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #412
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #406
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #423
+- Before: 1
+- After:  0
+- Status: CLEAN
+Case #424
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #420
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #421
+- Before: 2
+- After:  0
+- Status: CLEAN
+Case #416
+- Before: 1
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #417
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #418
+- Before: 0
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Case #422
+- Before: 0
+- After:  0
+- Status: CLEAN
+Case #419
+- Before: 3
+- After:  0
+- Status: CLEAN
+Case #413
+- Before: 2
+- After:  0
+- Status: CLEAN
+
+False Positives:
+- semgrep CWE-78 rule=java.lang.security.audit.command-injection-process-builder.command-injection-process-builder
+Summary
+=====
+Total:    424
+Clean:    410
+Improved: 11
+Same:     3
+Worse:    0

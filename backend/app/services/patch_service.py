@@ -379,7 +379,7 @@ class PatchService:
 
             # 4) 언어별 특정 스캐너로 재스캔
             specific_scanners = (
-                ["bandit", "semgrep"] if language == Language.PYTHON else ["codeql", "semgrep"]
+                ["dlint", "bandit", "semgrep", "codeql"] if language == Language.PYTHON else ["semgrep", "codeql", "spotbugs"]
             )
 
             rescan_req = ScanRequest(
